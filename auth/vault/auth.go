@@ -22,6 +22,7 @@ type Auth struct {
 
 var _ tgflow.UserAuthenticator = Auth{}
 
+// NewAuth creates new Auth.
 func NewAuth(code tgflow.CodeAuthenticator, client *api.Client, path string) Auth {
 	return Auth{
 		CodeAuthenticator: code,
