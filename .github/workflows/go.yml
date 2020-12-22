@@ -1,0 +1,41 @@
+name: Go
+
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go 1.15
+      uses: actions/setup-go@v2.1.3
+      with:
+        go-version: 1.15
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: |
+        go mod download
+
+    - name: Go generate
+      run: |
+        go generate ./...
+        
+    - name: Run tests
+      run: |
+        go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+  
+    - name: Upload coverage to Codecov  
+      uses: codecov/codecov-action@v1
+
+    - name: Build
+      run: go build -v .
