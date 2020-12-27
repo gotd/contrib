@@ -1,4 +1,4 @@
-name: Go
+name: e2e
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Run E2E tests
     runs-on: ubuntu-latest
     services:
       vault:
@@ -18,7 +18,6 @@ jobs:
         ports:
           - 8200:8200
         env:
-          VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
           VAULT_DEV_ROOT_TOKEN_ID: testtoken
 
     steps:
@@ -42,7 +41,7 @@ jobs:
       - name: Run tests
         env:
           TGCONTRIB_VAULT_E2E_RUNNER: local_vault
-          VAULT_ADDR: "http://vault:8200"
+          VAULT_ADDR: "http://localhost:8200"
           VAULT_TOKEN: "testtoken"
         run: |
           go test -race -coverprofile=coverage.txt -covermode=atomic ./...
