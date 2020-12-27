@@ -14,12 +14,10 @@ type vaultClient struct {
 	*api.Client
 }
 
-func (c vaultClient) put(ctx context.Context, path, key, value string) error {
+func (c vaultClient) putAll(ctx context.Context, path string, data map[string]interface{}) error {
 	req := c.NewRequest("PUT", "/v1/"+path)
 
-	err := req.SetJSONBody(map[string]interface{}{
-		key: value,
-	})
+	err := req.SetJSONBody(data)
 	if err != nil {
 		return fmt.Errorf("request encode: %w", err)
 	}
@@ -37,7 +35,27 @@ func (c vaultClient) put(ctx context.Context, path, key, value string) error {
 	return nil
 }
 
-func (c vaultClient) get(ctx context.Context, path, key string) (string, error) {
+func (c vaultClient) put(ctx context.Context, path, key, value string) error {
+	return c.putAll(ctx, path, map[string]interface{}{
+		key: value,
+	})
+}
+
+func (c vaultClient) add(ctx context.Context, path, key, value string) error {
+	s, err := c.getAll(ctx, path, key)
+	data := map[string]interface{}{}
+	if err != nil && !errors.Is(err, errSecretNotFound) {
+		return err
+	}
+	if err == nil {
+		data = s.Data
+	}
+
+	data[key] = value
+	return c.putAll(ctx, path, data)
+}
+
+func (c vaultClient) getAll(ctx context.Context, path, key string) (*api.Secret, error) {
 	req := c.NewRequest("GET", "/v1/"+path)
 
 	resp, err := c.RawRequestWithContext(ctx, req)
@@ -47,15 +65,24 @@ func (c vaultClient) get(ctx context.Context, path, key string) (string, error) 
 		}()
 	}
 	if resp != nil && resp.StatusCode == 404 {
-		return "", errSecretNotFound
+		return nil, errSecretNotFound
 	}
 	if err != nil {
-		return "", fmt.Errorf("secret fetch: %w", err)
+		return nil, fmt.Errorf("secret fetch: %w", err)
 	}
 
 	secret, err := api.ParseSecret(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("secret parsing: %w", err)
+		return nil, fmt.Errorf("secret parsing: %w", err)
+	}
+
+	return secret, nil
+}
+
+func (c vaultClient) get(ctx context.Context, path, key string) (string, error) {
+	secret, err := c.getAll(ctx, path, key)
+	if err != nil {
+		return "", err
 	}
 
 	data, ok := secret.Data[key]

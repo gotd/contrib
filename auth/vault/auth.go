@@ -3,7 +3,7 @@ package vault
 import (
 	"context"
 
-	"github.com/gotd/td/telegram/tgflow"
+	"github.com/gotd/td/telegram"
 	"github.com/hashicorp/vault/api"
 )
 
@@ -12,18 +12,18 @@ const (
 	passwordKey = "password"
 )
 
-// Auth is tgflow.UserAuthenticator implementation
+// Auth is telegram.UserAuthenticator implementation
 type Auth struct {
-	tgflow.CodeAuthenticator
+	telegram.CodeAuthenticator
 
 	vault vaultClient
 	path  string
 }
 
-var _ tgflow.UserAuthenticator = Auth{}
+var _ telegram.UserAuthenticator = Auth{}
 
 // NewAuth creates new Auth.
-func NewAuth(code tgflow.CodeAuthenticator, client *api.Client, path string) Auth {
+func NewAuth(code telegram.CodeAuthenticator, client *api.Client, path string) Auth {
 	return Auth{
 		CodeAuthenticator: code,
 		vault:             vaultClient{Client: client},
@@ -33,12 +33,12 @@ func NewAuth(code tgflow.CodeAuthenticator, client *api.Client, path string) Aut
 
 // SavePhone stores given phone to the Vault.
 func (a Auth) SavePhone(ctx context.Context, phone string) error {
-	return a.vault.put(ctx, a.path, phoneKey, phone)
+	return a.vault.add(ctx, a.path, phoneKey, phone)
 }
 
 // SavePassword stores given password to the Vault.
 func (a Auth) SavePassword(ctx context.Context, password string) error {
-	return a.vault.put(ctx, a.path, passwordKey, password)
+	return a.vault.add(ctx, a.path, passwordKey, password)
 }
 
 // Phone loads phone from the Vault.
