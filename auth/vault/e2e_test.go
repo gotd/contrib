@@ -177,6 +177,8 @@ func testUsingLocalBinary(test func(*testing.T, *api.Client)) func(t *testing.T)
 
 		cmd := exec.Command(binaryPath, e.Cmd[1:]...)
 		cmd.Env = append(e.Env, os.Environ()...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		if err := cmd.Start(); err != nil {
 			t.Fatalf("Failed to start %s", binaryPath)
 		}
@@ -186,7 +188,7 @@ func testUsingLocalBinary(test func(*testing.T, *api.Client)) func(t *testing.T)
 			}
 		})
 
-		addr := "localhost:8200" // TODO:(tdakkota) set addr randomly
+		addr := "http://localhost:8200" // TODO:(tdakkota) set addr randomly
 		runTest(t, addr, e.Token, test)
 	}
 }
@@ -204,6 +206,8 @@ func e2etest(t *testing.T, client *api.Client) {
 
 	data := []byte("mytoken")
 	storage := vault.NewSessionStorage(client, "cubbyhole/test", "testtoken")
+	_, err := storage.LoadSession(ctx)
+	a.Error(err, "no session expected")
 	a.NoError(storage.StoreSession(ctx, data))
 
 	vaultData, err := storage.LoadSession(ctx)
