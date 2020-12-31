@@ -5,9 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"github.com/cenkalti/backoff/v4"
-	"github.com/stretchr/testify/require"
-	"github.com/tdakkota/tgcontrib/auth/vault"
 	"io"
 	"net/url"
 	"os"
@@ -16,9 +13,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/vault/api"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
+	"github.com/stretchr/testify/require"
+
+	"github.com/tdakkota/tgcontrib/auth/vault"
 )
 
 func generateToken(r io.Reader) (string, error) {
