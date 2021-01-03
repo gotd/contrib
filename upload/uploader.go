@@ -68,27 +68,32 @@ func (u *Uploader) Upload(ctx context.Context, upld *Upload) (tg.InputFileClass,
 	}
 
 	buf := make([]byte, u.partSize)
+	last := false
 	hash := md5.New()
 	for {
-		_, err := upld.from.Read(buf)
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
+		_, err := io.ReadFull(upld.from, buf)
+		switch {
+		case errors.Is(err, io.ErrUnexpectedEOF):
+			last = true
+		case err != nil:
 			return nil, xerrors.Errorf("read source: %w", err)
 		}
 		_, _ = hash.Write(buf)
 
+	retryUpload:
 		r, err := u.rpc.UploadSaveFilePart(ctx, upld.nextPart(buf))
 		if err != nil {
 			return nil, xerrors.Errorf("send upload RPC: %w", err)
 		}
 
 		if !r {
-			continue
+			goto retryUpload
 		}
 
 		upld.uploaded++
+		if last {
+			break
+		}
 	}
 
 	return upld.fileObject(hash.Sum(buf[:0]))

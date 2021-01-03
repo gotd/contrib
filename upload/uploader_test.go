@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/png"
 	"testing"
+	"testing/iotest"
 	"time"
 
 	"github.com/gotd/td/telegram"
@@ -46,7 +47,8 @@ func testUploader(creator Image) func(t *testing.T) {
 		t.Log("size of image", img.Len(), "bytes")
 
 		raw := tg.NewClient(client)
-		f, err := NewUploader(raw).Upload(ctx, NewUpload("abc.jpg", img))
+		upld := NewUpload("abc.jpg", iotest.HalfReader(img))
+		f, err := NewUploader(raw).WithPartSize(2048).Upload(ctx, upld)
 		a.NoError(err)
 
 		req := &tg.PhotosUploadProfilePhotoRequest{}
