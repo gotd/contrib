@@ -3,7 +3,6 @@ package upload
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
 	"image"
 	"image/color"
 	"image/png"
@@ -12,38 +11,33 @@ import (
 	"time"
 
 	"github.com/gotd/td/telegram"
+
 	"github.com/gotd/td/tg"
 	"github.com/stretchr/testify/require"
+
+	"github.com/tdakkota/tgcontrib/creator"
 )
 
 type Image func() *image.RGBA
 
-func testUploader(creator Image) func(t *testing.T) {
+func testUploader(gen Image) func(t *testing.T) {
 	return func(t *testing.T) {
 		a := require.New(t)
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
 
-		client := telegram.NewClient(telegram.TestAppID, telegram.TestAppHash, telegram.Options{
-			Addr: telegram.AddrTest,
-		})
-
-		a.NoError(client.Connect(ctx))
+		client, err := creator.TestClient(ctx, telegram.Options{})
+		a.NoError(err)
 		defer func() {
 			_ = client.Close()
 		}()
 
-		a.NoError(telegram.NewAuth(
-			telegram.TestAuth(rand.Reader, 2),
-			telegram.SendCodeOptions{},
-		).Run(ctx, client))
-
-		_, err := client.Self(ctx)
+		_, err = client.Self(ctx)
 		a.NoError(err)
 
 		img := bytes.NewBuffer(nil)
-		a.NoError(png.Encode(img, creator()))
+		a.NoError(png.Encode(img, gen()))
 		t.Log("size of image", img.Len(), "bytes")
 
 		raw := tg.NewClient(client)
