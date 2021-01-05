@@ -6,6 +6,10 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/gotd/td/session"
+
+	"github.com/tdakkota/tgcontrib/auth/terminal"
+
 	"github.com/tdakkota/tgcontrib/auth"
 	"github.com/tdakkota/tgcontrib/auth/env"
 
@@ -48,7 +52,7 @@ func OptionsFromEnvironment(opts telegram.Options) (telegram.Options, error) {
 			return telegram.Options{}, xerrors.Errorf("session dir creation: %w", err)
 		}
 
-		opts.SessionStorage = &telegram.FileSessionStorage{
+		opts.SessionStorage = &session.FileStorage{
 			Path: sessionFile,
 		}
 	}
@@ -83,63 +87,53 @@ func ClientFromEnvironment(opts telegram.Options) (*telegram.Client, error) {
 
 // BotFromEnvironment creates bot client using environment variables
 // connects to server and authenticates it.
-func BotFromEnvironment(ctx context.Context, opts telegram.Options) (client *telegram.Client, err error) {
-	client, err = ClientFromEnvironment(opts)
+func BotFromEnvironment(ctx context.Context, opts telegram.Options, cb ClientCallback) error {
+	client, err := ClientFromEnvironment(opts)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if err := client.Connect(ctx); err != nil {
-		return nil, xerrors.Errorf("connect failed: %w", err)
-	}
-	defer func() {
+	return client.Run(ctx, func(ctx context.Context) error {
+		status, err := client.AuthStatus(ctx)
 		if err != nil {
-			_ = client.Close()
+			return xerrors.Errorf("auth status: %w", err)
 		}
-	}()
 
-	status, err := client.AuthStatus(ctx)
-	if err != nil {
-		return nil, xerrors.Errorf("auth status: %w", err)
-	}
-
-	if !status.Authorized {
-		if err := client.AuthBot(ctx, os.Getenv("BOT_TOKEN")); err != nil {
-			return nil, xerrors.Errorf("login: %w", err)
+		if !status.Authorized {
+			if err := client.AuthBot(ctx, os.Getenv("BOT_TOKEN")); err != nil {
+				return xerrors.Errorf("login: %w", err)
+			}
 		}
-	}
 
-	return client, nil
+		return cb(ctx, client)
+	})
 }
 
 // UserFromEnvironment creates user client using environment variables
 // connects to server and authenticates it.
-func UserFromEnvironment(ctx context.Context, opts telegram.Options, ask auth.Ask) (client *telegram.Client, err error) {
-	client, err = ClientFromEnvironment(opts)
+func UserFromEnvironment(ctx context.Context, opts telegram.Options, ask auth.Ask, cb ClientCallback) error {
+	client, err := ClientFromEnvironment(opts)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if err := client.Connect(ctx); err != nil {
-		return nil, xerrors.Errorf("connect failed: %w", err)
+	if ask == nil {
+		ask = terminal.NewTerminal()
 	}
-	defer func() {
+
+	return client.Run(ctx, func(ctx context.Context) error {
+		status, err := client.AuthStatus(ctx)
 		if err != nil {
-			_ = client.Close()
+			return xerrors.Errorf("auth status: %w", err)
 		}
-	}()
 
-	status, err := client.AuthStatus(ctx)
-	if err != nil {
-		return nil, xerrors.Errorf("auth status: %w", err)
-	}
-
-	if !status.Authorized {
-		flow := telegram.NewAuth(auth.Build(env.Credentials(), ask), telegram.SendCodeOptions{})
-		if err := flow.Run(ctx, client); err != nil {
-			return nil, xerrors.Errorf("login: %w", err)
+		if !status.Authorized {
+			flow := telegram.NewAuth(auth.Build(env.Credentials(), ask), telegram.SendCodeOptions{})
+			if err := flow.Run(ctx, client); err != nil {
+				return xerrors.Errorf("login: %w", err)
+			}
 		}
-	}
 
-	return client, nil
+		return cb(ctx, client)
+	})
 }

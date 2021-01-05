@@ -10,27 +10,20 @@ import (
 
 // TestClient creates and authenticates user telegram.Client
 // using Telegram staging server.
-func TestClient(ctx context.Context, opts telegram.Options) (_ *telegram.Client, err error) {
+func TestClient(ctx context.Context, opts telegram.Options, cb ClientCallback) error {
 	if opts.Addr == "" {
 		opts.Addr = telegram.AddrTest
 	}
 
 	client := telegram.NewClient(telegram.TestAppID, telegram.TestAppHash, opts)
-	if err := client.Connect(ctx); err != nil {
-		return nil, xerrors.Errorf("connect: %w", err)
-	}
-	defer func() {
-		if err != nil {
-			_ = client.Close()
+	return client.Run(ctx, func(ctx context.Context) error {
+		if err := telegram.NewAuth(
+			telegram.TestAuth(rand.Reader, 2),
+			telegram.SendCodeOptions{},
+		).Run(ctx, client); err != nil {
+			return xerrors.Errorf("auth flow: %w", err)
 		}
-	}()
 
-	if err := telegram.NewAuth(
-		telegram.TestAuth(rand.Reader, 2),
-		telegram.SendCodeOptions{},
-	).Run(ctx, client); err != nil {
-		return nil, xerrors.Errorf("auth flow: %w", err)
-	}
-
-	return client, nil
+		return cb(ctx, client)
+	})
 }

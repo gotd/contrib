@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/session"
+
 	"github.com/hashicorp/vault/api"
 )
 
-var _ telegram.SessionStorage = SessionStorage{}
+var _ session.Storage = SessionStorage{}
 
 // SessionStorage is a MTProto session Vault storage.
 type SessionStorage struct {
@@ -25,15 +26,15 @@ func NewSessionStorage(client *api.Client, path string, key string) SessionStora
 
 // LoadSession loads session from Vault.
 func (s SessionStorage) LoadSession(ctx context.Context) ([]byte, error) {
-	session, err := s.vault.get(ctx, s.path, s.key)
+	data, err := s.vault.get(ctx, s.path, s.key)
 	if err != nil {
 		if errors.Is(err, errSecretNotFound) {
-			return nil, telegram.ErrSessionNotFound
+			return nil, session.ErrNotFound
 		}
 		return nil, fmt.Errorf("load session: %w", err)
 	}
 
-	return []byte(session), nil
+	return []byte(data), nil
 }
 
 // StoreSession stores session to Vault.

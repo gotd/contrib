@@ -10,6 +10,8 @@ import (
 	"testing/iotest"
 	"time"
 
+	"golang.org/x/xerrors"
+
 	"github.com/gotd/td/telegram"
 
 	"github.com/gotd/td/tg"
@@ -27,31 +29,37 @@ func testUploader(gen Image) func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
 
-		client, err := creator.TestClient(ctx, telegram.Options{})
+		err := creator.TestClient(ctx, telegram.Options{}, func(ctx context.Context, client *telegram.Client) error {
+			if _, err := client.Self(ctx); err != nil {
+				return xerrors.Errorf("self: %w", err)
+			}
+
+			img := bytes.NewBuffer(nil)
+			if err := png.Encode(img, gen()); err != nil {
+				return xerrors.Errorf("png encode: %w", err)
+			}
+			t.Log("size of image", img.Len(), "bytes")
+
+			raw := tg.NewClient(client)
+			upld := NewUpload("abc.jpg", iotest.HalfReader(img))
+			f, err := NewUploader(raw).WithPartSize(2048).Upload(ctx, upld)
+			if err != nil {
+				return xerrors.Errorf("upload: %w", err)
+			}
+
+			req := &tg.PhotosUploadProfilePhotoRequest{}
+			req.SetFile(f)
+			res, err := raw.PhotosUploadProfilePhoto(ctx, req)
+			if err != nil {
+				return xerrors.Errorf("change profile photo: %w", err)
+			}
+
+			_, ok := res.Photo.(*tg.Photo)
+			a.Truef(ok, "unexpected type %T", res.Photo)
+			return nil
+		})
+
 		a.NoError(err)
-		defer func() {
-			_ = client.Close()
-		}()
-
-		_, err = client.Self(ctx)
-		a.NoError(err)
-
-		img := bytes.NewBuffer(nil)
-		a.NoError(png.Encode(img, gen()))
-		t.Log("size of image", img.Len(), "bytes")
-
-		raw := tg.NewClient(client)
-		upld := NewUpload("abc.jpg", iotest.HalfReader(img))
-		f, err := NewUploader(raw).WithPartSize(2048).Upload(ctx, upld)
-		a.NoError(err)
-
-		req := &tg.PhotosUploadProfilePhotoRequest{}
-		req.SetFile(f)
-		res, err := raw.PhotosUploadProfilePhoto(ctx, req)
-		a.NoError(err)
-
-		_, ok := res.Photo.(*tg.Photo)
-		a.Truef(ok, "unexpected type %T", res.Photo)
 	}
 }
 
