@@ -2,13 +2,12 @@ package vault
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"github.com/hashicorp/vault/api"
+	"golang.org/x/xerrors"
 )
 
-var errSecretNotFound = errors.New("secret not found")
+var errSecretNotFound = xerrors.New("secret not found")
 
 type vaultClient struct {
 	*api.Client
@@ -19,7 +18,7 @@ func (c vaultClient) putAll(ctx context.Context, path string, data map[string]in
 
 	err := req.SetJSONBody(data)
 	if err != nil {
-		return fmt.Errorf("request encode: %w", err)
+		return xerrors.Errorf("request encode: %w", err)
 	}
 
 	resp, err := c.RawRequestWithContext(ctx, req)
@@ -29,7 +28,7 @@ func (c vaultClient) putAll(ctx context.Context, path string, data map[string]in
 		}()
 	}
 	if err != nil {
-		return fmt.Errorf("secret send: %w", err)
+		return xerrors.Errorf("secret send: %w", err)
 	}
 
 	return nil
@@ -44,7 +43,7 @@ func (c vaultClient) put(ctx context.Context, path, key, value string) error {
 func (c vaultClient) add(ctx context.Context, path, key, value string) error {
 	s, err := c.getAll(ctx, path, key)
 	data := map[string]interface{}{}
-	if err != nil && !errors.Is(err, errSecretNotFound) {
+	if err != nil && !xerrors.Is(err, errSecretNotFound) {
 		return err
 	}
 	if err == nil {
@@ -68,12 +67,12 @@ func (c vaultClient) getAll(ctx context.Context, path, key string) (*api.Secret,
 		return nil, errSecretNotFound
 	}
 	if err != nil {
-		return nil, fmt.Errorf("secret fetch: %w", err)
+		return nil, xerrors.Errorf("secret fetch: %w", err)
 	}
 
 	secret, err := api.ParseSecret(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("secret parsing: %w", err)
+		return nil, xerrors.Errorf("secret parsing: %w", err)
 	}
 
 	return secret, nil
@@ -92,7 +91,7 @@ func (c vaultClient) get(ctx context.Context, path, key string) (string, error) 
 
 	session, ok := data.(string)
 	if !ok {
-		return "", fmt.Errorf("expected %q have string type, got %T", key, data)
+		return "", xerrors.Errorf("expected %q have string type, got %T", key, data)
 	}
 
 	return session, nil

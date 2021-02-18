@@ -2,10 +2,10 @@ package auth
 
 import (
 	"context"
-	"errors"
 
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
+	"golang.org/x/xerrors"
 )
 
 // SignUpFlow is abstraction for user signup setup.
@@ -38,7 +38,7 @@ func ConstantSignUp(info telegram.UserInfo) SignUpFlow {
 
 // ErrSignUpIsNotExpected is returned, when sign up request from Telegram server
 // is not expected.
-var ErrSignUpIsNotExpected = errors.New("signup call is not expected")
+var ErrSignUpIsNotExpected = xerrors.New("signup call is not expected")
 
 type noSignUp struct{}
 

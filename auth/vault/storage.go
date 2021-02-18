@@ -2,12 +2,10 @@ package vault
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"github.com/gotd/td/session"
-
 	"github.com/hashicorp/vault/api"
+	"golang.org/x/xerrors"
 )
 
 var _ session.Storage = SessionStorage{}
@@ -20,7 +18,7 @@ type SessionStorage struct {
 }
 
 // NewSessionStorage creates new SessionStorage.
-func NewSessionStorage(client *api.Client, path string, key string) SessionStorage {
+func NewSessionStorage(client *api.Client, path, key string) SessionStorage {
 	return SessionStorage{vault: vaultClient{client}, path: path, key: key}
 }
 
@@ -28,10 +26,10 @@ func NewSessionStorage(client *api.Client, path string, key string) SessionStora
 func (s SessionStorage) LoadSession(ctx context.Context) ([]byte, error) {
 	data, err := s.vault.get(ctx, s.path, s.key)
 	if err != nil {
-		if errors.Is(err, errSecretNotFound) {
+		if xerrors.Is(err, errSecretNotFound) {
 			return nil, session.ErrNotFound
 		}
-		return nil, fmt.Errorf("load session: %w", err)
+		return nil, xerrors.Errorf("load session: %w", err)
 	}
 
 	return []byte(data), nil
@@ -40,7 +38,7 @@ func (s SessionStorage) LoadSession(ctx context.Context) ([]byte, error) {
 // StoreSession stores session to Vault.
 func (s SessionStorage) StoreSession(ctx context.Context, data []byte) error {
 	if err := s.vault.put(ctx, s.path, s.key, string(data)); err != nil {
-		return fmt.Errorf("store session: %w", err)
+		return xerrors.Errorf("store session: %w", err)
 	}
 
 	return nil
