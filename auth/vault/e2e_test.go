@@ -215,7 +215,7 @@ func e2etest(t *testing.T, client *api.Client) {
 	a.NoError(err)
 	a.Equal(data, vaultData)
 
-	auth := vault.NewAuth(nil, client, "cubbyhole/authtest")
+	auth := vault.NewCredentials(client, "cubbyhole/authtest")
 	phone, password := "phone", "password"
 	a.NoError(auth.SavePhone(ctx, phone))
 	a.NoError(auth.SavePassword(ctx, password))
