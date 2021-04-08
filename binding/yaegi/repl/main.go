@@ -11,11 +11,12 @@ import (
 
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/telegram/dcs"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 
-	"github.com/tdakkota/tgcontrib/auth/terminal"
-	"github.com/tdakkota/tgcontrib/binding/yaegi"
+	"github.com/gotd/contrib/auth/terminal"
+	"github.com/gotd/contrib/binding/yaegi"
 )
 
 func setupInterp(ctx context.Context, client *telegram.Client) (*interp.Interpreter, error) {
@@ -42,10 +43,13 @@ func run(ctx context.Context) error {
 	options := telegram.Options{}
 
 	sessionFile := flag.String("session", "", "path to session file")
+	testDC := flag.Bool("test", false, "use test DC list")
 	flag.IntVar(&options.DC, "dc", 2, "Telegram DC ID")
-	flag.StringVar(&options.Addr, "addr", telegram.AddrProduction, "Telegram DC address")
 	if sessionFile != nil && *sessionFile != "" {
 		options.SessionStorage = &session.FileStorage{Path: *sessionFile}
+	}
+	if *testDC {
+		options.DCList = dcs.StagingDCs()
 	}
 
 	client, err := telegram.ClientFromEnvironment(options)

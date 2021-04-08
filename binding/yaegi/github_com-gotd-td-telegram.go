@@ -4,11 +4,13 @@ package yaegi
 
 import (
 	"context"
+	"github.com/gotd/td/bin"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
 	"github.com/gotd/td/transport"
 	"go/constant"
 	"go/token"
+	"net"
 	"reflect"
 )
 
@@ -17,17 +19,20 @@ func init() {
 		// function, constant and variable definitions
 		"AddrProduction":         reflect.ValueOf(constant.MakeFromLiteral("\"149.154.167.50:443\"", token.STRING, 0)),
 		"AddrTest":               reflect.ValueOf(constant.MakeFromLiteral("\"149.154.167.40:443\"", token.STRING, 0)),
+		"AsFloodWait":            reflect.ValueOf(telegram.AsFloodWait),
 		"BotFromEnvironment":     reflect.ValueOf(telegram.BotFromEnvironment),
 		"ClientFromEnvironment":  reflect.ValueOf(telegram.ClientFromEnvironment),
 		"CodeOnlyAuth":           reflect.ValueOf(telegram.CodeOnlyAuth),
 		"ConstantAuth":           reflect.ValueOf(telegram.ConstantAuth),
 		"EnvAuth":                reflect.ValueOf(telegram.EnvAuth),
+		"ErrFloodWait":           reflect.ValueOf(constant.MakeFromLiteral("\"FLOOD_WAIT\"", token.STRING, 0)),
 		"ErrPasswordAuthNeeded":  reflect.ValueOf(&telegram.ErrPasswordAuthNeeded).Elem(),
 		"ErrPasswordNotProvided": reflect.ValueOf(&telegram.ErrPasswordNotProvided).Elem(),
 		"NewAuth":                reflect.ValueOf(telegram.NewAuth),
 		"NewClient":              reflect.ValueOf(telegram.NewClient),
 		"OptionsFromEnvironment": reflect.ValueOf(telegram.OptionsFromEnvironment),
 		"Port":                   reflect.ValueOf(constant.MakeFromLiteral("443", token.INT, 0)),
+		"RunUntilCanceled":       reflect.ValueOf(telegram.RunUntilCanceled),
 		"TestAppHash":            reflect.ValueOf(constant.MakeFromLiteral("\"344583e45741c457fe1862106095a5eb\"", token.STRING, 0)),
 		"TestAppID":              reflect.ValueOf(constant.MakeFromLiteral("17349", token.INT, 0)),
 		"TestAuth":               reflect.ValueOf(telegram.TestAuth),
@@ -38,6 +43,7 @@ func init() {
 		"AuthFlowClient":        reflect.ValueOf((*telegram.AuthFlowClient)(nil)),
 		"AuthStatus":            reflect.ValueOf((*telegram.AuthStatus)(nil)),
 		"Client":                reflect.ValueOf((*telegram.Client)(nil)),
+		"CloseInvoker":          reflect.ValueOf((*telegram.CloseInvoker)(nil)),
 		"CodeAuthenticator":     reflect.ValueOf((*telegram.CodeAuthenticator)(nil)),
 		"CodeAuthenticatorFunc": reflect.ValueOf((*telegram.CodeAuthenticatorFunc)(nil)),
 		"DeviceConfig":          reflect.ValueOf((*telegram.DeviceConfig)(nil)),
@@ -55,6 +61,7 @@ func init() {
 
 		// interface wrapper definitions
 		"_AuthFlowClient":    reflect.ValueOf((*_github_com_gotd_td_telegram_AuthFlowClient)(nil)),
+		"_CloseInvoker":      reflect.ValueOf((*_github_com_gotd_td_telegram_CloseInvoker)(nil)),
 		"_CodeAuthenticator": reflect.ValueOf((*_github_com_gotd_td_telegram_CodeAuthenticator)(nil)),
 		"_SessionStorage":    reflect.ValueOf((*_github_com_gotd_td_telegram_SessionStorage)(nil)),
 		"_Transport":         reflect.ValueOf((*_github_com_gotd_td_telegram_Transport)(nil)),
@@ -84,6 +91,17 @@ func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSignUp(ctx context.Cont
 	return W.WAuthSignUp(ctx, s)
 }
 
+// _github_com_gotd_td_telegram_CloseInvoker is an interface wrapper for CloseInvoker type
+type _github_com_gotd_td_telegram_CloseInvoker struct {
+	WClose     func() error
+	WInvokeRaw func(ctx context.Context, input bin.Encoder, output bin.Decoder) error
+}
+
+func (W _github_com_gotd_td_telegram_CloseInvoker) Close() error { return W.WClose() }
+func (W _github_com_gotd_td_telegram_CloseInvoker) InvokeRaw(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+	return W.WInvokeRaw(ctx, input, output)
+}
+
 // _github_com_gotd_td_telegram_CodeAuthenticator is an interface wrapper for CodeAuthenticator type
 type _github_com_gotd_td_telegram_CodeAuthenticator struct {
 	WCode func(ctx context.Context) (string, error)
@@ -108,13 +126,13 @@ func (W _github_com_gotd_td_telegram_SessionStorage) StoreSession(ctx context.Co
 
 // _github_com_gotd_td_telegram_Transport is an interface wrapper for Transport type
 type _github_com_gotd_td_telegram_Transport struct {
-	WCodec       func() transport.Codec
-	WDialContext func(ctx context.Context, network string, address string) (transport.Conn, error)
+	WCodec     func() transport.Codec
+	WHandshake func(conn net.Conn) (transport.Conn, error)
 }
 
 func (W _github_com_gotd_td_telegram_Transport) Codec() transport.Codec { return W.WCodec() }
-func (W _github_com_gotd_td_telegram_Transport) DialContext(ctx context.Context, network string, address string) (transport.Conn, error) {
-	return W.WDialContext(ctx, network, address)
+func (W _github_com_gotd_td_telegram_Transport) Handshake(conn net.Conn) (transport.Conn, error) {
+	return W.WHandshake(conn)
 }
 
 // _github_com_gotd_td_telegram_UpdateHandler is an interface wrapper for UpdateHandler type

@@ -19,7 +19,7 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tdakkota/tgcontrib/auth/vault"
+	"github.com/gotd/contrib/auth/vault"
 )
 
 func generateToken(r io.Reader) (string, error) {

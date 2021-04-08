@@ -17,7 +17,6 @@ func init() {
 		"Abridged":              reflect.ValueOf(transport.Abridged),
 		"Full":                  reflect.ValueOf(transport.Full),
 		"Intermediate":          reflect.ValueOf(transport.Intermediate),
-		"MTProxy":               reflect.ValueOf(transport.MTProxy),
 		"NewCustomServer":       reflect.ValueOf(transport.NewCustomServer),
 		"NewFullServer":         reflect.ValueOf(transport.NewFullServer),
 		"NewIntermediateServer": reflect.ValueOf(transport.NewIntermediateServer),

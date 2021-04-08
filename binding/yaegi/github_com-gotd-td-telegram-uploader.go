@@ -49,12 +49,10 @@ func (W _github_com_gotd_td_telegram_uploader_Client) UploadSaveFilePart(ctx con
 
 // _github_com_gotd_td_telegram_uploader_File is an interface wrapper for File type
 type _github_com_gotd_td_telegram_uploader_File struct {
-	WName func() string
 	WRead func(p []byte) (n int, err error)
 	WStat func() (fs.FileInfo, error)
 }
 
-func (W _github_com_gotd_td_telegram_uploader_File) Name() string { return W.WName() }
 func (W _github_com_gotd_td_telegram_uploader_File) Read(p []byte) (n int, err error) {
 	return W.WRead(p)
 }
