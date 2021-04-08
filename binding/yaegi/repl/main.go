@@ -9,11 +9,12 @@ import (
 	"os/signal"
 	"reflect"
 
+	"github.com/traefik/yaegi/interp"
+	"github.com/traefik/yaegi/stdlib"
+
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/dcs"
-	"github.com/traefik/yaegi/interp"
-	"github.com/traefik/yaegi/stdlib"
 
 	"github.com/gotd/contrib/auth/terminal"
 	"github.com/gotd/contrib/binding/yaegi"
@@ -50,7 +51,10 @@ func parseOptions() (telegram.Options, *flag.FlagSet) {
 }
 
 func run(ctx context.Context) error {
-	options := telegram.Options{}
+	options, set := parseOptions()
+	if err := set.Parse(os.Args[1:]); err != nil {
+		return err
+	}
 
 	sessionFile := flag.String("session", "", "Path to session file")
 	testDC := flag.Bool("test", false, "Use test DC list")
