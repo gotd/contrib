@@ -1,0 +1,44 @@
+name: E2E
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      vault:
+        image: "vault:latest"
+        ports:
+          - 8200:8200
+        env:
+          VAULT_DEV_ROOT_TOKEN_ID: testtoken
+    strategy:
+      matrix:
+        golang:
+          - 1.16
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.golang }}
+      - uses: actions/cache@v2.1.4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.golang }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.golang }}-
+      - name: Run tests
+        env:
+          TGCONTRIB_VAULT_E2E_RUNNER: local_vault
+          VAULT_ADDR: "http://localhost:8200"
+          VAULT_TOKEN: "testtoken"
+        run: go test -race -v -run ^TestE2E ./...

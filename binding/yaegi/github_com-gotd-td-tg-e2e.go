@@ -93,10 +93,11 @@ func init() {
 		"MessageEntityPhoneTypeID":                       reflect.ValueOf(constant.MakeFromLiteral("2607407947", token.INT, 0)),
 		"MessageEntityPreTypeID":                         reflect.ValueOf(constant.MakeFromLiteral("1938967520", token.INT, 0)),
 		"MessageEntityStrikeTypeID":                      reflect.ValueOf(constant.MakeFromLiteral("3204879316", token.INT, 0)),
-		"MessageEntityTextUrlTypeID":                     reflect.ValueOf(constant.MakeFromLiteral("1990644519", token.INT, 0)),
+		"MessageEntityTextURLTypeID":                     reflect.ValueOf(constant.MakeFromLiteral("1990644519", token.INT, 0)),
+		"MessageEntityURLTypeID":                         reflect.ValueOf(constant.MakeFromLiteral("1859134776", token.INT, 0)),
 		"MessageEntityUnderlineTypeID":                   reflect.ValueOf(constant.MakeFromLiteral("2622389899", token.INT, 0)),
 		"MessageEntityUnknownTypeID":                     reflect.ValueOf(constant.MakeFromLiteral("3146955413", token.INT, 0)),
-		"MessageEntityUrlTypeID":                         reflect.ValueOf(constant.MakeFromLiteral("1859134776", token.INT, 0)),
+		"NamesMap":                                       reflect.ValueOf(e2e.NamesMap),
 		"NewClient":                                      reflect.ValueOf(e2e.NewClient),
 		"PhotoCachedSizeTypeID":                          reflect.ValueOf(constant.MakeFromLiteral("3920049402", token.INT, 0)),
 		"PhotoSizeEmptyTypeID":                           reflect.ValueOf(constant.MakeFromLiteral("236446268", token.INT, 0)),
@@ -120,119 +121,193 @@ func init() {
 		"TypesMap":                                       reflect.ValueOf(e2e.TypesMap),
 
 		// type definitions
-		"BoolBox":                                  reflect.ValueOf((*e2e.BoolBox)(nil)),
-		"BoolClass":                                reflect.ValueOf((*e2e.BoolClass)(nil)),
-		"BoolFalse":                                reflect.ValueOf((*e2e.BoolFalse)(nil)),
-		"BoolTrue":                                 reflect.ValueOf((*e2e.BoolTrue)(nil)),
-		"Bytes":                                    reflect.ValueOf((*e2e.Bytes)(nil)),
-		"Client":                                   reflect.ValueOf((*e2e.Client)(nil)),
-		"DecryptedMessage":                         reflect.ValueOf((*e2e.DecryptedMessage)(nil)),
-		"DecryptedMessage23":                       reflect.ValueOf((*e2e.DecryptedMessage23)(nil)),
-		"DecryptedMessage46":                       reflect.ValueOf((*e2e.DecryptedMessage46)(nil)),
-		"DecryptedMessage8":                        reflect.ValueOf((*e2e.DecryptedMessage8)(nil)),
-		"DecryptedMessageActionAbortKey":           reflect.ValueOf((*e2e.DecryptedMessageActionAbortKey)(nil)),
-		"DecryptedMessageActionAcceptKey":          reflect.ValueOf((*e2e.DecryptedMessageActionAcceptKey)(nil)),
-		"DecryptedMessageActionBox":                reflect.ValueOf((*e2e.DecryptedMessageActionBox)(nil)),
-		"DecryptedMessageActionClass":              reflect.ValueOf((*e2e.DecryptedMessageActionClass)(nil)),
-		"DecryptedMessageActionCommitKey":          reflect.ValueOf((*e2e.DecryptedMessageActionCommitKey)(nil)),
-		"DecryptedMessageActionDeleteMessages":     reflect.ValueOf((*e2e.DecryptedMessageActionDeleteMessages)(nil)),
-		"DecryptedMessageActionFlushHistory":       reflect.ValueOf((*e2e.DecryptedMessageActionFlushHistory)(nil)),
-		"DecryptedMessageActionNoop":               reflect.ValueOf((*e2e.DecryptedMessageActionNoop)(nil)),
-		"DecryptedMessageActionNotifyLayer":        reflect.ValueOf((*e2e.DecryptedMessageActionNotifyLayer)(nil)),
-		"DecryptedMessageActionReadMessages":       reflect.ValueOf((*e2e.DecryptedMessageActionReadMessages)(nil)),
-		"DecryptedMessageActionRequestKey":         reflect.ValueOf((*e2e.DecryptedMessageActionRequestKey)(nil)),
-		"DecryptedMessageActionResend":             reflect.ValueOf((*e2e.DecryptedMessageActionResend)(nil)),
-		"DecryptedMessageActionScreenshotMessages": reflect.ValueOf((*e2e.DecryptedMessageActionScreenshotMessages)(nil)),
-		"DecryptedMessageActionSetMessageTTL":      reflect.ValueOf((*e2e.DecryptedMessageActionSetMessageTTL)(nil)),
-		"DecryptedMessageActionTyping":             reflect.ValueOf((*e2e.DecryptedMessageActionTyping)(nil)),
-		"DecryptedMessageBox":                      reflect.ValueOf((*e2e.DecryptedMessageBox)(nil)),
-		"DecryptedMessageClass":                    reflect.ValueOf((*e2e.DecryptedMessageClass)(nil)),
-		"DecryptedMessageLayer":                    reflect.ValueOf((*e2e.DecryptedMessageLayer)(nil)),
-		"DecryptedMessageMediaAudio":               reflect.ValueOf((*e2e.DecryptedMessageMediaAudio)(nil)),
-		"DecryptedMessageMediaAudio8":              reflect.ValueOf((*e2e.DecryptedMessageMediaAudio8)(nil)),
-		"DecryptedMessageMediaBox":                 reflect.ValueOf((*e2e.DecryptedMessageMediaBox)(nil)),
-		"DecryptedMessageMediaClass":               reflect.ValueOf((*e2e.DecryptedMessageMediaClass)(nil)),
-		"DecryptedMessageMediaContact":             reflect.ValueOf((*e2e.DecryptedMessageMediaContact)(nil)),
-		"DecryptedMessageMediaDocument":            reflect.ValueOf((*e2e.DecryptedMessageMediaDocument)(nil)),
-		"DecryptedMessageMediaDocument23":          reflect.ValueOf((*e2e.DecryptedMessageMediaDocument23)(nil)),
-		"DecryptedMessageMediaEmpty":               reflect.ValueOf((*e2e.DecryptedMessageMediaEmpty)(nil)),
-		"DecryptedMessageMediaExternalDocument":    reflect.ValueOf((*e2e.DecryptedMessageMediaExternalDocument)(nil)),
-		"DecryptedMessageMediaGeoPoint":            reflect.ValueOf((*e2e.DecryptedMessageMediaGeoPoint)(nil)),
-		"DecryptedMessageMediaPhoto":               reflect.ValueOf((*e2e.DecryptedMessageMediaPhoto)(nil)),
-		"DecryptedMessageMediaPhoto23":             reflect.ValueOf((*e2e.DecryptedMessageMediaPhoto23)(nil)),
-		"DecryptedMessageMediaVenue":               reflect.ValueOf((*e2e.DecryptedMessageMediaVenue)(nil)),
-		"DecryptedMessageMediaVideo":               reflect.ValueOf((*e2e.DecryptedMessageMediaVideo)(nil)),
-		"DecryptedMessageMediaVideo23":             reflect.ValueOf((*e2e.DecryptedMessageMediaVideo23)(nil)),
-		"DecryptedMessageMediaVideo8":              reflect.ValueOf((*e2e.DecryptedMessageMediaVideo8)(nil)),
-		"DecryptedMessageMediaWebPage":             reflect.ValueOf((*e2e.DecryptedMessageMediaWebPage)(nil)),
-		"DecryptedMessageService":                  reflect.ValueOf((*e2e.DecryptedMessageService)(nil)),
-		"DecryptedMessageService8":                 reflect.ValueOf((*e2e.DecryptedMessageService8)(nil)),
-		"DocumentAttributeAnimated":                reflect.ValueOf((*e2e.DocumentAttributeAnimated)(nil)),
-		"DocumentAttributeAudio":                   reflect.ValueOf((*e2e.DocumentAttributeAudio)(nil)),
-		"DocumentAttributeAudio23":                 reflect.ValueOf((*e2e.DocumentAttributeAudio23)(nil)),
-		"DocumentAttributeAudio45":                 reflect.ValueOf((*e2e.DocumentAttributeAudio45)(nil)),
-		"DocumentAttributeBox":                     reflect.ValueOf((*e2e.DocumentAttributeBox)(nil)),
-		"DocumentAttributeClass":                   reflect.ValueOf((*e2e.DocumentAttributeClass)(nil)),
-		"DocumentAttributeFilename":                reflect.ValueOf((*e2e.DocumentAttributeFilename)(nil)),
-		"DocumentAttributeImageSize":               reflect.ValueOf((*e2e.DocumentAttributeImageSize)(nil)),
-		"DocumentAttributeSticker":                 reflect.ValueOf((*e2e.DocumentAttributeSticker)(nil)),
-		"DocumentAttributeSticker23":               reflect.ValueOf((*e2e.DocumentAttributeSticker23)(nil)),
-		"DocumentAttributeVideo":                   reflect.ValueOf((*e2e.DocumentAttributeVideo)(nil)),
-		"DocumentAttributeVideo66":                 reflect.ValueOf((*e2e.DocumentAttributeVideo66)(nil)),
-		"Double":                                   reflect.ValueOf((*e2e.Double)(nil)),
-		"FileLocation":                             reflect.ValueOf((*e2e.FileLocation)(nil)),
-		"FileLocationBox":                          reflect.ValueOf((*e2e.FileLocationBox)(nil)),
-		"FileLocationClass":                        reflect.ValueOf((*e2e.FileLocationClass)(nil)),
-		"FileLocationUnavailable":                  reflect.ValueOf((*e2e.FileLocationUnavailable)(nil)),
-		"InputStickerSetBox":                       reflect.ValueOf((*e2e.InputStickerSetBox)(nil)),
-		"InputStickerSetClass":                     reflect.ValueOf((*e2e.InputStickerSetClass)(nil)),
-		"InputStickerSetEmpty":                     reflect.ValueOf((*e2e.InputStickerSetEmpty)(nil)),
-		"InputStickerSetShortName":                 reflect.ValueOf((*e2e.InputStickerSetShortName)(nil)),
-		"Int":                                      reflect.ValueOf((*e2e.Int)(nil)),
-		"Invoker":                                  reflect.ValueOf((*e2e.Invoker)(nil)),
-		"Long":                                     reflect.ValueOf((*e2e.Long)(nil)),
-		"MessageEntityBankCard":                    reflect.ValueOf((*e2e.MessageEntityBankCard)(nil)),
-		"MessageEntityBlockquote":                  reflect.ValueOf((*e2e.MessageEntityBlockquote)(nil)),
-		"MessageEntityBold":                        reflect.ValueOf((*e2e.MessageEntityBold)(nil)),
-		"MessageEntityBotCommand":                  reflect.ValueOf((*e2e.MessageEntityBotCommand)(nil)),
-		"MessageEntityBox":                         reflect.ValueOf((*e2e.MessageEntityBox)(nil)),
-		"MessageEntityCashtag":                     reflect.ValueOf((*e2e.MessageEntityCashtag)(nil)),
-		"MessageEntityClass":                       reflect.ValueOf((*e2e.MessageEntityClass)(nil)),
-		"MessageEntityCode":                        reflect.ValueOf((*e2e.MessageEntityCode)(nil)),
-		"MessageEntityEmail":                       reflect.ValueOf((*e2e.MessageEntityEmail)(nil)),
-		"MessageEntityHashtag":                     reflect.ValueOf((*e2e.MessageEntityHashtag)(nil)),
-		"MessageEntityItalic":                      reflect.ValueOf((*e2e.MessageEntityItalic)(nil)),
-		"MessageEntityMention":                     reflect.ValueOf((*e2e.MessageEntityMention)(nil)),
-		"MessageEntityMentionName":                 reflect.ValueOf((*e2e.MessageEntityMentionName)(nil)),
-		"MessageEntityPhone":                       reflect.ValueOf((*e2e.MessageEntityPhone)(nil)),
-		"MessageEntityPre":                         reflect.ValueOf((*e2e.MessageEntityPre)(nil)),
-		"MessageEntityStrike":                      reflect.ValueOf((*e2e.MessageEntityStrike)(nil)),
-		"MessageEntityTextUrl":                     reflect.ValueOf((*e2e.MessageEntityTextUrl)(nil)),
-		"MessageEntityUnderline":                   reflect.ValueOf((*e2e.MessageEntityUnderline)(nil)),
-		"MessageEntityUnknown":                     reflect.ValueOf((*e2e.MessageEntityUnknown)(nil)),
-		"MessageEntityUrl":                         reflect.ValueOf((*e2e.MessageEntityUrl)(nil)),
-		"PhotoCachedSize":                          reflect.ValueOf((*e2e.PhotoCachedSize)(nil)),
-		"PhotoSize":                                reflect.ValueOf((*e2e.PhotoSize)(nil)),
-		"PhotoSizeBox":                             reflect.ValueOf((*e2e.PhotoSizeBox)(nil)),
-		"PhotoSizeClass":                           reflect.ValueOf((*e2e.PhotoSizeClass)(nil)),
-		"PhotoSizeEmpty":                           reflect.ValueOf((*e2e.PhotoSizeEmpty)(nil)),
-		"SendMessageActionBox":                     reflect.ValueOf((*e2e.SendMessageActionBox)(nil)),
-		"SendMessageActionClass":                   reflect.ValueOf((*e2e.SendMessageActionClass)(nil)),
-		"SendMessageCancelAction":                  reflect.ValueOf((*e2e.SendMessageCancelAction)(nil)),
-		"SendMessageChooseContactAction":           reflect.ValueOf((*e2e.SendMessageChooseContactAction)(nil)),
-		"SendMessageGeoLocationAction":             reflect.ValueOf((*e2e.SendMessageGeoLocationAction)(nil)),
-		"SendMessageRecordAudioAction":             reflect.ValueOf((*e2e.SendMessageRecordAudioAction)(nil)),
-		"SendMessageRecordRoundAction":             reflect.ValueOf((*e2e.SendMessageRecordRoundAction)(nil)),
-		"SendMessageRecordVideoAction":             reflect.ValueOf((*e2e.SendMessageRecordVideoAction)(nil)),
-		"SendMessageTypingAction":                  reflect.ValueOf((*e2e.SendMessageTypingAction)(nil)),
-		"SendMessageUploadAudioAction":             reflect.ValueOf((*e2e.SendMessageUploadAudioAction)(nil)),
-		"SendMessageUploadDocumentAction":          reflect.ValueOf((*e2e.SendMessageUploadDocumentAction)(nil)),
-		"SendMessageUploadPhotoAction":             reflect.ValueOf((*e2e.SendMessageUploadPhotoAction)(nil)),
-		"SendMessageUploadRoundAction":             reflect.ValueOf((*e2e.SendMessageUploadRoundAction)(nil)),
-		"SendMessageUploadVideoAction":             reflect.ValueOf((*e2e.SendMessageUploadVideoAction)(nil)),
-		"String":                                   reflect.ValueOf((*e2e.String)(nil)),
-		"TestDummyFunctionRequest":                 reflect.ValueOf((*e2e.TestDummyFunctionRequest)(nil)),
-		"True":                                     reflect.ValueOf((*e2e.True)(nil)),
+		"BoolBox":                                       reflect.ValueOf((*e2e.BoolBox)(nil)),
+		"BoolClass":                                     reflect.ValueOf((*e2e.BoolClass)(nil)),
+		"BoolClassArray":                                reflect.ValueOf((*e2e.BoolClassArray)(nil)),
+		"BoolFalse":                                     reflect.ValueOf((*e2e.BoolFalse)(nil)),
+		"BoolTrue":                                      reflect.ValueOf((*e2e.BoolTrue)(nil)),
+		"Bytes":                                         reflect.ValueOf((*e2e.Bytes)(nil)),
+		"Client":                                        reflect.ValueOf((*e2e.Client)(nil)),
+		"DecryptedMessage":                              reflect.ValueOf((*e2e.DecryptedMessage)(nil)),
+		"DecryptedMessage23":                            reflect.ValueOf((*e2e.DecryptedMessage23)(nil)),
+		"DecryptedMessage23Array":                       reflect.ValueOf((*e2e.DecryptedMessage23Array)(nil)),
+		"DecryptedMessage46":                            reflect.ValueOf((*e2e.DecryptedMessage46)(nil)),
+		"DecryptedMessage46Array":                       reflect.ValueOf((*e2e.DecryptedMessage46Array)(nil)),
+		"DecryptedMessage8":                             reflect.ValueOf((*e2e.DecryptedMessage8)(nil)),
+		"DecryptedMessage8Array":                        reflect.ValueOf((*e2e.DecryptedMessage8Array)(nil)),
+		"DecryptedMessageActionAbortKey":                reflect.ValueOf((*e2e.DecryptedMessageActionAbortKey)(nil)),
+		"DecryptedMessageActionAbortKeyArray":           reflect.ValueOf((*e2e.DecryptedMessageActionAbortKeyArray)(nil)),
+		"DecryptedMessageActionAcceptKey":               reflect.ValueOf((*e2e.DecryptedMessageActionAcceptKey)(nil)),
+		"DecryptedMessageActionAcceptKeyArray":          reflect.ValueOf((*e2e.DecryptedMessageActionAcceptKeyArray)(nil)),
+		"DecryptedMessageActionBox":                     reflect.ValueOf((*e2e.DecryptedMessageActionBox)(nil)),
+		"DecryptedMessageActionClass":                   reflect.ValueOf((*e2e.DecryptedMessageActionClass)(nil)),
+		"DecryptedMessageActionClassArray":              reflect.ValueOf((*e2e.DecryptedMessageActionClassArray)(nil)),
+		"DecryptedMessageActionCommitKey":               reflect.ValueOf((*e2e.DecryptedMessageActionCommitKey)(nil)),
+		"DecryptedMessageActionCommitKeyArray":          reflect.ValueOf((*e2e.DecryptedMessageActionCommitKeyArray)(nil)),
+		"DecryptedMessageActionDeleteMessages":          reflect.ValueOf((*e2e.DecryptedMessageActionDeleteMessages)(nil)),
+		"DecryptedMessageActionDeleteMessagesArray":     reflect.ValueOf((*e2e.DecryptedMessageActionDeleteMessagesArray)(nil)),
+		"DecryptedMessageActionFlushHistory":            reflect.ValueOf((*e2e.DecryptedMessageActionFlushHistory)(nil)),
+		"DecryptedMessageActionNoop":                    reflect.ValueOf((*e2e.DecryptedMessageActionNoop)(nil)),
+		"DecryptedMessageActionNotifyLayer":             reflect.ValueOf((*e2e.DecryptedMessageActionNotifyLayer)(nil)),
+		"DecryptedMessageActionNotifyLayerArray":        reflect.ValueOf((*e2e.DecryptedMessageActionNotifyLayerArray)(nil)),
+		"DecryptedMessageActionReadMessages":            reflect.ValueOf((*e2e.DecryptedMessageActionReadMessages)(nil)),
+		"DecryptedMessageActionReadMessagesArray":       reflect.ValueOf((*e2e.DecryptedMessageActionReadMessagesArray)(nil)),
+		"DecryptedMessageActionRequestKey":              reflect.ValueOf((*e2e.DecryptedMessageActionRequestKey)(nil)),
+		"DecryptedMessageActionRequestKeyArray":         reflect.ValueOf((*e2e.DecryptedMessageActionRequestKeyArray)(nil)),
+		"DecryptedMessageActionResend":                  reflect.ValueOf((*e2e.DecryptedMessageActionResend)(nil)),
+		"DecryptedMessageActionResendArray":             reflect.ValueOf((*e2e.DecryptedMessageActionResendArray)(nil)),
+		"DecryptedMessageActionScreenshotMessages":      reflect.ValueOf((*e2e.DecryptedMessageActionScreenshotMessages)(nil)),
+		"DecryptedMessageActionScreenshotMessagesArray": reflect.ValueOf((*e2e.DecryptedMessageActionScreenshotMessagesArray)(nil)),
+		"DecryptedMessageActionSetMessageTTL":           reflect.ValueOf((*e2e.DecryptedMessageActionSetMessageTTL)(nil)),
+		"DecryptedMessageActionSetMessageTTLArray":      reflect.ValueOf((*e2e.DecryptedMessageActionSetMessageTTLArray)(nil)),
+		"DecryptedMessageActionTyping":                  reflect.ValueOf((*e2e.DecryptedMessageActionTyping)(nil)),
+		"DecryptedMessageActionTypingArray":             reflect.ValueOf((*e2e.DecryptedMessageActionTypingArray)(nil)),
+		"DecryptedMessageArray":                         reflect.ValueOf((*e2e.DecryptedMessageArray)(nil)),
+		"DecryptedMessageBox":                           reflect.ValueOf((*e2e.DecryptedMessageBox)(nil)),
+		"DecryptedMessageClass":                         reflect.ValueOf((*e2e.DecryptedMessageClass)(nil)),
+		"DecryptedMessageClassArray":                    reflect.ValueOf((*e2e.DecryptedMessageClassArray)(nil)),
+		"DecryptedMessageLayer":                         reflect.ValueOf((*e2e.DecryptedMessageLayer)(nil)),
+		"DecryptedMessageMediaAudio":                    reflect.ValueOf((*e2e.DecryptedMessageMediaAudio)(nil)),
+		"DecryptedMessageMediaAudio8":                   reflect.ValueOf((*e2e.DecryptedMessageMediaAudio8)(nil)),
+		"DecryptedMessageMediaAudio8Array":              reflect.ValueOf((*e2e.DecryptedMessageMediaAudio8Array)(nil)),
+		"DecryptedMessageMediaAudioArray":               reflect.ValueOf((*e2e.DecryptedMessageMediaAudioArray)(nil)),
+		"DecryptedMessageMediaBox":                      reflect.ValueOf((*e2e.DecryptedMessageMediaBox)(nil)),
+		"DecryptedMessageMediaClass":                    reflect.ValueOf((*e2e.DecryptedMessageMediaClass)(nil)),
+		"DecryptedMessageMediaClassArray":               reflect.ValueOf((*e2e.DecryptedMessageMediaClassArray)(nil)),
+		"DecryptedMessageMediaContact":                  reflect.ValueOf((*e2e.DecryptedMessageMediaContact)(nil)),
+		"DecryptedMessageMediaContactArray":             reflect.ValueOf((*e2e.DecryptedMessageMediaContactArray)(nil)),
+		"DecryptedMessageMediaDocument":                 reflect.ValueOf((*e2e.DecryptedMessageMediaDocument)(nil)),
+		"DecryptedMessageMediaDocument23":               reflect.ValueOf((*e2e.DecryptedMessageMediaDocument23)(nil)),
+		"DecryptedMessageMediaDocument23Array":          reflect.ValueOf((*e2e.DecryptedMessageMediaDocument23Array)(nil)),
+		"DecryptedMessageMediaDocumentArray":            reflect.ValueOf((*e2e.DecryptedMessageMediaDocumentArray)(nil)),
+		"DecryptedMessageMediaEmpty":                    reflect.ValueOf((*e2e.DecryptedMessageMediaEmpty)(nil)),
+		"DecryptedMessageMediaExternalDocument":         reflect.ValueOf((*e2e.DecryptedMessageMediaExternalDocument)(nil)),
+		"DecryptedMessageMediaExternalDocumentArray":    reflect.ValueOf((*e2e.DecryptedMessageMediaExternalDocumentArray)(nil)),
+		"DecryptedMessageMediaGeoPoint":                 reflect.ValueOf((*e2e.DecryptedMessageMediaGeoPoint)(nil)),
+		"DecryptedMessageMediaGeoPointArray":            reflect.ValueOf((*e2e.DecryptedMessageMediaGeoPointArray)(nil)),
+		"DecryptedMessageMediaPhoto":                    reflect.ValueOf((*e2e.DecryptedMessageMediaPhoto)(nil)),
+		"DecryptedMessageMediaPhoto23":                  reflect.ValueOf((*e2e.DecryptedMessageMediaPhoto23)(nil)),
+		"DecryptedMessageMediaPhoto23Array":             reflect.ValueOf((*e2e.DecryptedMessageMediaPhoto23Array)(nil)),
+		"DecryptedMessageMediaPhotoArray":               reflect.ValueOf((*e2e.DecryptedMessageMediaPhotoArray)(nil)),
+		"DecryptedMessageMediaVenue":                    reflect.ValueOf((*e2e.DecryptedMessageMediaVenue)(nil)),
+		"DecryptedMessageMediaVenueArray":               reflect.ValueOf((*e2e.DecryptedMessageMediaVenueArray)(nil)),
+		"DecryptedMessageMediaVideo":                    reflect.ValueOf((*e2e.DecryptedMessageMediaVideo)(nil)),
+		"DecryptedMessageMediaVideo23":                  reflect.ValueOf((*e2e.DecryptedMessageMediaVideo23)(nil)),
+		"DecryptedMessageMediaVideo23Array":             reflect.ValueOf((*e2e.DecryptedMessageMediaVideo23Array)(nil)),
+		"DecryptedMessageMediaVideo8":                   reflect.ValueOf((*e2e.DecryptedMessageMediaVideo8)(nil)),
+		"DecryptedMessageMediaVideo8Array":              reflect.ValueOf((*e2e.DecryptedMessageMediaVideo8Array)(nil)),
+		"DecryptedMessageMediaVideoArray":               reflect.ValueOf((*e2e.DecryptedMessageMediaVideoArray)(nil)),
+		"DecryptedMessageMediaWebPage":                  reflect.ValueOf((*e2e.DecryptedMessageMediaWebPage)(nil)),
+		"DecryptedMessageMediaWebPageArray":             reflect.ValueOf((*e2e.DecryptedMessageMediaWebPageArray)(nil)),
+		"DecryptedMessageService":                       reflect.ValueOf((*e2e.DecryptedMessageService)(nil)),
+		"DecryptedMessageService8":                      reflect.ValueOf((*e2e.DecryptedMessageService8)(nil)),
+		"DecryptedMessageService8Array":                 reflect.ValueOf((*e2e.DecryptedMessageService8Array)(nil)),
+		"DecryptedMessageServiceArray":                  reflect.ValueOf((*e2e.DecryptedMessageServiceArray)(nil)),
+		"DocumentAttributeAnimated":                     reflect.ValueOf((*e2e.DocumentAttributeAnimated)(nil)),
+		"DocumentAttributeAudio":                        reflect.ValueOf((*e2e.DocumentAttributeAudio)(nil)),
+		"DocumentAttributeAudio23":                      reflect.ValueOf((*e2e.DocumentAttributeAudio23)(nil)),
+		"DocumentAttributeAudio23Array":                 reflect.ValueOf((*e2e.DocumentAttributeAudio23Array)(nil)),
+		"DocumentAttributeAudio45":                      reflect.ValueOf((*e2e.DocumentAttributeAudio45)(nil)),
+		"DocumentAttributeAudio45Array":                 reflect.ValueOf((*e2e.DocumentAttributeAudio45Array)(nil)),
+		"DocumentAttributeAudioArray":                   reflect.ValueOf((*e2e.DocumentAttributeAudioArray)(nil)),
+		"DocumentAttributeBox":                          reflect.ValueOf((*e2e.DocumentAttributeBox)(nil)),
+		"DocumentAttributeClass":                        reflect.ValueOf((*e2e.DocumentAttributeClass)(nil)),
+		"DocumentAttributeClassArray":                   reflect.ValueOf((*e2e.DocumentAttributeClassArray)(nil)),
+		"DocumentAttributeFilename":                     reflect.ValueOf((*e2e.DocumentAttributeFilename)(nil)),
+		"DocumentAttributeFilenameArray":                reflect.ValueOf((*e2e.DocumentAttributeFilenameArray)(nil)),
+		"DocumentAttributeImageSize":                    reflect.ValueOf((*e2e.DocumentAttributeImageSize)(nil)),
+		"DocumentAttributeImageSizeArray":               reflect.ValueOf((*e2e.DocumentAttributeImageSizeArray)(nil)),
+		"DocumentAttributeSticker":                      reflect.ValueOf((*e2e.DocumentAttributeSticker)(nil)),
+		"DocumentAttributeSticker23":                    reflect.ValueOf((*e2e.DocumentAttributeSticker23)(nil)),
+		"DocumentAttributeStickerArray":                 reflect.ValueOf((*e2e.DocumentAttributeStickerArray)(nil)),
+		"DocumentAttributeVideo":                        reflect.ValueOf((*e2e.DocumentAttributeVideo)(nil)),
+		"DocumentAttributeVideo66":                      reflect.ValueOf((*e2e.DocumentAttributeVideo66)(nil)),
+		"DocumentAttributeVideo66Array":                 reflect.ValueOf((*e2e.DocumentAttributeVideo66Array)(nil)),
+		"DocumentAttributeVideoArray":                   reflect.ValueOf((*e2e.DocumentAttributeVideoArray)(nil)),
+		"Double":                                        reflect.ValueOf((*e2e.Double)(nil)),
+		"FileLocation":                                  reflect.ValueOf((*e2e.FileLocation)(nil)),
+		"FileLocationArray":                             reflect.ValueOf((*e2e.FileLocationArray)(nil)),
+		"FileLocationBox":                               reflect.ValueOf((*e2e.FileLocationBox)(nil)),
+		"FileLocationClass":                             reflect.ValueOf((*e2e.FileLocationClass)(nil)),
+		"FileLocationClassArray":                        reflect.ValueOf((*e2e.FileLocationClassArray)(nil)),
+		"FileLocationUnavailable":                       reflect.ValueOf((*e2e.FileLocationUnavailable)(nil)),
+		"FileLocationUnavailableArray":                  reflect.ValueOf((*e2e.FileLocationUnavailableArray)(nil)),
+		"InputStickerSetBox":                            reflect.ValueOf((*e2e.InputStickerSetBox)(nil)),
+		"InputStickerSetClass":                          reflect.ValueOf((*e2e.InputStickerSetClass)(nil)),
+		"InputStickerSetClassArray":                     reflect.ValueOf((*e2e.InputStickerSetClassArray)(nil)),
+		"InputStickerSetEmpty":                          reflect.ValueOf((*e2e.InputStickerSetEmpty)(nil)),
+		"InputStickerSetShortName":                      reflect.ValueOf((*e2e.InputStickerSetShortName)(nil)),
+		"InputStickerSetShortNameArray":                 reflect.ValueOf((*e2e.InputStickerSetShortNameArray)(nil)),
+		"Int":                                           reflect.ValueOf((*e2e.Int)(nil)),
+		"Invoker":                                       reflect.ValueOf((*e2e.Invoker)(nil)),
+		"Long":                                          reflect.ValueOf((*e2e.Long)(nil)),
+		"MessageEntityBankCard":                         reflect.ValueOf((*e2e.MessageEntityBankCard)(nil)),
+		"MessageEntityBankCardArray":                    reflect.ValueOf((*e2e.MessageEntityBankCardArray)(nil)),
+		"MessageEntityBlockquote":                       reflect.ValueOf((*e2e.MessageEntityBlockquote)(nil)),
+		"MessageEntityBlockquoteArray":                  reflect.ValueOf((*e2e.MessageEntityBlockquoteArray)(nil)),
+		"MessageEntityBold":                             reflect.ValueOf((*e2e.MessageEntityBold)(nil)),
+		"MessageEntityBoldArray":                        reflect.ValueOf((*e2e.MessageEntityBoldArray)(nil)),
+		"MessageEntityBotCommand":                       reflect.ValueOf((*e2e.MessageEntityBotCommand)(nil)),
+		"MessageEntityBotCommandArray":                  reflect.ValueOf((*e2e.MessageEntityBotCommandArray)(nil)),
+		"MessageEntityBox":                              reflect.ValueOf((*e2e.MessageEntityBox)(nil)),
+		"MessageEntityCashtag":                          reflect.ValueOf((*e2e.MessageEntityCashtag)(nil)),
+		"MessageEntityCashtagArray":                     reflect.ValueOf((*e2e.MessageEntityCashtagArray)(nil)),
+		"MessageEntityClass":                            reflect.ValueOf((*e2e.MessageEntityClass)(nil)),
+		"MessageEntityClassArray":                       reflect.ValueOf((*e2e.MessageEntityClassArray)(nil)),
+		"MessageEntityCode":                             reflect.ValueOf((*e2e.MessageEntityCode)(nil)),
+		"MessageEntityCodeArray":                        reflect.ValueOf((*e2e.MessageEntityCodeArray)(nil)),
+		"MessageEntityEmail":                            reflect.ValueOf((*e2e.MessageEntityEmail)(nil)),
+		"MessageEntityEmailArray":                       reflect.ValueOf((*e2e.MessageEntityEmailArray)(nil)),
+		"MessageEntityHashtag":                          reflect.ValueOf((*e2e.MessageEntityHashtag)(nil)),
+		"MessageEntityHashtagArray":                     reflect.ValueOf((*e2e.MessageEntityHashtagArray)(nil)),
+		"MessageEntityItalic":                           reflect.ValueOf((*e2e.MessageEntityItalic)(nil)),
+		"MessageEntityItalicArray":                      reflect.ValueOf((*e2e.MessageEntityItalicArray)(nil)),
+		"MessageEntityMention":                          reflect.ValueOf((*e2e.MessageEntityMention)(nil)),
+		"MessageEntityMentionArray":                     reflect.ValueOf((*e2e.MessageEntityMentionArray)(nil)),
+		"MessageEntityMentionName":                      reflect.ValueOf((*e2e.MessageEntityMentionName)(nil)),
+		"MessageEntityMentionNameArray":                 reflect.ValueOf((*e2e.MessageEntityMentionNameArray)(nil)),
+		"MessageEntityPhone":                            reflect.ValueOf((*e2e.MessageEntityPhone)(nil)),
+		"MessageEntityPhoneArray":                       reflect.ValueOf((*e2e.MessageEntityPhoneArray)(nil)),
+		"MessageEntityPre":                              reflect.ValueOf((*e2e.MessageEntityPre)(nil)),
+		"MessageEntityPreArray":                         reflect.ValueOf((*e2e.MessageEntityPreArray)(nil)),
+		"MessageEntityStrike":                           reflect.ValueOf((*e2e.MessageEntityStrike)(nil)),
+		"MessageEntityStrikeArray":                      reflect.ValueOf((*e2e.MessageEntityStrikeArray)(nil)),
+		"MessageEntityTextURL":                          reflect.ValueOf((*e2e.MessageEntityTextURL)(nil)),
+		"MessageEntityTextURLArray":                     reflect.ValueOf((*e2e.MessageEntityTextURLArray)(nil)),
+		"MessageEntityURL":                              reflect.ValueOf((*e2e.MessageEntityURL)(nil)),
+		"MessageEntityURLArray":                         reflect.ValueOf((*e2e.MessageEntityURLArray)(nil)),
+		"MessageEntityUnderline":                        reflect.ValueOf((*e2e.MessageEntityUnderline)(nil)),
+		"MessageEntityUnderlineArray":                   reflect.ValueOf((*e2e.MessageEntityUnderlineArray)(nil)),
+		"MessageEntityUnknown":                          reflect.ValueOf((*e2e.MessageEntityUnknown)(nil)),
+		"MessageEntityUnknownArray":                     reflect.ValueOf((*e2e.MessageEntityUnknownArray)(nil)),
+		"NotEmptyPhotoSize":                             reflect.ValueOf((*e2e.NotEmptyPhotoSize)(nil)),
+		"PhotoCachedSize":                               reflect.ValueOf((*e2e.PhotoCachedSize)(nil)),
+		"PhotoCachedSizeArray":                          reflect.ValueOf((*e2e.PhotoCachedSizeArray)(nil)),
+		"PhotoSize":                                     reflect.ValueOf((*e2e.PhotoSize)(nil)),
+		"PhotoSizeArray":                                reflect.ValueOf((*e2e.PhotoSizeArray)(nil)),
+		"PhotoSizeBox":                                  reflect.ValueOf((*e2e.PhotoSizeBox)(nil)),
+		"PhotoSizeClass":                                reflect.ValueOf((*e2e.PhotoSizeClass)(nil)),
+		"PhotoSizeClassArray":                           reflect.ValueOf((*e2e.PhotoSizeClassArray)(nil)),
+		"PhotoSizeEmpty":                                reflect.ValueOf((*e2e.PhotoSizeEmpty)(nil)),
+		"PhotoSizeEmptyArray":                           reflect.ValueOf((*e2e.PhotoSizeEmptyArray)(nil)),
+		"SendMessageActionBox":                          reflect.ValueOf((*e2e.SendMessageActionBox)(nil)),
+		"SendMessageActionClass":                        reflect.ValueOf((*e2e.SendMessageActionClass)(nil)),
+		"SendMessageActionClassArray":                   reflect.ValueOf((*e2e.SendMessageActionClassArray)(nil)),
+		"SendMessageCancelAction":                       reflect.ValueOf((*e2e.SendMessageCancelAction)(nil)),
+		"SendMessageChooseContactAction":                reflect.ValueOf((*e2e.SendMessageChooseContactAction)(nil)),
+		"SendMessageGeoLocationAction":                  reflect.ValueOf((*e2e.SendMessageGeoLocationAction)(nil)),
+		"SendMessageRecordAudioAction":                  reflect.ValueOf((*e2e.SendMessageRecordAudioAction)(nil)),
+		"SendMessageRecordRoundAction":                  reflect.ValueOf((*e2e.SendMessageRecordRoundAction)(nil)),
+		"SendMessageRecordVideoAction":                  reflect.ValueOf((*e2e.SendMessageRecordVideoAction)(nil)),
+		"SendMessageTypingAction":                       reflect.ValueOf((*e2e.SendMessageTypingAction)(nil)),
+		"SendMessageUploadAudioAction":                  reflect.ValueOf((*e2e.SendMessageUploadAudioAction)(nil)),
+		"SendMessageUploadDocumentAction":               reflect.ValueOf((*e2e.SendMessageUploadDocumentAction)(nil)),
+		"SendMessageUploadPhotoAction":                  reflect.ValueOf((*e2e.SendMessageUploadPhotoAction)(nil)),
+		"SendMessageUploadRoundAction":                  reflect.ValueOf((*e2e.SendMessageUploadRoundAction)(nil)),
+		"SendMessageUploadVideoAction":                  reflect.ValueOf((*e2e.SendMessageUploadVideoAction)(nil)),
+		"String":                                        reflect.ValueOf((*e2e.String)(nil)),
+		"TestDummyFunctionRequest":                      reflect.ValueOf((*e2e.TestDummyFunctionRequest)(nil)),
+		"True":                                          reflect.ValueOf((*e2e.True)(nil)),
 
 		// interface wrapper definitions
 		"_BoolClass":                   reflect.ValueOf((*_github_com_gotd_td_tg_e2e_BoolClass)(nil)),
@@ -244,6 +319,7 @@ func init() {
 		"_InputStickerSetClass":        reflect.ValueOf((*_github_com_gotd_td_tg_e2e_InputStickerSetClass)(nil)),
 		"_Invoker":                     reflect.ValueOf((*_github_com_gotd_td_tg_e2e_Invoker)(nil)),
 		"_MessageEntityClass":          reflect.ValueOf((*_github_com_gotd_td_tg_e2e_MessageEntityClass)(nil)),
+		"_NotEmptyPhotoSize":           reflect.ValueOf((*_github_com_gotd_td_tg_e2e_NotEmptyPhotoSize)(nil)),
 		"_PhotoSizeClass":              reflect.ValueOf((*_github_com_gotd_td_tg_e2e_PhotoSizeClass)(nil)),
 		"_SendMessageActionClass":      reflect.ValueOf((*_github_com_gotd_td_tg_e2e_SendMessageActionClass)(nil)),
 	}
@@ -251,116 +327,183 @@ func init() {
 
 // _github_com_gotd_td_tg_e2e_BoolClass is an interface wrapper for BoolClass type
 type _github_com_gotd_td_tg_e2e_BoolClass struct {
-	WDecode func(b *bin.Buffer) error
-	WEncode func(b *bin.Buffer) error
-	WString func() string
-	WTypeID func() uint32
-	WZero   func() bool
+	WDecode     func(b *bin.Buffer) error
+	WDecodeBare func(b *bin.Buffer) error
+	WEncode     func(b *bin.Buffer) error
+	WEncodeBare func(b *bin.Buffer) error
+	WString     func() string
+	WTypeID     func() uint32
+	WTypeName   func() string
+	WZero       func() bool
 }
 
 func (W _github_com_gotd_td_tg_e2e_BoolClass) Decode(b *bin.Buffer) error { return W.WDecode(b) }
+func (W _github_com_gotd_td_tg_e2e_BoolClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_BoolClass) Encode(b *bin.Buffer) error { return W.WEncode(b) }
-func (W _github_com_gotd_td_tg_e2e_BoolClass) String() string             { return W.WString() }
-func (W _github_com_gotd_td_tg_e2e_BoolClass) TypeID() uint32             { return W.WTypeID() }
-func (W _github_com_gotd_td_tg_e2e_BoolClass) Zero() bool                 { return W.WZero() }
+func (W _github_com_gotd_td_tg_e2e_BoolClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
+}
+func (W _github_com_gotd_td_tg_e2e_BoolClass) String() string   { return W.WString() }
+func (W _github_com_gotd_td_tg_e2e_BoolClass) TypeID() uint32   { return W.WTypeID() }
+func (W _github_com_gotd_td_tg_e2e_BoolClass) TypeName() string { return W.WTypeName() }
+func (W _github_com_gotd_td_tg_e2e_BoolClass) Zero() bool       { return W.WZero() }
 
 // _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass is an interface wrapper for DecryptedMessageActionClass type
 type _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass struct {
-	WDecode func(b *bin.Buffer) error
-	WEncode func(b *bin.Buffer) error
-	WString func() string
-	WTypeID func() uint32
-	WZero   func() bool
+	WDecode     func(b *bin.Buffer) error
+	WDecodeBare func(b *bin.Buffer) error
+	WEncode     func(b *bin.Buffer) error
+	WEncodeBare func(b *bin.Buffer) error
+	WString     func() string
+	WTypeID     func() uint32
+	WTypeName   func() string
+	WZero       func() bool
 }
 
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass) Decode(b *bin.Buffer) error {
 	return W.WDecode(b)
 }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass) Encode(b *bin.Buffer) error {
 	return W.WEncode(b)
 }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass) String() string { return W.WString() }
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass) TypeID() uint32 { return W.WTypeID() }
-func (W _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass) Zero() bool     { return W.WZero() }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass) TypeName() string {
+	return W.WTypeName()
+}
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageActionClass) Zero() bool { return W.WZero() }
 
 // _github_com_gotd_td_tg_e2e_DecryptedMessageClass is an interface wrapper for DecryptedMessageClass type
 type _github_com_gotd_td_tg_e2e_DecryptedMessageClass struct {
 	WDecode      func(b *bin.Buffer) error
+	WDecodeBare  func(b *bin.Buffer) error
 	WEncode      func(b *bin.Buffer) error
+	WEncodeBare  func(b *bin.Buffer) error
 	WGetRandomID func() (value int64)
 	WString      func() string
 	WTypeID      func() uint32
+	WTypeName    func() string
 	WZero        func() bool
 }
 
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) Decode(b *bin.Buffer) error {
 	return W.WDecode(b)
 }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) Encode(b *bin.Buffer) error {
 	return W.WEncode(b)
+}
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
 }
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) GetRandomID() (value int64) {
 	return W.WGetRandomID()
 }
-func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) String() string { return W.WString() }
-func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) TypeID() uint32 { return W.WTypeID() }
-func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) Zero() bool     { return W.WZero() }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) String() string   { return W.WString() }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) TypeID() uint32   { return W.WTypeID() }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) TypeName() string { return W.WTypeName() }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageClass) Zero() bool       { return W.WZero() }
 
 // _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass is an interface wrapper for DecryptedMessageMediaClass type
 type _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass struct {
-	WDecode func(b *bin.Buffer) error
-	WEncode func(b *bin.Buffer) error
-	WString func() string
-	WTypeID func() uint32
-	WZero   func() bool
+	WDecode     func(b *bin.Buffer) error
+	WDecodeBare func(b *bin.Buffer) error
+	WEncode     func(b *bin.Buffer) error
+	WEncodeBare func(b *bin.Buffer) error
+	WString     func() string
+	WTypeID     func() uint32
+	WTypeName   func() string
+	WZero       func() bool
 }
 
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass) Decode(b *bin.Buffer) error {
 	return W.WDecode(b)
 }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass) Encode(b *bin.Buffer) error {
 	return W.WEncode(b)
 }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass) String() string { return W.WString() }
 func (W _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass) TypeID() uint32 { return W.WTypeID() }
-func (W _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass) Zero() bool     { return W.WZero() }
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass) TypeName() string {
+	return W.WTypeName()
+}
+func (W _github_com_gotd_td_tg_e2e_DecryptedMessageMediaClass) Zero() bool { return W.WZero() }
 
 // _github_com_gotd_td_tg_e2e_DocumentAttributeClass is an interface wrapper for DocumentAttributeClass type
 type _github_com_gotd_td_tg_e2e_DocumentAttributeClass struct {
-	WDecode func(b *bin.Buffer) error
-	WEncode func(b *bin.Buffer) error
-	WString func() string
-	WTypeID func() uint32
-	WZero   func() bool
+	WDecode     func(b *bin.Buffer) error
+	WDecodeBare func(b *bin.Buffer) error
+	WEncode     func(b *bin.Buffer) error
+	WEncodeBare func(b *bin.Buffer) error
+	WString     func() string
+	WTypeID     func() uint32
+	WTypeName   func() string
+	WZero       func() bool
 }
 
 func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) Decode(b *bin.Buffer) error {
 	return W.WDecode(b)
 }
+func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) Encode(b *bin.Buffer) error {
 	return W.WEncode(b)
 }
-func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) String() string { return W.WString() }
-func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) TypeID() uint32 { return W.WTypeID() }
-func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) Zero() bool     { return W.WZero() }
+func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
+}
+func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) String() string   { return W.WString() }
+func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) TypeID() uint32   { return W.WTypeID() }
+func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) TypeName() string { return W.WTypeName() }
+func (W _github_com_gotd_td_tg_e2e_DocumentAttributeClass) Zero() bool       { return W.WZero() }
 
 // _github_com_gotd_td_tg_e2e_FileLocationClass is an interface wrapper for FileLocationClass type
 type _github_com_gotd_td_tg_e2e_FileLocationClass struct {
+	WAsAvailable func() (*e2e.FileLocation, bool)
 	WDecode      func(b *bin.Buffer) error
+	WDecodeBare  func(b *bin.Buffer) error
 	WEncode      func(b *bin.Buffer) error
+	WEncodeBare  func(b *bin.Buffer) error
 	WGetLocalID  func() (value int)
 	WGetSecret   func() (value int64)
 	WGetVolumeID func() (value int64)
 	WString      func() string
 	WTypeID      func() uint32
+	WTypeName    func() string
 	WZero        func() bool
 }
 
+func (W _github_com_gotd_td_tg_e2e_FileLocationClass) AsAvailable() (*e2e.FileLocation, bool) {
+	return W.WAsAvailable()
+}
 func (W _github_com_gotd_td_tg_e2e_FileLocationClass) Decode(b *bin.Buffer) error {
 	return W.WDecode(b)
 }
+func (W _github_com_gotd_td_tg_e2e_FileLocationClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_FileLocationClass) Encode(b *bin.Buffer) error {
 	return W.WEncode(b)
+}
+func (W _github_com_gotd_td_tg_e2e_FileLocationClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
 }
 func (W _github_com_gotd_td_tg_e2e_FileLocationClass) GetLocalID() (value int) {
 	return W.WGetLocalID()
@@ -371,28 +514,43 @@ func (W _github_com_gotd_td_tg_e2e_FileLocationClass) GetSecret() (value int64) 
 func (W _github_com_gotd_td_tg_e2e_FileLocationClass) GetVolumeID() (value int64) {
 	return W.WGetVolumeID()
 }
-func (W _github_com_gotd_td_tg_e2e_FileLocationClass) String() string { return W.WString() }
-func (W _github_com_gotd_td_tg_e2e_FileLocationClass) TypeID() uint32 { return W.WTypeID() }
-func (W _github_com_gotd_td_tg_e2e_FileLocationClass) Zero() bool     { return W.WZero() }
+func (W _github_com_gotd_td_tg_e2e_FileLocationClass) String() string   { return W.WString() }
+func (W _github_com_gotd_td_tg_e2e_FileLocationClass) TypeID() uint32   { return W.WTypeID() }
+func (W _github_com_gotd_td_tg_e2e_FileLocationClass) TypeName() string { return W.WTypeName() }
+func (W _github_com_gotd_td_tg_e2e_FileLocationClass) Zero() bool       { return W.WZero() }
 
 // _github_com_gotd_td_tg_e2e_InputStickerSetClass is an interface wrapper for InputStickerSetClass type
 type _github_com_gotd_td_tg_e2e_InputStickerSetClass struct {
-	WDecode func(b *bin.Buffer) error
-	WEncode func(b *bin.Buffer) error
-	WString func() string
-	WTypeID func() uint32
-	WZero   func() bool
+	WAsNotEmpty func() (*e2e.InputStickerSetShortName, bool)
+	WDecode     func(b *bin.Buffer) error
+	WDecodeBare func(b *bin.Buffer) error
+	WEncode     func(b *bin.Buffer) error
+	WEncodeBare func(b *bin.Buffer) error
+	WString     func() string
+	WTypeID     func() uint32
+	WTypeName   func() string
+	WZero       func() bool
 }
 
+func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) AsNotEmpty() (*e2e.InputStickerSetShortName, bool) {
+	return W.WAsNotEmpty()
+}
 func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) Decode(b *bin.Buffer) error {
 	return W.WDecode(b)
+}
+func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
 }
 func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) Encode(b *bin.Buffer) error {
 	return W.WEncode(b)
 }
-func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) String() string { return W.WString() }
-func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) TypeID() uint32 { return W.WTypeID() }
-func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) Zero() bool     { return W.WZero() }
+func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
+}
+func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) String() string   { return W.WString() }
+func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) TypeID() uint32   { return W.WTypeID() }
+func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) TypeName() string { return W.WTypeName() }
+func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) Zero() bool       { return W.WZero() }
 
 // _github_com_gotd_td_tg_e2e_Invoker is an interface wrapper for Invoker type
 type _github_com_gotd_td_tg_e2e_Invoker struct {
@@ -405,59 +563,132 @@ func (W _github_com_gotd_td_tg_e2e_Invoker) InvokeRaw(ctx context.Context, input
 
 // _github_com_gotd_td_tg_e2e_MessageEntityClass is an interface wrapper for MessageEntityClass type
 type _github_com_gotd_td_tg_e2e_MessageEntityClass struct {
-	WDecode    func(b *bin.Buffer) error
-	WEncode    func(b *bin.Buffer) error
-	WGetLength func() (value int)
-	WGetOffset func() (value int)
-	WString    func() string
-	WTypeID    func() uint32
-	WZero      func() bool
+	WDecode     func(b *bin.Buffer) error
+	WDecodeBare func(b *bin.Buffer) error
+	WEncode     func(b *bin.Buffer) error
+	WEncodeBare func(b *bin.Buffer) error
+	WGetLength  func() (value int)
+	WGetOffset  func() (value int)
+	WString     func() string
+	WTypeID     func() uint32
+	WTypeName   func() string
+	WZero       func() bool
 }
 
 func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) Decode(b *bin.Buffer) error {
 	return W.WDecode(b)
 }
+func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) Encode(b *bin.Buffer) error {
 	return W.WEncode(b)
+}
+func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
 }
 func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) GetLength() (value int) { return W.WGetLength() }
 func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) GetOffset() (value int) { return W.WGetOffset() }
 func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) String() string         { return W.WString() }
 func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) TypeID() uint32         { return W.WTypeID() }
+func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) TypeName() string       { return W.WTypeName() }
 func (W _github_com_gotd_td_tg_e2e_MessageEntityClass) Zero() bool             { return W.WZero() }
+
+// _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize is an interface wrapper for NotEmptyPhotoSize type
+type _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize struct {
+	WDecode      func(b *bin.Buffer) error
+	WDecodeBare  func(b *bin.Buffer) error
+	WEncode      func(b *bin.Buffer) error
+	WEncodeBare  func(b *bin.Buffer) error
+	WGetH        func() (value int)
+	WGetLocation func() (value e2e.FileLocationClass)
+	WGetType     func() (value string)
+	WGetW        func() (value int)
+	WString      func() string
+	WTypeID      func() uint32
+	WTypeName    func() string
+	WZero        func() bool
+}
+
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) Decode(b *bin.Buffer) error {
+	return W.WDecode(b)
+}
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) Encode(b *bin.Buffer) error {
+	return W.WEncode(b)
+}
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
+}
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) GetH() (value int) { return W.WGetH() }
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) GetLocation() (value e2e.FileLocationClass) {
+	return W.WGetLocation()
+}
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) GetType() (value string) { return W.WGetType() }
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) GetW() (value int)       { return W.WGetW() }
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) String() string          { return W.WString() }
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) TypeID() uint32          { return W.WTypeID() }
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) TypeName() string        { return W.WTypeName() }
+func (W _github_com_gotd_td_tg_e2e_NotEmptyPhotoSize) Zero() bool              { return W.WZero() }
 
 // _github_com_gotd_td_tg_e2e_PhotoSizeClass is an interface wrapper for PhotoSizeClass type
 type _github_com_gotd_td_tg_e2e_PhotoSizeClass struct {
-	WDecode  func(b *bin.Buffer) error
-	WEncode  func(b *bin.Buffer) error
-	WGetType func() (value string)
-	WString  func() string
-	WTypeID  func() uint32
-	WZero    func() bool
+	WAsNotEmpty func() (e2e.NotEmptyPhotoSize, bool)
+	WDecode     func(b *bin.Buffer) error
+	WDecodeBare func(b *bin.Buffer) error
+	WEncode     func(b *bin.Buffer) error
+	WEncodeBare func(b *bin.Buffer) error
+	WGetType    func() (value string)
+	WString     func() string
+	WTypeID     func() uint32
+	WTypeName   func() string
+	WZero       func() bool
 }
 
+func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) AsNotEmpty() (e2e.NotEmptyPhotoSize, bool) {
+	return W.WAsNotEmpty()
+}
 func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) Decode(b *bin.Buffer) error { return W.WDecode(b) }
+func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) Encode(b *bin.Buffer) error { return W.WEncode(b) }
-func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) GetType() (value string)    { return W.WGetType() }
-func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) String() string             { return W.WString() }
-func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) TypeID() uint32             { return W.WTypeID() }
-func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) Zero() bool                 { return W.WZero() }
+func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
+}
+func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) GetType() (value string) { return W.WGetType() }
+func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) String() string          { return W.WString() }
+func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) TypeID() uint32          { return W.WTypeID() }
+func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) TypeName() string        { return W.WTypeName() }
+func (W _github_com_gotd_td_tg_e2e_PhotoSizeClass) Zero() bool              { return W.WZero() }
 
 // _github_com_gotd_td_tg_e2e_SendMessageActionClass is an interface wrapper for SendMessageActionClass type
 type _github_com_gotd_td_tg_e2e_SendMessageActionClass struct {
-	WDecode func(b *bin.Buffer) error
-	WEncode func(b *bin.Buffer) error
-	WString func() string
-	WTypeID func() uint32
-	WZero   func() bool
+	WDecode     func(b *bin.Buffer) error
+	WDecodeBare func(b *bin.Buffer) error
+	WEncode     func(b *bin.Buffer) error
+	WEncodeBare func(b *bin.Buffer) error
+	WString     func() string
+	WTypeID     func() uint32
+	WTypeName   func() string
+	WZero       func() bool
 }
 
 func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) Decode(b *bin.Buffer) error {
 	return W.WDecode(b)
 }
+func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) DecodeBare(b *bin.Buffer) error {
+	return W.WDecodeBare(b)
+}
 func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) Encode(b *bin.Buffer) error {
 	return W.WEncode(b)
 }
-func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) String() string { return W.WString() }
-func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) TypeID() uint32 { return W.WTypeID() }
-func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) Zero() bool     { return W.WZero() }
+func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) EncodeBare(b *bin.Buffer) error {
+	return W.WEncodeBare(b)
+}
+func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) String() string   { return W.WString() }
+func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) TypeID() uint32   { return W.WTypeID() }
+func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) TypeName() string { return W.WTypeName() }
+func (W _github_com_gotd_td_tg_e2e_SendMessageActionClass) Zero() bool       { return W.WZero() }

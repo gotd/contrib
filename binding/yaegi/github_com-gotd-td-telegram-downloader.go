@@ -31,24 +31,24 @@ func init() {
 
 // _github_com_gotd_td_telegram_downloader_CDN is an interface wrapper for CDN type
 type _github_com_gotd_td_telegram_downloader_CDN struct {
-	WUploadGetCdnFile func(ctx context.Context, request *tg.UploadGetCdnFileRequest) (tg.UploadCdnFileClass, error)
+	WUploadGetCDNFile func(ctx context.Context, request *tg.UploadGetCDNFileRequest) (tg.UploadCDNFileClass, error)
 }
 
-func (W _github_com_gotd_td_telegram_downloader_CDN) UploadGetCdnFile(ctx context.Context, request *tg.UploadGetCdnFileRequest) (tg.UploadCdnFileClass, error) {
-	return W.WUploadGetCdnFile(ctx, request)
+func (W _github_com_gotd_td_telegram_downloader_CDN) UploadGetCDNFile(ctx context.Context, request *tg.UploadGetCDNFileRequest) (tg.UploadCDNFileClass, error) {
+	return W.WUploadGetCDNFile(ctx, request)
 }
 
 // _github_com_gotd_td_telegram_downloader_Client is an interface wrapper for Client type
 type _github_com_gotd_td_telegram_downloader_Client struct {
-	WUploadGetCdnFileHashes func(ctx context.Context, request *tg.UploadGetCdnFileHashesRequest) ([]tg.FileHash, error)
+	WUploadGetCDNFileHashes func(ctx context.Context, request *tg.UploadGetCDNFileHashesRequest) ([]tg.FileHash, error)
 	WUploadGetFile          func(ctx context.Context, request *tg.UploadGetFileRequest) (tg.UploadFileClass, error)
 	WUploadGetFileHashes    func(ctx context.Context, request *tg.UploadGetFileHashesRequest) ([]tg.FileHash, error)
 	WUploadGetWebFile       func(ctx context.Context, request *tg.UploadGetWebFileRequest) (*tg.UploadWebFile, error)
-	WUploadReuploadCdnFile  func(ctx context.Context, request *tg.UploadReuploadCdnFileRequest) ([]tg.FileHash, error)
+	WUploadReuploadCDNFile  func(ctx context.Context, request *tg.UploadReuploadCDNFileRequest) ([]tg.FileHash, error)
 }
 
-func (W _github_com_gotd_td_telegram_downloader_Client) UploadGetCdnFileHashes(ctx context.Context, request *tg.UploadGetCdnFileHashesRequest) ([]tg.FileHash, error) {
-	return W.WUploadGetCdnFileHashes(ctx, request)
+func (W _github_com_gotd_td_telegram_downloader_Client) UploadGetCDNFileHashes(ctx context.Context, request *tg.UploadGetCDNFileHashesRequest) ([]tg.FileHash, error) {
+	return W.WUploadGetCDNFileHashes(ctx, request)
 }
 func (W _github_com_gotd_td_telegram_downloader_Client) UploadGetFile(ctx context.Context, request *tg.UploadGetFileRequest) (tg.UploadFileClass, error) {
 	return W.WUploadGetFile(ctx, request)
@@ -59,6 +59,6 @@ func (W _github_com_gotd_td_telegram_downloader_Client) UploadGetFileHashes(ctx 
 func (W _github_com_gotd_td_telegram_downloader_Client) UploadGetWebFile(ctx context.Context, request *tg.UploadGetWebFileRequest) (*tg.UploadWebFile, error) {
 	return W.WUploadGetWebFile(ctx, request)
 }
-func (W _github_com_gotd_td_telegram_downloader_Client) UploadReuploadCdnFile(ctx context.Context, request *tg.UploadReuploadCdnFileRequest) ([]tg.FileHash, error) {
-	return W.WUploadReuploadCdnFile(ctx, request)
+func (W _github_com_gotd_td_telegram_downloader_Client) UploadReuploadCDNFile(ctx context.Context, request *tg.UploadReuploadCDNFileRequest) ([]tg.FileHash, error) {
+	return W.WUploadReuploadCDNFile(ctx, request)
 }

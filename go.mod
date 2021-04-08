@@ -1,10 +1,10 @@
-module github.com/tdakkota/tgcontrib
+module github.com/gotd/contrib
 
 go 1.16
 
 require (
 	github.com/cenkalti/backoff/v4 v4.1.0
-	github.com/gotd/td v0.24.0
+	github.com/gotd/td v0.31.1
 	github.com/hashicorp/vault/api v1.1.0
 	github.com/ory/dockertest/v3 v3.6.3
 	github.com/stretchr/testify v1.7.0

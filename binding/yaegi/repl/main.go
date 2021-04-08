@@ -9,13 +9,15 @@ import (
 	"os/signal"
 	"reflect"
 
-	"github.com/gotd/td/session"
-	"github.com/gotd/td/telegram"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 
-	"github.com/tdakkota/tgcontrib/auth/terminal"
-	"github.com/tdakkota/tgcontrib/binding/yaegi"
+	"github.com/gotd/td/session"
+	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/telegram/dcs"
+
+	"github.com/gotd/contrib/auth/terminal"
+	"github.com/gotd/contrib/binding/yaegi"
 )
 
 func setupInterp(ctx context.Context, client *telegram.Client) (*interp.Interpreter, error) {
@@ -38,14 +40,29 @@ func setupInterp(ctx context.Context, client *telegram.Client) (*interp.Interpre
 	return i, nil
 }
 
-func run(ctx context.Context) error {
+func parseOptions() (telegram.Options, *flag.FlagSet) {
+	set := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	options := telegram.Options{}
 
-	sessionFile := flag.String("session", "", "path to session file")
-	flag.IntVar(&options.DC, "dc", 2, "Telegram DC ID")
-	flag.StringVar(&options.Addr, "addr", telegram.AddrProduction, "Telegram DC address")
+	set.IntVar(&options.DC, "dc", 2, "Telegram DC ID")
+	set.BoolVar(&options.NoUpdates, "noupdates", false, "Disable updates")
+
+	return options, set
+}
+
+func run(ctx context.Context) error {
+	options, set := parseOptions()
+	if err := set.Parse(os.Args[1:]); err != nil {
+		return err
+	}
+
+	sessionFile := flag.String("session", "", "Path to session file")
+	testDC := flag.Bool("test", false, "Use test DC list")
 	if sessionFile != nil && *sessionFile != "" {
 		options.SessionStorage = &session.FileStorage{Path: *sessionFile}
+	}
+	if *testDC {
+		options.DCList = dcs.StagingDCs()
 	}
 
 	client, err := telegram.ClientFromEnvironment(options)
