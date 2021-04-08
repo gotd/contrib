@@ -1,11 +1,12 @@
-# tgcontrib
+# contrib
 
-[![Go](https://github.com/tdakkota/tgcontrib/workflows/CI/badge.svg)](https://github.com/tdakkota/tgcontrib/actions)
-[![Documentation](https://godoc.org/github.com/tdakkota/tgcontrib?status.svg)](https://pkg.go.dev/github.com/tdakkota/tgcontrib)
-[![license](https://img.shields.io/github/license/tdakkota/tgcontrib.svg?maxAge=2592000)](https://github.com/tdakkota/tgcontrib/blob/master/LICENSE)
+[![Go](https://github.com/gotd/contrib/workflows/CI/badge.svg)](https://github.com/gotd/contrib/actions)
+[![Documentation](https://godoc.org/github.com/gotd/contrib?status.svg)](https://pkg.go.dev/github.com/gotd/contrib)
+[![license](https://img.shields.io/github/license/gotd/contrib.svg?maxAge=2592000)](https://github.com/gotd/contrib/blob/master/LICENSE)
 
+Contrib package for [gotd](https://github.com/gotd/td). 
 
 ## Install
 ```
-go get github.com/tdakkota/tgcontrib
+go get github.com/gotd/contrib
 ```
