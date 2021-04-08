@@ -39,12 +39,21 @@ func setupInterp(ctx context.Context, client *telegram.Client) (*interp.Interpre
 	return i, nil
 }
 
+func parseOptions() (telegram.Options, *flag.FlagSet) {
+	set := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	options := telegram.Options{}
+
+	set.IntVar(&options.DC, "dc", 2, "Telegram DC ID")
+	set.BoolVar(&options.NoUpdates, "noupdates", false, "Disable updates")
+
+	return options, set
+}
+
 func run(ctx context.Context) error {
 	options := telegram.Options{}
 
-	sessionFile := flag.String("session", "", "path to session file")
-	testDC := flag.Bool("test", false, "use test DC list")
-	flag.IntVar(&options.DC, "dc", 2, "Telegram DC ID")
+	sessionFile := flag.String("session", "", "Path to session file")
+	testDC := flag.Bool("test", false, "Use test DC list")
 	if sessionFile != nil && *sessionFile != "" {
 		options.SessionStorage = &session.FileStorage{Path: *sessionFile}
 	}
