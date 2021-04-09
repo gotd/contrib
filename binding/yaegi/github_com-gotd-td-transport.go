@@ -7,35 +7,31 @@ import (
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/transport"
 	"io"
-	"net"
 	"reflect"
 )
 
 func init() {
 	Symbols["github.com/gotd/td/transport"] = map[string]reflect.Value{
 		// function, constant and variable definitions
-		"Abridged":              reflect.ValueOf(transport.Abridged),
-		"Full":                  reflect.ValueOf(transport.Full),
-		"Intermediate":          reflect.ValueOf(transport.Intermediate),
+		"Abridged":              reflect.ValueOf(&transport.Abridged).Elem(),
+		"Full":                  reflect.ValueOf(&transport.Full).Elem(),
+		"Intermediate":          reflect.ValueOf(&transport.Intermediate).Elem(),
 		"NewCustomServer":       reflect.ValueOf(transport.NewCustomServer),
 		"NewFullServer":         reflect.ValueOf(transport.NewFullServer),
 		"NewIntermediateServer": reflect.ValueOf(transport.NewIntermediateServer),
-		"NewTransport":          reflect.ValueOf(transport.NewTransport),
-		"PaddedIntermediate":    reflect.ValueOf(transport.PaddedIntermediate),
+		"NewProtocol":           reflect.ValueOf(transport.NewProtocol),
+		"PaddedIntermediate":    reflect.ValueOf(&transport.PaddedIntermediate).Elem(),
 
 		// type definitions
-		"Codec":     reflect.ValueOf((*transport.Codec)(nil)),
-		"Conn":      reflect.ValueOf((*transport.Conn)(nil)),
-		"DialFunc":  reflect.ValueOf((*transport.DialFunc)(nil)),
-		"Dialer":    reflect.ValueOf((*transport.Dialer)(nil)),
-		"Handler":   reflect.ValueOf((*transport.Handler)(nil)),
-		"Server":    reflect.ValueOf((*transport.Server)(nil)),
-		"Transport": reflect.ValueOf((*transport.Transport)(nil)),
+		"Codec":    reflect.ValueOf((*transport.Codec)(nil)),
+		"Conn":     reflect.ValueOf((*transport.Conn)(nil)),
+		"Handler":  reflect.ValueOf((*transport.Handler)(nil)),
+		"Protocol": reflect.ValueOf((*transport.Protocol)(nil)),
+		"Server":   reflect.ValueOf((*transport.Server)(nil)),
 
 		// interface wrapper definitions
-		"_Codec":  reflect.ValueOf((*_github_com_gotd_td_transport_Codec)(nil)),
-		"_Conn":   reflect.ValueOf((*_github_com_gotd_td_transport_Conn)(nil)),
-		"_Dialer": reflect.ValueOf((*_github_com_gotd_td_transport_Dialer)(nil)),
+		"_Codec": reflect.ValueOf((*_github_com_gotd_td_transport_Codec)(nil)),
+		"_Conn":  reflect.ValueOf((*_github_com_gotd_td_transport_Conn)(nil)),
 	}
 }
 
@@ -69,13 +65,4 @@ func (W _github_com_gotd_td_transport_Conn) Recv(ctx context.Context, b *bin.Buf
 }
 func (W _github_com_gotd_td_transport_Conn) Send(ctx context.Context, b *bin.Buffer) error {
 	return W.WSend(ctx, b)
-}
-
-// _github_com_gotd_td_transport_Dialer is an interface wrapper for Dialer type
-type _github_com_gotd_td_transport_Dialer struct {
-	WDialContext func(ctx context.Context, network string, address string) (net.Conn, error)
-}
-
-func (W _github_com_gotd_td_transport_Dialer) DialContext(ctx context.Context, network string, address string) (net.Conn, error) {
-	return W.WDialContext(ctx, network, address)
 }

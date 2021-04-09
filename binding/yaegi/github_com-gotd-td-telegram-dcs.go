@@ -22,15 +22,27 @@ func init() {
 		"StagingDCs":      reflect.ValueOf(dcs.StagingDCs),
 
 		// type definitions
+		"DialFunc":       reflect.ValueOf((*dcs.DialFunc)(nil)),
 		"MTProxyOptions": reflect.ValueOf((*dcs.MTProxyOptions)(nil)),
 		"PlainOptions":   reflect.ValueOf((*dcs.PlainOptions)(nil)),
+		"Protocol":       reflect.ValueOf((*dcs.Protocol)(nil)),
 		"Resolver":       reflect.ValueOf((*dcs.Resolver)(nil)),
-		"Transport":      reflect.ValueOf((*dcs.Transport)(nil)),
 
 		// interface wrapper definitions
-		"_Resolver":  reflect.ValueOf((*_github_com_gotd_td_telegram_dcs_Resolver)(nil)),
-		"_Transport": reflect.ValueOf((*_github_com_gotd_td_telegram_dcs_Transport)(nil)),
+		"_Protocol": reflect.ValueOf((*_github_com_gotd_td_telegram_dcs_Protocol)(nil)),
+		"_Resolver": reflect.ValueOf((*_github_com_gotd_td_telegram_dcs_Resolver)(nil)),
 	}
+}
+
+// _github_com_gotd_td_telegram_dcs_Protocol is an interface wrapper for Protocol type
+type _github_com_gotd_td_telegram_dcs_Protocol struct {
+	WCodec     func() transport.Codec
+	WHandshake func(conn net.Conn) (transport.Conn, error)
+}
+
+func (W _github_com_gotd_td_telegram_dcs_Protocol) Codec() transport.Codec { return W.WCodec() }
+func (W _github_com_gotd_td_telegram_dcs_Protocol) Handshake(conn net.Conn) (transport.Conn, error) {
+	return W.WHandshake(conn)
 }
 
 // _github_com_gotd_td_telegram_dcs_Resolver is an interface wrapper for Resolver type
@@ -48,15 +60,4 @@ func (W _github_com_gotd_td_telegram_dcs_Resolver) MediaOnly(ctx context.Context
 }
 func (W _github_com_gotd_td_telegram_dcs_Resolver) Primary(ctx context.Context, dc int, dcOptions []tg.DCOption) (transport.Conn, error) {
 	return W.WPrimary(ctx, dc, dcOptions)
-}
-
-// _github_com_gotd_td_telegram_dcs_Transport is an interface wrapper for Transport type
-type _github_com_gotd_td_telegram_dcs_Transport struct {
-	WCodec     func() transport.Codec
-	WHandshake func(conn net.Conn) (transport.Conn, error)
-}
-
-func (W _github_com_gotd_td_telegram_dcs_Transport) Codec() transport.Codec { return W.WCodec() }
-func (W _github_com_gotd_td_telegram_dcs_Transport) Handshake(conn net.Conn) (transport.Conn, error) {
-	return W.WHandshake(conn)
 }

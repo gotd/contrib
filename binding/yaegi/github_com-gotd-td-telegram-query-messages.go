@@ -17,6 +17,7 @@ func init() {
 
 		// type definitions
 		"Elem":                           reflect.ValueOf((*messages.Elem)(nil)),
+		"File":                           reflect.ValueOf((*messages.File)(nil)),
 		"GetHistoryQueryBuilder":         reflect.ValueOf((*messages.GetHistoryQueryBuilder)(nil)),
 		"GetRecentLocationsQueryBuilder": reflect.ValueOf((*messages.GetRecentLocationsQueryBuilder)(nil)),
 		"GetRepliesQueryBuilder":         reflect.ValueOf((*messages.GetRepliesQueryBuilder)(nil)),

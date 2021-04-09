@@ -26,6 +26,8 @@ func init() {
 		"ResolveDeeplink":    reflect.ValueOf(peer.ResolveDeeplink),
 		"ResolveDomain":      reflect.ValueOf(peer.ResolveDomain),
 		"ResolvePhone":       reflect.ValueOf(peer.ResolvePhone),
+		"ToInputChannel":     reflect.ValueOf(peer.ToInputChannel),
+		"ToInputUser":        reflect.ValueOf(peer.ToInputUser),
 		"User":               reflect.ValueOf(peer.User),
 
 		// type definitions

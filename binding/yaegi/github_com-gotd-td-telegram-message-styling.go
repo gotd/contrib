@@ -26,6 +26,7 @@ func init() {
 		"Phone":       reflect.ValueOf(styling.Phone),
 		"Plain":       reflect.ValueOf(styling.Plain),
 		"Pre":         reflect.ValueOf(styling.Pre),
+		"PreLang":     reflect.ValueOf(styling.PreLang),
 		"Strike":      reflect.ValueOf(styling.Strike),
 		"TextURL":     reflect.ValueOf(styling.TextURL),
 		"URL":         reflect.ValueOf(styling.URL),

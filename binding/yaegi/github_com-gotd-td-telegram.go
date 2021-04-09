@@ -7,10 +7,8 @@ import (
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
-	"github.com/gotd/td/transport"
 	"go/constant"
 	"go/token"
-	"net"
 	"reflect"
 )
 
@@ -27,6 +25,7 @@ func init() {
 		"EnvAuth":                reflect.ValueOf(telegram.EnvAuth),
 		"ErrFloodWait":           reflect.ValueOf(constant.MakeFromLiteral("\"FLOOD_WAIT\"", token.STRING, 0)),
 		"ErrPasswordAuthNeeded":  reflect.ValueOf(&telegram.ErrPasswordAuthNeeded).Elem(),
+		"ErrPasswordInvalid":     reflect.ValueOf(&telegram.ErrPasswordInvalid).Elem(),
 		"ErrPasswordNotProvided": reflect.ValueOf(&telegram.ErrPasswordNotProvided).Elem(),
 		"NewAuth":                reflect.ValueOf(telegram.NewAuth),
 		"NewClient":              reflect.ValueOf(telegram.NewClient),
@@ -54,7 +53,6 @@ func init() {
 		"SessionStorage":        reflect.ValueOf((*telegram.SessionStorage)(nil)),
 		"SignUp":                reflect.ValueOf((*telegram.SignUp)(nil)),
 		"SignUpRequired":        reflect.ValueOf((*telegram.SignUpRequired)(nil)),
-		"Transport":             reflect.ValueOf((*telegram.Transport)(nil)),
 		"UpdateHandler":         reflect.ValueOf((*telegram.UpdateHandler)(nil)),
 		"UserAuthenticator":     reflect.ValueOf((*telegram.UserAuthenticator)(nil)),
 		"UserInfo":              reflect.ValueOf((*telegram.UserInfo)(nil)),
@@ -64,7 +62,6 @@ func init() {
 		"_CloseInvoker":      reflect.ValueOf((*_github_com_gotd_td_telegram_CloseInvoker)(nil)),
 		"_CodeAuthenticator": reflect.ValueOf((*_github_com_gotd_td_telegram_CodeAuthenticator)(nil)),
 		"_SessionStorage":    reflect.ValueOf((*_github_com_gotd_td_telegram_SessionStorage)(nil)),
-		"_Transport":         reflect.ValueOf((*_github_com_gotd_td_telegram_Transport)(nil)),
 		"_UpdateHandler":     reflect.ValueOf((*_github_com_gotd_td_telegram_UpdateHandler)(nil)),
 		"_UserAuthenticator": reflect.ValueOf((*_github_com_gotd_td_telegram_UserAuthenticator)(nil)),
 	}
@@ -122,17 +119,6 @@ func (W _github_com_gotd_td_telegram_SessionStorage) LoadSession(ctx context.Con
 }
 func (W _github_com_gotd_td_telegram_SessionStorage) StoreSession(ctx context.Context, data []byte) error {
 	return W.WStoreSession(ctx, data)
-}
-
-// _github_com_gotd_td_telegram_Transport is an interface wrapper for Transport type
-type _github_com_gotd_td_telegram_Transport struct {
-	WCodec     func() transport.Codec
-	WHandshake func(conn net.Conn) (transport.Conn, error)
-}
-
-func (W _github_com_gotd_td_telegram_Transport) Codec() transport.Codec { return W.WCodec() }
-func (W _github_com_gotd_td_telegram_Transport) Handshake(conn net.Conn) (transport.Conn, error) {
-	return W.WHandshake(conn)
 }
 
 // _github_com_gotd_td_telegram_UpdateHandler is an interface wrapper for UpdateHandler type
