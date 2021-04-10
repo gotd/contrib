@@ -72,7 +72,7 @@ func run(ctx context.Context) error {
 
 	return client.Run(ctx, func(ctx context.Context) error {
 		if err := client.AuthIfNecessary(ctx, telegram.NewAuth(
-			telegram.EnvAuth("", telegram.CodeAuthenticatorFunc(terminal.NewTerminal().Code)),
+			telegram.EnvAuth("", telegram.CodeAuthenticatorFunc(terminal.OS().Code)),
 			telegram.SendCodeOptions{},
 		)); err != nil {
 			return fmt.Errorf("auth: %w", err)

@@ -30,4 +30,4 @@ import "reflect"
 //go:generate go run github.com/traefik/yaegi/cmd/yaegi extract github.com/gotd/td/clock
 
 // Symbols variable stores the map of gotd symbols per package.
-var Symbols = map[string]map[string]reflect.Value{}
+var Symbols = map[string]map[string]reflect.Value{} // nolint:gochecknoglobals

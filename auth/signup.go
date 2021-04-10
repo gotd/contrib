@@ -3,9 +3,10 @@ package auth
 import (
 	"context"
 
+	"golang.org/x/xerrors"
+
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
-	"golang.org/x/xerrors"
 )
 
 // SignUpFlow is abstraction for user signup setup.
