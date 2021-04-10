@@ -11,8 +11,8 @@ import (
 )
 
 type vaultClient struct {
-	*api.Client
-	path string
+	client *api.Client
+	path   string
 }
 
 func (c vaultClient) Set(ctx context.Context, k, v string) error {
@@ -28,14 +28,14 @@ func (c vaultClient) getPath() string {
 }
 
 func (c vaultClient) putAll(ctx context.Context, data map[string]interface{}) error {
-	req := c.NewRequest("PUT", c.getPath())
+	req := c.client.NewRequest("PUT", c.getPath())
 
 	err := req.SetJSONBody(data)
 	if err != nil {
 		return xerrors.Errorf("request encode: %w", err)
 	}
 
-	resp, err := c.RawRequestWithContext(ctx, req)
+	resp, err := c.client.RawRequestWithContext(ctx, req)
 	if resp != nil {
 		defer func() {
 			_ = resp.Body.Close()
@@ -46,12 +46,6 @@ func (c vaultClient) putAll(ctx context.Context, data map[string]interface{}) er
 	}
 
 	return nil
-}
-
-func (c vaultClient) put(ctx context.Context, key, value string) error {
-	return c.putAll(ctx, map[string]interface{}{
-		key: value,
-	})
 }
 
 func (c vaultClient) add(ctx context.Context, key, value string) error {
@@ -69,9 +63,9 @@ func (c vaultClient) add(ctx context.Context, key, value string) error {
 }
 
 func (c vaultClient) getAll(ctx context.Context) (*api.Secret, error) {
-	req := c.NewRequest("GET", c.getPath())
+	req := c.client.NewRequest("GET", c.getPath())
 
-	resp, err := c.RawRequestWithContext(ctx, req)
+	resp, err := c.client.RawRequestWithContext(ctx, req)
 	if resp != nil {
 		defer func() {
 			_ = resp.Body.Close()

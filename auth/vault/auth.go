@@ -13,7 +13,7 @@ type Credentials struct {
 
 // NewCredentials creates new Credentials.
 func NewCredentials(client *api.Client, path string) Credentials {
-	s := vaultClient{Client: client, path: path}
+	s := vaultClient{client: client, path: path}
 	return Credentials{
 		Credentials: kv.NewCredentials(s),
 	}
