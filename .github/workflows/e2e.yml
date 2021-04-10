@@ -11,7 +11,7 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-  test:
+  vault:
     runs-on: ubuntu-latest
     services:
       vault:
@@ -38,7 +38,33 @@ jobs:
             ${{ runner.os }}-go-${{ matrix.golang }}-
       - name: Run tests
         env:
-          TGCONTRIB_VAULT_E2E_RUNNER: local_vault
           VAULT_ADDR: "http://localhost:8200"
           VAULT_TOKEN: "testtoken"
-        run: go test -race -v -run ^TestE2E ./...
+        run: go test -race -v -run ^TestE2E ./auth/vault/...
+  redis:
+    runs-on: ubuntu-latest
+    services:
+      vault:
+        image: "redis:latest"
+        ports:
+          - 6379:6379
+    strategy:
+      matrix:
+        golang:
+          - 1.16
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.golang }}
+      - uses: actions/cache@v2.1.4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.golang }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.golang }}-
+      - name: Run tests
+        env:
+          REDIS_ADDR: "localhost:6379"
+        run: go test -race -v -run ^TestE2E ./auth/redis/...
