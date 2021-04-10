@@ -2,19 +2,33 @@ package vault
 
 import (
 	"context"
+	"path"
 
 	"github.com/hashicorp/vault/api"
 	"golang.org/x/xerrors"
-)
 
-var errSecretNotFound = xerrors.New("secret not found")
+	"github.com/gotd/contrib/auth/kv"
+)
 
 type vaultClient struct {
 	*api.Client
+	path string
 }
 
-func (c vaultClient) putAll(ctx context.Context, path string, data map[string]interface{}) error {
-	req := c.NewRequest("PUT", "/v1/"+path)
+func (c vaultClient) Set(ctx context.Context, k, v string) error {
+	return c.add(ctx, k, v)
+}
+
+func (c vaultClient) Get(ctx context.Context, k string) (string, error) {
+	return c.get(ctx, k)
+}
+
+func (c vaultClient) getPath() string {
+	return path.Join("/v1/", c.path)
+}
+
+func (c vaultClient) putAll(ctx context.Context, data map[string]interface{}) error {
+	req := c.NewRequest("PUT", c.getPath())
 
 	err := req.SetJSONBody(data)
 	if err != nil {
@@ -34,16 +48,16 @@ func (c vaultClient) putAll(ctx context.Context, path string, data map[string]in
 	return nil
 }
 
-func (c vaultClient) put(ctx context.Context, path, key, value string) error {
-	return c.putAll(ctx, path, map[string]interface{}{
+func (c vaultClient) put(ctx context.Context, key, value string) error {
+	return c.putAll(ctx, map[string]interface{}{
 		key: value,
 	})
 }
 
-func (c vaultClient) add(ctx context.Context, path, key, value string) error {
-	s, err := c.getAll(ctx, path, key)
+func (c vaultClient) add(ctx context.Context, key, value string) error {
+	s, err := c.getAll(ctx)
 	data := map[string]interface{}{}
-	if err != nil && !xerrors.Is(err, errSecretNotFound) {
+	if err != nil && !xerrors.Is(err, kv.ErrKeyNotFound) {
 		return err
 	}
 	if err == nil {
@@ -51,20 +65,21 @@ func (c vaultClient) add(ctx context.Context, path, key, value string) error {
 	}
 
 	data[key] = value
-	return c.putAll(ctx, path, data)
+	return c.putAll(ctx, data)
 }
 
-func (c vaultClient) getAll(ctx context.Context, path, key string) (*api.Secret, error) {
-	req := c.NewRequest("GET", "/v1/"+path)
+func (c vaultClient) getAll(ctx context.Context) (*api.Secret, error) {
+	req := c.NewRequest("GET", c.getPath())
 
 	resp, err := c.RawRequestWithContext(ctx, req)
 	if resp != nil {
 		defer func() {
 			_ = resp.Body.Close()
 		}()
-	}
-	if resp != nil && resp.StatusCode == 404 {
-		return nil, errSecretNotFound
+
+		if resp.StatusCode == 404 {
+			return nil, kv.ErrKeyNotFound
+		}
 	}
 	if err != nil {
 		return nil, xerrors.Errorf("secret fetch: %w", err)
@@ -78,15 +93,15 @@ func (c vaultClient) getAll(ctx context.Context, path, key string) (*api.Secret,
 	return secret, nil
 }
 
-func (c vaultClient) get(ctx context.Context, path, key string) (string, error) {
-	secret, err := c.getAll(ctx, path, key)
+func (c vaultClient) get(ctx context.Context, key string) (string, error) {
+	secret, err := c.getAll(ctx)
 	if err != nil {
 		return "", err
 	}
 
 	data, ok := secret.Data[key]
 	if !ok {
-		return "", errSecretNotFound
+		return "", kv.ErrKeyNotFound
 	}
 
 	session, ok := data.(string)

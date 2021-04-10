@@ -2,14 +2,15 @@ package terminal
 
 import (
 	"context"
-	"fmt"
+	"io"
 	"os"
 	"strings"
 
-	"github.com/gotd/td/telegram"
-	"github.com/gotd/td/tg"
 	"golang.org/x/term"
 	"golang.org/x/xerrors"
+
+	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/tg"
 )
 
 // Terminal implements UserAuthenticator.
@@ -17,11 +18,23 @@ type Terminal struct {
 	*term.Terminal
 }
 
-// NewTerminal creates new Terminal.
-func NewTerminal() *Terminal {
-	return &Terminal{
-		term.NewTerminal(os.Stdout, ""),
+// New creates new Terminal.
+func New(in io.Reader, out io.Writer) *Terminal {
+	rw := struct {
+		io.Reader
+		io.Writer
+	}{
+		Reader: in,
+		Writer: out,
 	}
+	return &Terminal{
+		Terminal: term.NewTerminal(rw, ""),
+	}
+}
+
+// OS creates new Terminal using os.Stdout and os.Stdin.
+func OS() *Terminal {
+	return New(os.Stdin, os.Stdout)
 }
 
 func (t *Terminal) read(prompt string) (string, error) {
@@ -30,18 +43,22 @@ func (t *Terminal) read(prompt string) (string, error) {
 	return t.Terminal.ReadLine()
 }
 
+// Phone asks phone using terminal.
 func (t *Terminal) Phone(ctx context.Context) (string, error) {
 	return t.read("Phone:")
 }
 
+// Password asks password using terminal.
 func (t *Terminal) Password(ctx context.Context) (string, error) {
 	return t.read("Password:")
 }
 
+// Code asks code using terminal.
 func (t *Terminal) Code(ctx context.Context) (string, error) {
 	return t.read("Code:")
 }
 
+// SignUp asks user info for sign up.
 func (t *Terminal) SignUp(ctx context.Context) (u telegram.UserInfo, err error) {
 	u.FirstName, err = t.read("First name:")
 	if err != nil {
@@ -56,8 +73,10 @@ func (t *Terminal) SignUp(ctx context.Context) (u telegram.UserInfo, err error) 
 	return u, nil
 }
 
+// AcceptTermsOfService write terms of service received from Telegram and
+// asks to accept it.
 func (t *Terminal) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfService) error {
-	_, err := fmt.Fprintln(t.Terminal, tos.Text)
+	_, err := io.WriteString(t.Terminal, "Telegram requested sign up, user not found.\n\n"+tos.Text)
 	if err != nil {
 		return xerrors.Errorf("write terms of service: %w", err)
 	}

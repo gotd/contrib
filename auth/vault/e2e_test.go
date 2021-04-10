@@ -57,13 +57,14 @@ func testEnviron() (Command, error) {
 
 func getDaemonAddr() (string, error) {
 	var endpoint string
-	if os.Getenv("DOCKER_HOST") != "" {
+	switch {
+	case os.Getenv("DOCKER_HOST") != "":
 		endpoint = os.Getenv("DOCKER_HOST")
-	} else if os.Getenv("DOCKER_URL") != "" {
+	case os.Getenv("DOCKER_URL") != "":
 		endpoint = os.Getenv("DOCKER_URL")
-	} else if runtime.GOOS == "windows" {
+	case runtime.GOOS == "windows":
 		endpoint = "http://localhost:2375"
-	} else {
+	default:
 		endpoint = "unix:///var/run/docker.sock"
 	}
 
@@ -87,23 +88,23 @@ func runTest(t *testing.T, addr, token string, test func(*testing.T, *api.Client
 	bo.MaxInterval = time.Second * 5
 	bo.MaxElapsedTime = time.Minute
 
-	var client *api.Client
-	// exponential backoff-retry, because the Vault might not be ready to accept connections yet
-	if err := backoff.Retry(func() (err error) {
-		cfg := api.DefaultConfig()
-		cfg.Address = addr
-		t.Logf("Trying to connect to Vault %s", cfg.Address)
-
-		client, err = api.NewClient(cfg)
-		if err != nil {
-			return
-		}
-		client.SetToken(token)
-
-		_, err = client.Sys().Health()
+	cfg := api.DefaultConfig()
+	cfg.Address = addr
+	client, err := api.NewClient(cfg)
+	if err != nil {
+		t.Fatalf("Can't create client: %s", err)
 		return
+	}
+	client.SetToken(token)
+
+	// exponential backoff-retry, because the Vault might not be ready to accept connections yet
+	if err := backoff.Retry(func() error {
+		t.Logf("Trying to connect to Vault %s", cfg.Address)
+		_, err := client.Sys().Health()
+		return err
 	}, bo); err != nil {
 		t.Fatalf("Could not connect to Vault: %s", err)
+		return
 	}
 
 	test(t, client)
@@ -177,7 +178,8 @@ func testUsingLocalBinary(test func(*testing.T, *api.Client)) func(t *testing.T)
 		}
 
 		cmd := exec.Command(binaryPath, e.Cmd[1:]...)
-		cmd.Env = append(e.Env, os.Environ()...)
+		cmd.Env = append(cmd.Env, e.Env...)
+		cmd.Env = append(cmd.Env, os.Environ()...)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		if err := cmd.Start(); err != nil {
