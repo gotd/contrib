@@ -48,6 +48,11 @@ jobs:
           VAULT_TOKEN: "testtoken"
         run: make e2e_vault_test
 
+      - name: Send coverage
+        uses: codecov/codecov-action@v1.3.1
+        with:
+          file: profile.out
+
   redis:
     runs-on: ubuntu-latest
     services:
@@ -81,3 +86,8 @@ jobs:
         env:
           REDIS_ADDR: "localhost:6379"
         run: make e2e_redis_test
+
+      - name: Send coverage
+        uses: codecov/codecov-action@v1.3.1
+        with:
+          file: profile.out
