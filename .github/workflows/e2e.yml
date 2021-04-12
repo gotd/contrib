@@ -20,27 +20,39 @@ jobs:
           - 8200:8200
         env:
           VAULT_DEV_ROOT_TOKEN_ID: testtoken
-    strategy:
-      matrix:
-        golang:
-          - 1.16
     steps:
       - uses: actions/checkout@v2
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v2.1.3
         with:
-          go-version: ${{ matrix.golang }}
-      - uses: actions/cache@v2.1.4
+          go-version: 1.16
+
+      - name: Get Go environment
+        id: go-env
+        run: |
+          echo "::set-output name=cache::$(go env GOCACHE)"
+          echo "::set-output name=modcache::$(go env GOMODCACHE)"
+      - name: Set up cache
+        uses: actions/cache@v2.1.4
         with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ matrix.golang }}-${{ hashFiles('**/go.sum') }}
+          path: |
+            ${{ steps.go-env.outputs.cache }}
+            ${{ steps.go-env.outputs.modcache }}
+          key: check-mod-${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ matrix.golang }}-
+            check-mod-${{ runner.os }}-go-
+
       - name: Run tests
         env:
           VAULT_ADDR: "http://localhost:8200"
           VAULT_TOKEN: "testtoken"
-        run: go test -race -v -run ^TestE2E ./auth/vault/...
+        run: make e2e_vault_test
+
+      - name: Send coverage
+        uses: codecov/codecov-action@v1.3.1
+        with:
+          file: profile.out
+
   redis:
     runs-on: ubuntu-latest
     services:
@@ -48,23 +60,34 @@ jobs:
         image: "redis:latest"
         ports:
           - 6379:6379
-    strategy:
-      matrix:
-        golang:
-          - 1.16
     steps:
       - uses: actions/checkout@v2
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v2.1.3
         with:
-          go-version: ${{ matrix.golang }}
-      - uses: actions/cache@v2.1.4
+          go-version: 1.16
+
+      - name: Get Go environment
+        id: go-env
+        run: |
+          echo "::set-output name=cache::$(go env GOCACHE)"
+          echo "::set-output name=modcache::$(go env GOMODCACHE)"
+      - name: Set up cache
+        uses: actions/cache@v2.1.4
         with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ matrix.golang }}-${{ hashFiles('**/go.sum') }}
+          path: |
+            ${{ steps.go-env.outputs.cache }}
+            ${{ steps.go-env.outputs.modcache }}
+          key: check-mod-${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ matrix.golang }}-
+            check-mod-${{ runner.os }}-go-
+
       - name: Run tests
         env:
           REDIS_ADDR: "localhost:6379"
-        run: go test -race -v -run ^TestE2E ./auth/redis/...
+        run: make e2e_redis_test
+
+      - name: Send coverage
+        uses: codecov/codecov-action@v1.3.1
+        with:
+          file: profile.out
