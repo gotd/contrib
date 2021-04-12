@@ -69,22 +69,22 @@ func init() {
 
 // _github_com_gotd_td_telegram_AuthFlowClient is an interface wrapper for AuthFlowClient type
 type _github_com_gotd_td_telegram_AuthFlowClient struct {
-	WAuthPassword func(ctx context.Context, password string) error
-	WAuthSendCode func(ctx context.Context, phone string, options telegram.SendCodeOptions) (codeHash string, err error)
-	WAuthSignIn   func(ctx context.Context, phone string, code string, codeHash string) error
-	WAuthSignUp   func(ctx context.Context, s telegram.SignUp) error
+	WAuthPassword func(ctx context.Context, password string) (*tg.AuthAuthorization, error)
+	WAuthSendCode func(ctx context.Context, phone string, options telegram.SendCodeOptions) (*tg.AuthSentCode, error)
+	WAuthSignIn   func(ctx context.Context, phone string, code string, codeHash string) (*tg.AuthAuthorization, error)
+	WAuthSignUp   func(ctx context.Context, s telegram.SignUp) (*tg.AuthAuthorization, error)
 }
 
-func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthPassword(ctx context.Context, password string) error {
+func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthPassword(ctx context.Context, password string) (*tg.AuthAuthorization, error) {
 	return W.WAuthPassword(ctx, password)
 }
-func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSendCode(ctx context.Context, phone string, options telegram.SendCodeOptions) (codeHash string, err error) {
+func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSendCode(ctx context.Context, phone string, options telegram.SendCodeOptions) (*tg.AuthSentCode, error) {
 	return W.WAuthSendCode(ctx, phone, options)
 }
-func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSignIn(ctx context.Context, phone string, code string, codeHash string) error {
+func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSignIn(ctx context.Context, phone string, code string, codeHash string) (*tg.AuthAuthorization, error) {
 	return W.WAuthSignIn(ctx, phone, code, codeHash)
 }
-func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSignUp(ctx context.Context, s telegram.SignUp) error {
+func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSignUp(ctx context.Context, s telegram.SignUp) (*tg.AuthAuthorization, error) {
 	return W.WAuthSignUp(ctx, s)
 }
 
