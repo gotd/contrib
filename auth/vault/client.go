@@ -5,6 +5,7 @@ import (
 	"path"
 
 	"github.com/hashicorp/vault/api"
+	"go.uber.org/multierr"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/auth/kv"
@@ -38,7 +39,7 @@ func (c vaultClient) putAll(ctx context.Context, data map[string]interface{}) er
 	resp, err := c.client.RawRequestWithContext(ctx, req)
 	if resp != nil {
 		defer func() {
-			_ = resp.Body.Close()
+			multierr.AppendInto(&err, resp.Body.Close())
 		}()
 	}
 	if err != nil {
@@ -68,7 +69,7 @@ func (c vaultClient) getAll(ctx context.Context) (*api.Secret, error) {
 	resp, err := c.client.RawRequestWithContext(ctx, req)
 	if resp != nil {
 		defer func() {
-			_ = resp.Body.Close()
+			multierr.AppendInto(&err, resp.Body.Close())
 		}()
 
 		if resp.StatusCode == 404 {

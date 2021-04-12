@@ -29,7 +29,8 @@ func vaultStorage(ctx context.Context) error {
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {
-		return client.AuthBot(ctx, os.Getenv("BOT_TOKEN"))
+		_, err := client.AuthBot(ctx, os.Getenv("BOT_TOKEN"))
+		return err
 	})
 }
 
