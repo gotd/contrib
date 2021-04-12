@@ -4,9 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
-	"github.com/stretchr/testify/require"
 )
 
 func TestBuild(t *testing.T) {
