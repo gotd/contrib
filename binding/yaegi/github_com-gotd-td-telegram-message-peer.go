@@ -22,6 +22,7 @@ func init() {
 		"OnlyChannel":        reflect.ValueOf(peer.OnlyChannel),
 		"OnlyChat":           reflect.ValueOf(peer.OnlyChat),
 		"OnlyUser":           reflect.ValueOf(peer.OnlyUser),
+		"OnlyUserID":         reflect.ValueOf(peer.OnlyUserID),
 		"Resolve":            reflect.ValueOf(peer.Resolve),
 		"ResolveDeeplink":    reflect.ValueOf(peer.ResolveDeeplink),
 		"ResolveDomain":      reflect.ValueOf(peer.ResolveDomain),
@@ -31,6 +32,7 @@ func init() {
 		"User":               reflect.ValueOf(peer.User),
 
 		// type definitions
+		"ConstraintError":    reflect.ValueOf((*peer.ConstraintError)(nil)),
 		"DialogKey":          reflect.ValueOf((*peer.DialogKey)(nil)),
 		"Entities":           reflect.ValueOf((*peer.Entities)(nil)),
 		"EntitySearchResult": reflect.ValueOf((*peer.EntitySearchResult)(nil)),
