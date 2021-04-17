@@ -10,11 +10,12 @@ import (
 )
 
 type pebbleStorage struct {
-	db *pebble.DB
+	db   *pebble.DB
+	opts *pebble.WriteOptions
 }
 
 func (p pebbleStorage) Set(ctx context.Context, k, v string) error {
-	return p.db.Set([]byte(k), []byte(v), nil)
+	return p.db.Set([]byte(k), []byte(v), p.opts)
 }
 
 func (p pebbleStorage) Get(ctx context.Context, k string) (string, error) {

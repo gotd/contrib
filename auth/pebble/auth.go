@@ -13,7 +13,7 @@ type Credentials struct {
 
 // NewCredentials creates new Credentials.
 func NewCredentials(db *pebble.DB) Credentials {
-	s := pebbleStorage{db: db}
+	s := pebbleStorage{db: db, opts: pebble.Sync}
 	return Credentials{
 		Credentials: kv.NewCredentials(s),
 	}
