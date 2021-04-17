@@ -1,4 +1,4 @@
-package vault_test
+package redis_test
 
 import (
 	"context"
@@ -6,22 +6,19 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/hashicorp/vault/api"
+	redisclient "github.com/go-redis/redis/v8"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 
 	"github.com/gotd/contrib/auth"
 	"github.com/gotd/contrib/auth/terminal"
-	"github.com/gotd/contrib/auth/vault"
+	"github.com/gotd/contrib/redis"
 )
 
-func vaultAuth(ctx context.Context) error {
-	vaultClient, err := api.NewClient(api.DefaultConfig())
-	if err != nil {
-		return xerrors.Errorf("create Vault client: %w", err)
-	}
-	cred := vault.NewCredentials(vaultClient, "cubbyhole/telegram/user").
+func redisAuth(ctx context.Context) error {
+	redisClient := redisclient.NewClient(&redisclient.Options{})
+	cred := redis.NewCredentials(redisClient).
 		WithPhoneKey("phone").
 		WithPasswordKey("password")
 
@@ -42,7 +39,7 @@ func ExampleCredentials() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	if err := vaultAuth(ctx); err != nil {
+	if err := redisAuth(ctx); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}

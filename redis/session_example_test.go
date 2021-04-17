@@ -1,4 +1,4 @@
-package vault_test
+package redis_test
 
 import (
 	"context"
@@ -6,20 +6,17 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/hashicorp/vault/api"
+	redisclient "github.com/go-redis/redis/v8"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 
-	"github.com/gotd/contrib/auth/vault"
+	"github.com/gotd/contrib/redis"
 )
 
-func vaultStorage(ctx context.Context) error {
-	vaultClient, err := api.NewClient(api.DefaultConfig())
-	if err != nil {
-		return xerrors.Errorf("create Vault client: %w", err)
-	}
-	storage := vault.NewSessionStorage(vaultClient, "cubbyhole/telegram/user", "session")
+func redisStorage(ctx context.Context) error {
+	redisClient := redisclient.NewClient(&redisclient.Options{})
+	storage := redis.NewSessionStorage(redisClient, "session")
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
 		SessionStorage: storage,
@@ -38,7 +35,7 @@ func ExampleSessionStorage() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	if err := vaultStorage(ctx); err != nil {
+	if err := redisStorage(ctx); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}

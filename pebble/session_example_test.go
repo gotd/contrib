@@ -1,4 +1,4 @@
-package redis_test
+package pebble_test
 
 import (
 	"context"
@@ -6,17 +6,20 @@ import (
 	"os"
 	"os/signal"
 
-	redisclient "github.com/go-redis/redis/v8"
+	pebbledb "github.com/cockroachdb/pebble"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 
-	"github.com/gotd/contrib/auth/redis"
+	"github.com/gotd/contrib/pebble"
 )
 
-func redisStorage(ctx context.Context) error {
-	redisClient := redisclient.NewClient(&redisclient.Options{})
-	storage := redis.NewSessionStorage(redisClient, "session")
+func pebbleStorage(ctx context.Context) error {
+	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
+	if err != nil {
+		return xerrors.Errorf("create pebble storage: %w", err)
+	}
+	storage := pebble.NewSessionStorage(db, "session")
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
 		SessionStorage: storage,
@@ -35,7 +38,7 @@ func ExampleSessionStorage() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	if err := redisStorage(ctx); err != nil {
+	if err := pebbleStorage(ctx); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}

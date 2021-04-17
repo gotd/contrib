@@ -3,11 +3,11 @@ test:
 .PHONY: test
 
 e2e_redis_test:
-	@./go.e2e.sh ./auth/redis/...
+	@./go.e2e.sh ./redis/...
 .PHONY: e2e_redis_test
 
 e2e_vault_test:
-	@./go.e2e.sh ./auth/vault/...
+	@./go.e2e.sh ./vault/...
 .PHONY: e2e_vault_test
 
 coverage:

@@ -1,4 +1,4 @@
-package pebble_test
+package vault_test
 
 import (
 	"context"
@@ -6,22 +6,22 @@ import (
 	"os"
 	"os/signal"
 
-	pebbledb "github.com/cockroachdb/pebble"
+	"github.com/hashicorp/vault/api"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 
 	"github.com/gotd/contrib/auth"
-	"github.com/gotd/contrib/auth/pebble"
 	"github.com/gotd/contrib/auth/terminal"
+	"github.com/gotd/contrib/vault"
 )
 
-func pebbleAuth(ctx context.Context) error {
-	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
+func vaultAuth(ctx context.Context) error {
+	vaultClient, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
-		return xerrors.Errorf("create pebble storage: %w", err)
+		return xerrors.Errorf("create Vault client: %w", err)
 	}
-	cred := pebble.NewCredentials(db).
+	cred := vault.NewCredentials(vaultClient, "cubbyhole/telegram/user").
 		WithPhoneKey("phone").
 		WithPasswordKey("password")
 
@@ -42,7 +42,7 @@ func ExampleCredentials() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	if err := pebbleAuth(ctx); err != nil {
+	if err := vaultAuth(ctx); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}

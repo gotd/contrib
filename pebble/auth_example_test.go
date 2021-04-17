@@ -1,4 +1,4 @@
-package redis_test
+package pebble_test
 
 import (
 	"context"
@@ -6,18 +6,22 @@ import (
 	"os"
 	"os/signal"
 
-	redisclient "github.com/go-redis/redis/v8"
+	pebbledb "github.com/cockroachdb/pebble"
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/contrib/auth"
-	"github.com/gotd/contrib/auth/redis"
-	"github.com/gotd/contrib/auth/terminal"
 	"github.com/gotd/td/telegram"
+
+	"github.com/gotd/contrib/auth"
+	"github.com/gotd/contrib/auth/terminal"
+	"github.com/gotd/contrib/pebble"
 )
 
-func redisAuth(ctx context.Context) error {
-	redisClient := redisclient.NewClient(&redisclient.Options{})
-	cred := redis.NewCredentials(redisClient).
+func pebbleAuth(ctx context.Context) error {
+	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
+	if err != nil {
+		return xerrors.Errorf("create pebble storage: %w", err)
+	}
+	cred := pebble.NewCredentials(db).
 		WithPhoneKey("phone").
 		WithPasswordKey("password")
 
@@ -38,7 +42,7 @@ func ExampleCredentials() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	if err := redisAuth(ctx); err != nil {
+	if err := pebbleAuth(ctx); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
