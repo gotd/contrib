@@ -5,6 +5,7 @@ import (
 
 	pebbledb "github.com/cockroachdb/pebble"
 	"github.com/cockroachdb/pebble/vfs"
+
 	"github.com/gotd/td/telegram/message/peer"
 
 	"github.com/gotd/contrib/internal/tests"

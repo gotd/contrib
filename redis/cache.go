@@ -1,11 +1,10 @@
-package pebble
+package redis
 
 import (
 	"context"
 	"encoding/json"
 
-	"github.com/cockroachdb/pebble"
-	"go.uber.org/multierr"
+	"github.com/go-redis/redis/v8"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram/message/peer"
@@ -17,18 +16,18 @@ import (
 
 // ResolverCache is a peer resolver cache.
 type ResolverCache struct {
-	next   peer.Resolver
-	pebble *pebble.DB
+	next  peer.Resolver
+	redis *redis.Client
 }
 
-// NewResolverCache creates new resolver cache using pebble.
-func NewResolverCache(next peer.Resolver, db *pebble.DB) *ResolverCache {
-	return &ResolverCache{next: next, pebble: db}
+// NewResolverCache creates new resolver cache using redis.
+func NewResolverCache(next peer.Resolver, client *redis.Client) *ResolverCache {
+	return &ResolverCache{next: next, redis: client}
 }
 
 func (r ResolverCache) notFound(
 	ctx context.Context,
-	key string, k []byte,
+	key string,
 	f func(context.Context, string) (tg.InputPeerClass, error),
 ) (_ tg.InputPeerClass, rerr error) {
 	// If key not found, try to resolve.
@@ -48,22 +47,13 @@ func (r ResolverCache) notFound(
 		return nil, xerrors.Errorf("marshal: %w", err)
 	}
 
-	b := r.pebble.NewBatch()
-	defer func() {
-		multierr.AppendInto(&rerr, b.Close())
-	}()
-
 	id := proto.KeyFromPeer(value).Bytes(nil)
-	if err := b.Set(id, data, nil); err != nil {
+	if err := r.redis.Set(ctx, bytesconv.B2S(id), data, 0).Err(); err != nil {
 		return nil, xerrors.Errorf("set id <-> data: %w", err)
 	}
 
-	if err := b.Set(k, id, nil); err != nil {
+	if err := r.redis.Set(ctx, key, id, 0).Err(); err != nil {
 		return nil, xerrors.Errorf("set key <-> id: %w", err)
-	}
-
-	if err := b.Commit(nil); err != nil {
-		return nil, xerrors.Errorf("commit changes: %w", err)
 	}
 
 	return resolved, nil
@@ -74,30 +64,20 @@ func (r ResolverCache) tryResolve(
 	key string,
 	f func(context.Context, string) (tg.InputPeerClass, error),
 ) (_ tg.InputPeerClass, rerr error) {
-	// Convert key string to the byte slice.
-	// Pebble copies key, so we can use unsafe conversion here.
-	k := bytesconv.S2B(key)
-
 	// Find id by domain.
-	id, idCloser, err := r.pebble.Get(k)
-	if xerrors.Is(err, pebble.ErrNotFound) {
-		return r.notFound(ctx, key, k, f)
+	id, err := r.redis.Get(ctx, key).Result()
+	if xerrors.Is(err, redis.Nil) {
+		return r.notFound(ctx, key, f)
 	}
 	if err != nil {
 		return nil, xerrors.Errorf("get %q: %w", key, err)
 	}
-	defer func() {
-		multierr.AppendInto(&rerr, idCloser.Close())
-	}()
 
 	// Find object by id.
-	data, dataCloser, err := r.pebble.Get(id)
+	data, err := r.redis.Get(ctx, id).Bytes()
 	if err != nil {
 		return nil, xerrors.Errorf("get %q: %w", id, err)
 	}
-	defer func() {
-		multierr.AppendInto(&rerr, dataCloser.Close())
-	}()
 
 	var b proto.Peer
 	if err := json.Unmarshal(data, &b); err != nil {

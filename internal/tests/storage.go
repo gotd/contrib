@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/gotd/td/telegram/message/peer"
 	"github.com/gotd/td/tg"
-	"github.com/stretchr/testify/require"
 
 	"github.com/gotd/td/session"
 
@@ -120,6 +121,10 @@ func TestResolverCache(t *testing.T, c func(next peer.Resolver) peer.Resolver) {
 			r, err := cache.ResolveDomain(ctx, expectedDomain)
 			a.NoError(err)
 			a.Equal(expected, r)
+
+			r, err = cache.ResolveDomain(ctx, expectedDomain)
+			a.NoError(err)
+			a.Equal(expected, r)
 		})
 
 		t.Run("Phone", func(t *testing.T) {
@@ -132,6 +137,10 @@ func TestResolverCache(t *testing.T, c func(next peer.Resolver) peer.Resolver) {
 			cache := c(resolver)
 
 			r, err := cache.ResolvePhone(ctx, expectedPhone)
+			a.NoError(err)
+			a.Equal(expected, r)
+
+			r, err = cache.ResolvePhone(ctx, expectedPhone)
 			a.NoError(err)
 			a.Equal(expected, r)
 		})

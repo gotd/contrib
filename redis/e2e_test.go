@@ -7,6 +7,8 @@ import (
 
 	redisclient "github.com/go-redis/redis/v8"
 
+	"github.com/gotd/td/telegram/message/peer"
+
 	"github.com/gotd/contrib/internal/tests"
 	"github.com/gotd/contrib/redis"
 )
@@ -26,4 +28,7 @@ func TestE2E(t *testing.T) {
 
 	tests.TestSessionStorage(t, redis.NewSessionStorage(client, "session"))
 	tests.TestCredentials(t, redis.NewCredentials(client))
+	tests.TestResolverCache(t, func(next peer.Resolver) peer.Resolver {
+		return redis.NewResolverCache(next, client)
+	})
 }
