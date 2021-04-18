@@ -9,11 +9,10 @@ import (
 	pebbledb "github.com/cockroachdb/pebble"
 	"golang.org/x/xerrors"
 
+	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/message"
 	"github.com/gotd/td/telegram/message/peer"
 	"github.com/gotd/td/tg"
-
-	"github.com/gotd/td/telegram"
 
 	"github.com/gotd/contrib/pebble"
 )
