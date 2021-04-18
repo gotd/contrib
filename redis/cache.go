@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/go-redis/redis/v8"
+	"go.uber.org/multierr"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram/message/peer"
@@ -48,12 +49,21 @@ func (r ResolverCache) notFound(
 	}
 
 	id := proto.KeyFromPeer(value).Bytes(nil)
-	if err := r.redis.Set(ctx, bytesconv.B2S(id), data, 0).Err(); err != nil {
+	tx := r.redis.TxPipeline()
+	defer func() {
+		multierr.AppendInto(&rerr, tx.Close())
+	}()
+
+	if err := tx.Set(ctx, bytesconv.B2S(id), data, 0).Err(); err != nil {
 		return nil, xerrors.Errorf("set id <-> data: %w", err)
 	}
 
-	if err := r.redis.Set(ctx, key, id, 0).Err(); err != nil {
+	if err := tx.Set(ctx, key, id, 0).Err(); err != nil {
 		return nil, xerrors.Errorf("set key <-> id: %w", err)
+	}
+
+	if _, err := tx.Exec(ctx); err != nil {
+		return nil, xerrors.Errorf("exec: %w", err)
 	}
 
 	return resolved, nil
@@ -63,7 +73,7 @@ func (r ResolverCache) tryResolve(
 	ctx context.Context,
 	key string,
 	f func(context.Context, string) (tg.InputPeerClass, error),
-) (_ tg.InputPeerClass, rerr error) {
+) (tg.InputPeerClass, error) {
 	// Find id by domain.
 	id, err := r.redis.Get(ctx, key).Result()
 	if xerrors.Is(err, redis.Nil) {
