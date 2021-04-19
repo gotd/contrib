@@ -17,7 +17,7 @@ func init() {
 		// function, constant and variable definitions
 		"AddrProduction":         reflect.ValueOf(constant.MakeFromLiteral("\"149.154.167.50:443\"", token.STRING, 0)),
 		"AddrTest":               reflect.ValueOf(constant.MakeFromLiteral("\"149.154.167.40:443\"", token.STRING, 0)),
-		"AsFloodWait":            reflect.ValueOf(telegram.AsFloodWait),
+		"AsFloodWait":            reflect.ValueOf(&telegram.AsFloodWait).Elem(),
 		"BotFromEnvironment":     reflect.ValueOf(telegram.BotFromEnvironment),
 		"ClientFromEnvironment":  reflect.ValueOf(telegram.ClientFromEnvironment),
 		"CodeOnlyAuth":           reflect.ValueOf(telegram.CodeOnlyAuth),

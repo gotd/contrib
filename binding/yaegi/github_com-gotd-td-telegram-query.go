@@ -10,7 +10,13 @@ import (
 func init() {
 	Symbols["github.com/gotd/td/telegram/query"] = map[string]reflect.Value{
 		// function, constant and variable definitions
-		"NewQuery": reflect.ValueOf(query.NewQuery),
+		"GetBlocked":             reflect.ValueOf(query.GetBlocked),
+		"GetDialogs":             reflect.ValueOf(query.GetDialogs),
+		"GetOldFeaturedStickers": reflect.ValueOf(query.GetOldFeaturedStickers),
+		"GetParticipants":        reflect.ValueOf(query.GetParticipants),
+		"GetUserPhotos":          reflect.ValueOf(query.GetUserPhotos),
+		"Messages":               reflect.ValueOf(query.Messages),
+		"NewQuery":               reflect.ValueOf(query.NewQuery),
 
 		// type definitions
 		"Query": reflect.ValueOf((*query.Query)(nil)),
