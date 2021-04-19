@@ -52,6 +52,6 @@ jobs:
 
           title: Update bindings.
           body: |
-            Update td bindings to the latest layer.
+            Update td bindings to the latest version.
           labels: |
             dependencies
