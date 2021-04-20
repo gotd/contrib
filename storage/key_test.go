@@ -3,8 +3,9 @@ package storage
 import (
 	"testing"
 
-	"github.com/gotd/td/tg"
 	"github.com/stretchr/testify/require"
+
+	"github.com/gotd/td/tg"
 )
 
 func TestKey(t *testing.T) {

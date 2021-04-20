@@ -9,8 +9,8 @@ import (
 	"github.com/gotd/td/telegram/message/peer"
 )
 
-// KeyPrefix is a key prefix of peer key.
-var KeyPrefix = []byte("peer")
+// keyPrefix is a key prefix of peer key.
+var keyPrefix = []byte("peer") // nolint:gochecknoglobals
 
 // Key is unique key of peer object.
 type Key struct {
@@ -30,7 +30,7 @@ const keySeparator = '_'
 
 // Bytes returns bytes representation of key.
 func (k Key) Bytes(r []byte) []byte {
-	r = append(r, KeyPrefix...)
+	r = append(r, keyPrefix...)
 	r = strconv.AppendInt(r, int64(k.Kind), 10)
 	r = append(r, keySeparator)
 	r = strconv.AppendInt(r, int64(k.ID), 10)
@@ -41,10 +41,10 @@ var invalidKey = xerrors.New("invalid key") // nolint:gochecknoglobals
 
 // Parse parses bytes representation from given slice.
 func (k *Key) Parse(r []byte) error {
-	if !bytes.HasPrefix(r, KeyPrefix) {
+	if !bytes.HasPrefix(r, keyPrefix) {
 		return invalidKey
 	}
-	r = r[len(KeyPrefix):]
+	r = r[len(keyPrefix):]
 
 	idx := bytes.IndexByte(r, keySeparator)
 	// Check that slice contains _ and it's not a first or last character.

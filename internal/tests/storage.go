@@ -23,7 +23,7 @@ type Credentials interface {
 }
 
 // TestSessionStorage runs different tests for given session storage implementation.
-func TestSessionStorage(t *testing.T, storage session.Storage) {
+func TestSessionStorage(t *testing.T, s session.Storage) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
@@ -31,11 +31,11 @@ func TestSessionStorage(t *testing.T, storage session.Storage) {
 		a := require.New(t)
 
 		data := []byte("mytoken")
-		_, err := storage.LoadSession(ctx)
+		_, err := s.LoadSession(ctx)
 		a.Error(err, "no session expected")
-		a.NoError(storage.StoreSession(ctx, data))
+		a.NoError(s.StoreSession(ctx, data))
 
-		vaultData, err := storage.LoadSession(ctx)
+		vaultData, err := s.LoadSession(ctx)
 		a.NoError(err)
 		a.Equal(data, vaultData)
 	})
