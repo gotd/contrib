@@ -1,2 +1,2 @@
-// Package redis contains gotd secret storage implementations using Redis.
+// Package redis contains gotd storage implementations using Redis.
 package redis

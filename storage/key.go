@@ -53,22 +53,22 @@ func (k *Key) Parse(r []byte) error {
 	}
 
 	{
-		v, err := strconv.ParseInt(string(r[:idx]), 10, 64)
+		v, err := strconv.Atoi(string(r[:idx]))
 		if err != nil {
 			return xerrors.Errorf("parse kind: %w", err)
 		}
-		if v > int64(peer.Channel) {
+		if v > int(peer.Channel) {
 			return xerrors.Errorf("invalid kind %d", v)
 		}
 		k.Kind = peer.Kind(v)
 	}
 
 	{
-		v, err := strconv.ParseInt(string(r[idx+1:]), 10, 64)
+		v, err := strconv.Atoi(string(r[idx+1:]))
 		if err != nil {
 			return xerrors.Errorf("parse id: %w", err)
 		}
-		k.ID = int(v)
+		k.ID = v
 	}
 
 	return nil

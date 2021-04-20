@@ -12,7 +12,7 @@ import (
 	"github.com/gotd/contrib/storage"
 )
 
-// PeerStorage is a peer resolver cache.
+// PeerStorage is a peer storage based on pebble.
 type PeerStorage struct {
 	pebble *pebble.DB
 }
@@ -23,14 +23,14 @@ func NewPeerStorage(db *pebble.DB) *PeerStorage {
 }
 
 // Add adds given peer to the storage.
-func (r PeerStorage) Add(ctx context.Context, value storage.Peer) error {
+func (s PeerStorage) Add(ctx context.Context, value storage.Peer) error {
 	data, err := json.Marshal(value)
 	if err != nil {
 		return xerrors.Errorf("marshal: %w", err)
 	}
 
 	id := storage.KeyFromPeer(value).Bytes(nil)
-	if err := r.pebble.Set(id, data, nil); err != nil {
+	if err := s.pebble.Set(id, data, nil); err != nil {
 		return xerrors.Errorf("set id <-> data: %w", err)
 	}
 
@@ -38,10 +38,10 @@ func (r PeerStorage) Add(ctx context.Context, value storage.Peer) error {
 }
 
 // Find finds peer using given key.
-func (r PeerStorage) Find(ctx context.Context, key storage.Key) (_ storage.Peer, rerr error) {
+func (s PeerStorage) Find(ctx context.Context, key storage.Key) (_ storage.Peer, rerr error) {
 	id := key.Bytes(nil)
 
-	data, closer, err := r.pebble.Get(id)
+	data, closer, err := s.pebble.Get(id)
 	if err != nil {
 		if xerrors.Is(err, pebble.ErrNotFound) {
 			return storage.Peer{}, storage.ErrPeerNotFound
@@ -61,13 +61,13 @@ func (r PeerStorage) Find(ctx context.Context, key storage.Key) (_ storage.Peer,
 }
 
 // Assign adds given peer to the storage and associate it to the given key.
-func (r PeerStorage) Assign(ctx context.Context, key string, value storage.Peer) (rerr error) {
+func (s PeerStorage) Assign(ctx context.Context, key string, value storage.Peer) (rerr error) {
 	data, err := json.Marshal(value)
 	if err != nil {
 		return xerrors.Errorf("marshal: %w", err)
 	}
 
-	b := r.pebble.NewBatch()
+	b := s.pebble.NewBatch()
 	defer func() {
 		multierr.AppendInto(&rerr, b.Close())
 	}()
@@ -89,13 +89,13 @@ func (r PeerStorage) Assign(ctx context.Context, key string, value storage.Peer)
 }
 
 // Resolve finds peer using associated key.
-func (r PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, rerr error) {
+func (s PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, rerr error) {
 	// Convert key string to the byte slice.
 	// Pebble copies key, so we can use unsafe conversion here.
 	k := bytesconv.S2B(key)
 
 	// Create database snapshot.
-	snap := r.pebble.NewSnapshot()
+	snap := s.pebble.NewSnapshot()
 	defer func() {
 		multierr.AppendInto(&rerr, snap.Close())
 	}()

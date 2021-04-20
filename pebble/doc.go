@@ -1,2 +1,2 @@
-// Package pebble contains gotd secret storage implementations using CockroachDB pebble.
+// Package pebble contains gotd storage implementations using CockroachDB pebble.
 package pebble
