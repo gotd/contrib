@@ -64,7 +64,7 @@ func (k *Key) Parse(r []byte) error {
 	}
 
 	{
-		v, err := strconv.ParseInt(string(r[idx:]), 10, 64)
+		v, err := strconv.ParseInt(string(r[idx+1:]), 10, 64)
 		if err != nil {
 			return xerrors.Errorf("parse id: %w", err)
 		}
