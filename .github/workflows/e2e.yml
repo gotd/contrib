@@ -99,6 +99,9 @@ jobs:
         image: "quay.io/coreos/etcd:latest"
         ports:
           - 2379:2379
+        env:
+          ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+          ETCD_ADVERTISE_CLIENT_URLS: http://0.0.0.0:2379
     steps:
       - uses: actions/checkout@v2
       - name: Install Go
@@ -123,7 +126,7 @@ jobs:
 
       - name: Run tests
         env:
-          REDIS_ADDR: "localhost:2379"
+          ETCD_ADDR: "localhost:2379"
         run: make e2e_etcd_test
 
       - name: Send coverage
