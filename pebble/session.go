@@ -17,7 +17,7 @@ type SessionStorage struct {
 
 // NewSessionStorage creates new SessionStorage.
 func NewSessionStorage(db *pebble.DB, key string) SessionStorage {
-	s := pebbleStorage{db: db}
+	s := pebbleStorage{db: db, opts: pebble.Sync}
 	return SessionStorage{
 		Session: kv.NewSession(s, key),
 	}

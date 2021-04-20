@@ -1,4 +1,4 @@
-package vault_test
+package pebble_test
 
 import (
 	"context"
@@ -6,20 +6,20 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/hashicorp/vault/api"
+	pebbledb "github.com/cockroachdb/pebble"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 
-	"github.com/gotd/contrib/auth/vault"
+	"github.com/gotd/contrib/pebble"
 )
 
-func vaultStorage(ctx context.Context) error {
-	vaultClient, err := api.NewClient(api.DefaultConfig())
+func pebbleStorage(ctx context.Context) error {
+	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
 	if err != nil {
-		return xerrors.Errorf("create Vault client: %w", err)
+		return xerrors.Errorf("create pebble storage: %w", err)
 	}
-	storage := vault.NewSessionStorage(vaultClient, "cubbyhole/telegram/user", "session")
+	storage := pebble.NewSessionStorage(db, "session")
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{
 		SessionStorage: storage,
@@ -38,7 +38,7 @@ func ExampleSessionStorage() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	if err := vaultStorage(ctx); err != nil {
+	if err := pebbleStorage(ctx); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}

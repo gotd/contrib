@@ -10,8 +10,8 @@ import (
 
 	"github.com/hashicorp/vault/api"
 
-	"github.com/gotd/contrib/auth/internal/tests"
-	"github.com/gotd/contrib/auth/vault"
+	"github.com/gotd/contrib/internal/tests"
+	"github.com/gotd/contrib/vault"
 )
 
 func TestE2E(t *testing.T) {
@@ -43,9 +43,6 @@ func TestE2E(t *testing.T) {
 		return err
 	})
 
-	tests.TestStorage(
-		t,
-		vault.NewSessionStorage(client, "cubbyhole/testsession", "session"),
-		vault.NewCredentials(client, "cubbyhole/testauth"),
-	)
+	tests.TestSessionStorage(t, vault.NewSessionStorage(client, "cubbyhole/testsession", "session"))
+	tests.TestCredentials(t, vault.NewCredentials(client, "cubbyhole/testauth"))
 }

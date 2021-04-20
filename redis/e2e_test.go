@@ -7,8 +7,8 @@ import (
 
 	redisclient "github.com/go-redis/redis/v8"
 
-	"github.com/gotd/contrib/auth/internal/tests"
-	"github.com/gotd/contrib/auth/redis"
+	"github.com/gotd/contrib/internal/tests"
+	"github.com/gotd/contrib/redis"
 )
 
 func TestE2E(t *testing.T) {
@@ -24,9 +24,7 @@ func TestE2E(t *testing.T) {
 		return client.Ping(ctx).Err()
 	})
 
-	tests.TestStorage(
-		t,
-		redis.NewSessionStorage(client, "session"),
-		redis.NewCredentials(client),
-	)
+	tests.TestSessionStorage(t, redis.NewSessionStorage(client, "session"))
+	tests.TestCredentials(t, redis.NewCredentials(client))
+	tests.TestPeerStorage(t, redis.NewPeerStorage(client))
 }

@@ -6,8 +6,8 @@ import (
 	pebbledb "github.com/cockroachdb/pebble"
 	"github.com/cockroachdb/pebble/vfs"
 
-	"github.com/gotd/contrib/auth/internal/tests"
-	"github.com/gotd/contrib/auth/pebble"
+	"github.com/gotd/contrib/internal/tests"
+	"github.com/gotd/contrib/pebble"
 )
 
 func TestE2E(t *testing.T) {
@@ -18,9 +18,7 @@ func TestE2E(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tests.TestStorage(
-		t,
-		pebble.NewSessionStorage(db, "testsession"),
-		pebble.NewCredentials(db),
-	)
+	tests.TestSessionStorage(t, pebble.NewSessionStorage(db, "testsession"))
+	tests.TestCredentials(t, pebble.NewCredentials(db))
+	tests.TestPeerStorage(t, pebble.NewPeerStorage(db))
 }
