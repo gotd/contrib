@@ -4,8 +4,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/gotd/td/telegram/message/peer"
 	"github.com/stretchr/testify/require"
+
+	"github.com/gotd/td/telegram/message/peer"
 
 	"github.com/gotd/td/tg"
 )
