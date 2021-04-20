@@ -1,4 +1,4 @@
-package pebble_test
+package redis_test
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 
-	pebbledb "github.com/cockroachdb/pebble"
+	redisclient "github.com/go-redis/redis/v8"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
@@ -14,14 +14,11 @@ import (
 	"github.com/gotd/td/telegram/message/peer"
 	"github.com/gotd/td/tg"
 
-	"github.com/gotd/contrib/pebble"
+	"github.com/gotd/contrib/redis"
 )
 
-func pebbleCache(ctx context.Context) error {
-	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
-	if err != nil {
-		return xerrors.Errorf("create pebble storage: %w", err)
-	}
+func redisCache(ctx context.Context) error {
+	redisClient := redisclient.NewClient(&redisclient.Options{})
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
@@ -30,7 +27,7 @@ func pebbleCache(ctx context.Context) error {
 
 	return client.Run(ctx, func(ctx context.Context) error {
 		raw := tg.NewClient(client)
-		resolver := pebble.NewResolverCache(peer.DefaultResolver(raw), db)
+		resolver := redis.NewResolverCache(peer.DefaultResolver(raw), redisClient)
 		s := message.NewSender(raw).WithResolver(resolver)
 
 		_, err := s.Resolve("durov").Text(ctx, "Hi!")
@@ -42,7 +39,7 @@ func ExampleResolverCache() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	if err := pebbleCache(ctx); err != nil {
+	if err := redisCache(ctx); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
