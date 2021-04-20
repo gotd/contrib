@@ -1,4 +1,4 @@
-package proto
+package storage
 
 import (
 	"github.com/gotd/td/telegram/message/peer"

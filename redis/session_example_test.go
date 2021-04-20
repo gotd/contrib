@@ -26,6 +26,12 @@ func redisStorage(ctx context.Context) error {
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {
+		// Force redis to flush DB.
+		// It may be necessary to be sure that session will be saved to the disk.
+		if err := redisClient.FlushDBAsync(ctx).Err(); err != nil {
+			return xerrors.Errorf("flush: %w", err)
+		}
+
 		_, err := client.AuthBot(ctx, os.Getenv("BOT_TOKEN"))
 		return err
 	})

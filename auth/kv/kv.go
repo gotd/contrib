@@ -12,5 +12,5 @@ type Storage interface {
 	Get(ctx context.Context, k string) (string, error)
 }
 
-// ErrKeyNotFound is a special error to return then given key not found.
+// ErrKeyNotFound is a special error to return when given key not found.
 var ErrKeyNotFound = xerrors.New("key not found")

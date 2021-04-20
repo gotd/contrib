@@ -1,4 +1,4 @@
-package proto
+package storage
 
 import (
 	"encoding/json"
@@ -16,8 +16,8 @@ func TestPeer(t *testing.T) {
 		AccessHash: 10,
 	}
 
-	p, err := FromInputPeer(user)
-	a.NoError(err)
+	var p Peer
+	a.NoError(p.FromInputPeer(user))
 
 	data, err := json.Marshal(p)
 	a.NoError(err)
@@ -28,6 +28,9 @@ func TestPeer(t *testing.T) {
 
 	_, ok := p2.AsInputUser()
 	a.True(ok)
+
+	_, ok = p2.AsInputChannel()
+	a.False(ok)
 
 	u := p2.AsInputPeer()
 	a.Equal(user, u)

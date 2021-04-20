@@ -2,17 +2,17 @@ package tests
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/gotd/td/session"
-	"github.com/gotd/td/telegram/message/peer"
 	"github.com/gotd/td/tg"
 
+	"github.com/gotd/td/session"
+
 	"github.com/gotd/contrib/auth"
+	"github.com/gotd/contrib/storage"
 )
 
 // Credentials is a KV credential storage abstraction.
@@ -63,85 +63,33 @@ func TestCredentials(t *testing.T, cred Credentials) {
 	})
 }
 
-type mockResolver struct {
-	returnErr     bool
-	domain, phone string
-	peer          tg.InputPeerClass
-	t             testing.TB
-}
-
-func (m *mockResolver) ResolveDomain(ctx context.Context, domain string) (tg.InputPeerClass, error) {
-	if m.returnErr {
-		return nil, fmt.Errorf("test error: %q", m.domain)
-	}
-
-	if domain != m.domain {
-		err := fmt.Errorf("expected domain %q, got %q", m.domain, domain)
-		m.t.Error(err)
-		return nil, err
-	}
-	return m.peer, nil
-}
-
-func (m *mockResolver) ResolvePhone(ctx context.Context, phone string) (tg.InputPeerClass, error) {
-	if m.returnErr {
-		return nil, fmt.Errorf("test error: %q", m.phone)
-	}
-
-	if phone != m.phone {
-		err := fmt.Errorf("expected phone %q, got %q", m.phone, phone)
-		m.t.Error(err)
-		return nil, err
-	}
-	return m.peer, nil
-}
-
-// TestResolverCache runs different tests for given resolver cache storage implementation.
-func TestResolverCache(t *testing.T, c func(next peer.Resolver) peer.Resolver) {
+// TestPeerStorage runs different tests for given peer storage implementation.
+func TestPeerStorage(t *testing.T, st storage.PeerStorage) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	expectedDomain := "telegram"
-	expectedPhone := "1223"
-	expected := &tg.InputPeerUser{
-		UserID: 10,
-	}
+	t.Run("PeerStorage", func(t *testing.T) {
+		a := require.New(t)
 
-	t.Run("Resolver", func(t *testing.T) {
-		t.Run("Domain", func(t *testing.T) {
-			a := require.New(t)
-			resolver := &mockResolver{
-				domain: expectedDomain,
-				peer:   expected,
-				t:      t,
-			}
-			cache := c(resolver)
+		_, err := st.Resolve(ctx, "abc")
+		a.ErrorIs(err, storage.ErrPeerNotFound)
 
-			r, err := cache.ResolveDomain(ctx, expectedDomain)
-			a.NoError(err)
-			a.Equal(expected, r)
+		var p storage.Peer
+		a.NoError(p.FromInputPeer(&tg.InputPeerUser{
+			UserID:     10,
+			AccessHash: 10,
+		}))
+		key := storage.KeyFromPeer(p)
 
-			r, err = cache.ResolveDomain(ctx, expectedDomain)
-			a.NoError(err)
-			a.Equal(expected, r)
-		})
+		_, err = st.Find(ctx, key)
+		a.ErrorIs(err, storage.ErrPeerNotFound)
 
-		t.Run("Phone", func(t *testing.T) {
-			a := require.New(t)
-			resolver := &mockResolver{
-				phone: expectedPhone,
-				peer:  expected,
-				t:     t,
-			}
-			cache := c(resolver)
+		a.NoError(st.Add(ctx, p))
+		_, err = st.Find(ctx, key)
+		a.NoError(err)
 
-			r, err := cache.ResolvePhone(ctx, expectedPhone)
-			a.NoError(err)
-			a.Equal(expected, r)
-
-			r, err = cache.ResolvePhone(ctx, expectedPhone)
-			a.NoError(err)
-			a.Equal(expected, r)
-		})
+		a.NoError(st.Assign(ctx, "abc", p))
+		_, err = st.Resolve(ctx, "abc")
+		a.NoError(err)
 	})
 }
