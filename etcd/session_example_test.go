@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"time"
 
-	"go.etcd.io/etcd/client/v3"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"

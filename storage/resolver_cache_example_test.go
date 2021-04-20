@@ -7,10 +7,11 @@ import (
 	"os/signal"
 
 	pebbledb "github.com/cockroachdb/pebble"
+	"golang.org/x/xerrors"
+
 	"github.com/gotd/td/telegram/message"
 	"github.com/gotd/td/telegram/message/peer"
 	"github.com/gotd/td/tg"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 

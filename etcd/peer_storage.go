@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"go.etcd.io/etcd/client/v3"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/internal/bytesconv"

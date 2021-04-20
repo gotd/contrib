@@ -1,7 +1,7 @@
 package etcd
 
 import (
-	"go.etcd.io/etcd/client/v3"
+	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/gotd/td/session"
 

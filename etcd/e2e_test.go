@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"go.etcd.io/etcd/client/v3"
+	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/gotd/contrib/etcd"
 	"github.com/gotd/contrib/internal/tests"
