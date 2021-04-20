@@ -12,7 +12,7 @@ import (
 	"github.com/gotd/contrib/storage"
 )
 
-// PeerStorage is a peer resolver cache.
+// PeerStorage is a peer storage based on redis.
 type PeerStorage struct {
 	redis *redis.Client
 }
@@ -23,14 +23,14 @@ func NewPeerStorage(client *redis.Client) *PeerStorage {
 }
 
 // Add adds given peer to the storage.
-func (r PeerStorage) Add(ctx context.Context, value storage.Peer) error {
+func (s PeerStorage) Add(ctx context.Context, value storage.Peer) error {
 	data, err := json.Marshal(value)
 	if err != nil {
 		return xerrors.Errorf("marshal: %w", err)
 	}
 
 	id := storage.KeyFromPeer(value).Bytes(nil)
-	if err := r.redis.Set(ctx, bytesconv.B2S(id), data, 0).Err(); err != nil {
+	if err := s.redis.Set(ctx, bytesconv.B2S(id), data, 0).Err(); err != nil {
 		return xerrors.Errorf("set id <-> data: %w", err)
 	}
 
@@ -38,10 +38,10 @@ func (r PeerStorage) Add(ctx context.Context, value storage.Peer) error {
 }
 
 // Find finds peer using given key.
-func (r PeerStorage) Find(ctx context.Context, key storage.Key) (storage.Peer, error) {
+func (s PeerStorage) Find(ctx context.Context, key storage.Key) (storage.Peer, error) {
 	id := bytesconv.B2S(key.Bytes(nil))
 
-	data, err := r.redis.Get(ctx, id).Bytes()
+	data, err := s.redis.Get(ctx, id).Bytes()
 	if err != nil {
 		if xerrors.Is(err, redis.Nil) {
 			return storage.Peer{}, storage.ErrPeerNotFound
@@ -58,14 +58,14 @@ func (r PeerStorage) Find(ctx context.Context, key storage.Key) (storage.Peer, e
 }
 
 // Assign adds given peer to the storage and associate it to the given key.
-func (r PeerStorage) Assign(ctx context.Context, key string, value storage.Peer) (rerr error) {
+func (s PeerStorage) Assign(ctx context.Context, key string, value storage.Peer) (rerr error) {
 	data, err := json.Marshal(value)
 	if err != nil {
 		return xerrors.Errorf("marshal: %w", err)
 	}
 	id := storage.KeyFromPeer(value).Bytes(nil)
 
-	tx := r.redis.TxPipeline()
+	tx := s.redis.TxPipeline()
 	defer func() {
 		multierr.AppendInto(&rerr, tx.Close())
 	}()
@@ -86,9 +86,9 @@ func (r PeerStorage) Assign(ctx context.Context, key string, value storage.Peer)
 }
 
 // Resolve finds peer using associated key.
-func (r PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, error) {
+func (s PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, error) {
 	// Find id by domain.
-	id, err := r.redis.Get(ctx, key).Result()
+	id, err := s.redis.Get(ctx, key).Result()
 	if err != nil {
 		if xerrors.Is(err, redis.Nil) {
 			return storage.Peer{}, storage.ErrPeerNotFound
@@ -97,7 +97,7 @@ func (r PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, err
 	}
 
 	// Find object by id.
-	data, err := r.redis.Get(ctx, id).Bytes()
+	data, err := s.redis.Get(ctx, id).Bytes()
 	if err != nil {
 		if xerrors.Is(err, redis.Nil) {
 			return storage.Peer{}, storage.ErrPeerNotFound
