@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/cockroachdb/pebble"
+	"go.uber.org/multierr"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/auth/kv"
-	"github.com/gotd/contrib/internal/bytesconv"
 )
 
 type pebbleStorage struct {
@@ -15,12 +15,22 @@ type pebbleStorage struct {
 	opts *pebble.WriteOptions
 }
 
-func (p pebbleStorage) Set(ctx context.Context, k, v string) error {
-	return p.db.Set(bytesconv.S2B(k), bytesconv.S2B(v), p.opts)
+func (p pebbleStorage) Set(ctx context.Context, k, v string) (rerr error) {
+	b := p.db.NewBatch()
+	defer func() {
+		multierr.AppendInto(&rerr, b.Close())
+	}()
+
+	d := b.SetDeferred(len(k), len(v))
+	copy(d.Key, k)
+	copy(d.Value, v)
+	d.Finish()
+
+	return b.Commit(p.opts)
 }
 
 func (p pebbleStorage) Get(ctx context.Context, k string) (string, error) {
-	r, closer, err := p.db.Get(bytesconv.S2B(k))
+	r, closer, err := p.db.Get([]byte(k))
 	if err != nil {
 		if xerrors.Is(err, pebble.ErrNotFound) {
 			return "", kv.ErrKeyNotFound

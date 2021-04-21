@@ -21,8 +21,16 @@ func newMemStorage() memStorage {
 	}
 }
 
+func (m memStorage) add(keys []string, p Peer) {
+	id := KeyFromPeer(p)
+	m.peers[id] = p
+	for _, key := range keys {
+		m.keys[key] = id
+	}
+}
+
 func (m memStorage) Add(ctx context.Context, p Peer) error {
-	m.peers[KeyFromPeer(p)] = p
+	m.add(p.Keys(), p)
 	return nil
 }
 
@@ -35,9 +43,7 @@ func (m memStorage) Find(ctx context.Context, key Key) (Peer, error) {
 }
 
 func (m memStorage) Assign(ctx context.Context, key string, p Peer) error {
-	id := KeyFromPeer(p)
-	m.peers[id] = p
-	m.keys[key] = id
+	m.add(append(p.Keys(), key), p)
 	return nil
 }
 

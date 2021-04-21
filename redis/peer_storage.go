@@ -8,7 +8,6 @@ import (
 	"go.uber.org/multierr"
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/contrib/internal/bytesconv"
 	"github.com/gotd/contrib/storage"
 )
 
@@ -22,24 +21,51 @@ func NewPeerStorage(client *redis.Client) *PeerStorage {
 	return &PeerStorage{redis: client}
 }
 
-// Add adds given peer to the storage.
-func (s PeerStorage) Add(ctx context.Context, value storage.Peer) error {
+func (s PeerStorage) add(ctx context.Context, associated []string, value storage.Peer) (rerr error) {
 	data, err := json.Marshal(value)
 	if err != nil {
 		return xerrors.Errorf("marshal: %w", err)
 	}
+	id := storage.KeyFromPeer(value).String()
 
-	id := storage.KeyFromPeer(value).Bytes(nil)
-	if err := s.redis.Set(ctx, bytesconv.B2S(id), data, 0).Err(); err != nil {
+	if len(associated) == 0 {
+		if err := s.redis.Set(ctx, id, data, 0).Err(); err != nil {
+			return xerrors.Errorf("set id <-> data: %w", err)
+		}
+
+		return nil
+	}
+
+	tx := s.redis.TxPipeline()
+	defer func() {
+		multierr.AppendInto(&rerr, tx.Close())
+	}()
+
+	if err := tx.Set(ctx, id, data, 0).Err(); err != nil {
 		return xerrors.Errorf("set id <-> data: %w", err)
+	}
+
+	for _, key := range associated {
+		if err := tx.Set(ctx, key, id, 0).Err(); err != nil {
+			return xerrors.Errorf("set key <-> id: %w", err)
+		}
+	}
+
+	if _, err := tx.Exec(ctx); err != nil {
+		return xerrors.Errorf("exec: %w", err)
 	}
 
 	return nil
 }
 
+// Add adds given peer to the storage.
+func (s PeerStorage) Add(ctx context.Context, value storage.Peer) error {
+	return s.add(ctx, value.Keys(), value)
+}
+
 // Find finds peer using given key.
 func (s PeerStorage) Find(ctx context.Context, key storage.Key) (storage.Peer, error) {
-	id := bytesconv.B2S(key.Bytes(nil))
+	id := key.String()
 
 	data, err := s.redis.Get(ctx, id).Bytes()
 	if err != nil {
@@ -59,30 +85,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.Key) (storage.Peer, e
 
 // Assign adds given peer to the storage and associate it to the given key.
 func (s PeerStorage) Assign(ctx context.Context, key string, value storage.Peer) (rerr error) {
-	data, err := json.Marshal(value)
-	if err != nil {
-		return xerrors.Errorf("marshal: %w", err)
-	}
-	id := storage.KeyFromPeer(value).Bytes(nil)
-
-	tx := s.redis.TxPipeline()
-	defer func() {
-		multierr.AppendInto(&rerr, tx.Close())
-	}()
-
-	if err := tx.Set(ctx, bytesconv.B2S(id), data, 0).Err(); err != nil {
-		return xerrors.Errorf("set id <-> data: %w", err)
-	}
-
-	if err := tx.Set(ctx, key, id, 0).Err(); err != nil {
-		return xerrors.Errorf("set key <-> id: %w", err)
-	}
-
-	if _, err := tx.Exec(ctx); err != nil {
-		return xerrors.Errorf("exec: %w", err)
-	}
-
-	return nil
+	return s.add(ctx, append(value.Keys(), key), value)
 }
 
 // Resolve finds peer using associated key.
