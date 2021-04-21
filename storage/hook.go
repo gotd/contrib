@@ -3,9 +3,10 @@ package storage
 import (
 	"context"
 
+	"go.uber.org/multierr"
+
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
-	"go.uber.org/multierr"
 )
 
 type updateHook struct {

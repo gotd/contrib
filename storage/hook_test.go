@@ -4,9 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/gotd/td/tg"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/xerrors"
+
+	"github.com/gotd/td/tg"
 )
 
 type testHandler struct {

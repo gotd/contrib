@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.uber.org/multierr"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/storage"
