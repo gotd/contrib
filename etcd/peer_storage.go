@@ -36,15 +36,13 @@ func (s PeerStorage) add(ctx context.Context, associated []string, value storage
 		return nil
 	}
 
-	tx := s.etcd.Txn(ctx).Then(
-		clientv3.OpPut(id, buf.String()),
-	)
-
+	ops := make([]clientv3.Op, 0, len(associated)+1)
+	ops = append(ops, clientv3.OpPut(id, buf.String()))
 	for _, key := range associated {
-		tx.Then(clientv3.OpPut(key, id))
+		ops = append(ops, clientv3.OpPut(key, id))
 	}
 
-	if _, err := tx.Commit(); err != nil {
+	if _, err := s.etcd.Txn(ctx).Then(ops...).Commit(); err != nil {
 		return xerrors.Errorf("commit: %w", err)
 	}
 
