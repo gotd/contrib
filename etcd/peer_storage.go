@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.uber.org/multierr"
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/contrib/internal/bytesconv"
 	"github.com/gotd/contrib/storage"
 )
 
@@ -22,28 +22,48 @@ func NewPeerStorage(etcd *clientv3.Client) *PeerStorage {
 	return &PeerStorage{etcd: etcd}
 }
 
-// Add adds given peer to the storage.
-func (s PeerStorage) Add(ctx context.Context, value storage.Peer) error {
-	data, err := json.Marshal(value)
-	if err != nil {
+func (s PeerStorage) add(ctx context.Context, associated []string, value storage.Peer) (rerr error) {
+	var buf strings.Builder
+	if err := json.NewEncoder(&buf).Encode(value); err != nil {
 		return xerrors.Errorf("marshal: %w", err)
 	}
+	id := storage.KeyFromPeer(value).String()
 
-	id := storage.KeyFromPeer(value).Bytes(nil)
-	if _, err := s.etcd.Put(ctx, bytesconv.B2S(id), bytesconv.B2S(data)); err != nil {
-		return xerrors.Errorf("set id <-> data: %w", err)
+	if len(associated) == 0 {
+		if _, err := s.etcd.Put(ctx, id, buf.String()); err != nil {
+			return xerrors.Errorf("set id <-> data: %w", err)
+		}
+
+		return nil
+	}
+
+	tx := s.etcd.Txn(ctx).Then(
+		clientv3.OpPut(id, buf.String()),
+	)
+
+	for _, key := range associated {
+		tx.Then(clientv3.OpPut(key, id))
+	}
+
+	if _, err := tx.Commit(); err != nil {
+		return xerrors.Errorf("commit: %w", err)
 	}
 
 	return nil
 }
 
+// Add adds given peer to the storage.
+func (s PeerStorage) Add(ctx context.Context, value storage.Peer) error {
+	return s.add(ctx, value.Keys(), value)
+}
+
 // Find finds peer using given key.
 func (s PeerStorage) Find(ctx context.Context, key storage.Key) (storage.Peer, error) {
-	id := bytesconv.B2S(key.Bytes(nil))
+	id := key.String()
 
 	resp, err := s.etcd.Get(ctx, id)
 	if err != nil {
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", key, err)
+		return storage.Peer{}, xerrors.Errorf("get %q: %w", id, err)
 	}
 	if resp.Count < 1 || len(resp.Kvs) < 1 {
 		return storage.Peer{}, storage.ErrPeerNotFound
@@ -59,21 +79,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.Key) (storage.Peer, e
 
 // Assign adds given peer to the storage and associate it to the given key.
 func (s PeerStorage) Assign(ctx context.Context, key string, value storage.Peer) error {
-	var b strings.Builder
-	if err := json.NewEncoder(&b).Encode(value); err != nil {
-		return xerrors.Errorf("marshal: %w", err)
-	}
-	id := bytesconv.B2S(storage.KeyFromPeer(value).Bytes(nil))
-
-	_, err := s.etcd.Txn(ctx).Then(
-		clientv3.OpPut(key, id),
-		clientv3.OpPut(id, b.String()),
-	).Commit()
-	if err != nil {
-		return xerrors.Errorf("commit: %w", err)
-	}
-
-	return nil
+	return s.add(ctx, append(value.Keys(), key), value)
 }
 
 // Resolve finds peer using associated key.
@@ -86,7 +92,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, err
 		return storage.Peer{}, storage.ErrPeerNotFound
 	}
 
-	id := bytesconv.B2S(resp.Kvs[0].Value)
+	id := string(resp.Kvs[0].Value)
 	resp, err = s.etcd.Get(ctx, id)
 	if err != nil {
 		return storage.Peer{}, xerrors.Errorf("get %q: %w", id, err)

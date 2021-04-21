@@ -8,7 +8,6 @@ import (
 	"go.uber.org/multierr"
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/contrib/internal/bytesconv"
 	"github.com/gotd/contrib/storage"
 )
 
@@ -22,19 +21,40 @@ func NewPeerStorage(db *pebble.DB) *PeerStorage {
 	return &PeerStorage{pebble: db}
 }
 
-// Add adds given peer to the storage.
-func (s PeerStorage) Add(ctx context.Context, value storage.Peer) error {
+func (s PeerStorage) add(associated []string, value storage.Peer) (rerr error) {
 	data, err := json.Marshal(value)
 	if err != nil {
 		return xerrors.Errorf("marshal: %w", err)
 	}
-
 	id := storage.KeyFromPeer(value).Bytes(nil)
-	if err := s.pebble.Set(id, data, nil); err != nil {
-		return xerrors.Errorf("set id <-> data: %w", err)
+
+	b := s.pebble.NewBatch()
+	defer func() {
+		multierr.AppendInto(&rerr, b.Close())
+	}()
+
+	set := b.SetDeferred(len(id), len(data))
+	copy(set.Key, id)
+	copy(set.Value, data)
+	set.Finish()
+
+	for _, key := range associated {
+		deferred := b.SetDeferred(len(key), len(id))
+		copy(deferred.Key, key)
+		copy(deferred.Value, id)
+		deferred.Finish()
+	}
+
+	if err := b.Commit(nil); err != nil {
+		return xerrors.Errorf("commit: %w", err)
 	}
 
 	return nil
+}
+
+// Add adds given peer to the storage.
+func (s PeerStorage) Add(ctx context.Context, value storage.Peer) (rerr error) {
+	return s.add(value.Keys(), value)
 }
 
 // Find finds peer using given key.
@@ -62,38 +82,11 @@ func (s PeerStorage) Find(ctx context.Context, key storage.Key) (_ storage.Peer,
 
 // Assign adds given peer to the storage and associate it to the given key.
 func (s PeerStorage) Assign(ctx context.Context, key string, value storage.Peer) (rerr error) {
-	data, err := json.Marshal(value)
-	if err != nil {
-		return xerrors.Errorf("marshal: %w", err)
-	}
-
-	b := s.pebble.NewBatch()
-	defer func() {
-		multierr.AppendInto(&rerr, b.Close())
-	}()
-
-	id := storage.KeyFromPeer(value).Bytes(nil)
-	if err := b.Set(id, data, nil); err != nil {
-		return xerrors.Errorf("set id <-> data: %w", err)
-	}
-
-	if err := b.Set(bytesconv.S2B(key), id, nil); err != nil {
-		return xerrors.Errorf("set key <-> id: %w", err)
-	}
-
-	if err := b.Commit(nil); err != nil {
-		return xerrors.Errorf("commit changes: %w", err)
-	}
-
-	return nil
+	return s.add(append(value.Keys(), key), value)
 }
 
 // Resolve finds peer using associated key.
 func (s PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, rerr error) {
-	// Convert key string to the byte slice.
-	// Pebble copies key, so we can use unsafe conversion here.
-	k := bytesconv.S2B(key)
-
 	// Create database snapshot.
 	snap := s.pebble.NewSnapshot()
 	defer func() {
@@ -101,12 +94,12 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, r
 	}()
 
 	// Find id by key.
-	id, idCloser, err := snap.Get(k)
+	id, idCloser, err := snap.Get([]byte(key))
 	if err != nil {
 		if xerrors.Is(err, pebble.ErrNotFound) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", k, err)
+		return storage.Peer{}, xerrors.Errorf("get %q: %w", key, err)
 	}
 	defer func() {
 		multierr.AppendInto(&rerr, idCloser.Close())
