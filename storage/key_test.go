@@ -20,8 +20,13 @@ func TestKey(t *testing.T) {
 	}))
 	k := KeyFromPeer(p)
 
-	data := k.Bytes(nil)
-	a.NoError(k.Parse(data))
+	b := k.Bytes(nil)
+	a.NoError(k.Parse(b))
+
+	s := k.String()
+	sBytes := []byte(s)
+	a.Equal(b, sBytes)
+	a.NoError(k.Parse(sBytes))
 }
 
 func TestKey_Parse(t *testing.T) {

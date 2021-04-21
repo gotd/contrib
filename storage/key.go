@@ -3,6 +3,7 @@ package storage
 import (
 	"bytes"
 	"strconv"
+	"strings"
 
 	"golang.org/x/xerrors"
 
@@ -35,6 +36,19 @@ func (k Key) Bytes(r []byte) []byte {
 	r = append(r, keySeparator)
 	r = strconv.AppendInt(r, int64(k.ID), 10)
 	return r
+}
+
+// String returns string representation of key.
+func (k Key) String() string {
+	var (
+		b   strings.Builder
+		buf [64]byte
+	)
+	b.Write(keyPrefix)
+	b.Write(strconv.AppendInt(buf[:0], int64(k.Kind), 10))
+	b.WriteRune(keySeparator)
+	b.Write(strconv.AppendInt(buf[:0], int64(k.ID), 10))
+	return b.String()
 }
 
 var invalidKey = xerrors.New("invalid key") // nolint:gochecknoglobals
