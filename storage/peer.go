@@ -58,8 +58,9 @@ func (p *Peer) FromInputPeer(input tg.InputPeerClass) error {
 
 	*p = Peer{
 		Version:   LatestVersion,
-		CreatedAt: time.Now().Unix(),
 		Key:       k,
+		CreatedAt: time.Now().Unix(),
+		Metadata:  map[string]interface{}{},
 	}
 
 	return nil
@@ -70,6 +71,7 @@ func (p *Peer) FromChat(chat tg.ChatClass) bool {
 	r := Peer{
 		Version:   LatestVersion,
 		CreatedAt: time.Now().Unix(),
+		Metadata:  map[string]interface{}{},
 	}
 
 	switch c := chat.(type) {
@@ -113,6 +115,7 @@ func (p *Peer) FromUser(user tg.UserClass) bool {
 		},
 		CreatedAt: time.Now().Unix(),
 		User:      u,
+		Metadata:  map[string]interface{}{},
 	}
 
 	return true
