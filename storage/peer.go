@@ -58,8 +58,8 @@ func (p *Peer) FromInputPeer(input tg.InputPeerClass) error {
 
 	*p = Peer{
 		Version:   LatestVersion,
-		CreatedAt: time.Now().Unix(),
 		Key:       k,
+		CreatedAt: time.Now().Unix(),
 	}
 
 	return nil
