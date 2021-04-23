@@ -7,10 +7,11 @@ import (
 	"reflect"
 	"time"
 
+	"go.uber.org/multierr"
+
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/tdp"
 	"github.com/gotd/td/tg"
-	"go.uber.org/multierr"
 )
 
 // Debug is pretty-print debugging invoker middleware.
