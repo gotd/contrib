@@ -59,6 +59,7 @@ func (p *etcdIterator) Next(ctx context.Context) bool {
 
 	r, err := p.etcd.Get(ctx, p.lastKey,
 		clientv3.WithFromKey(),
+		clientv3.WithPrefix(),
 		clientv3.WithLimit(p.iterLimit),
 		clientv3.WithSort(clientv3.SortByKey, clientv3.SortAscend),
 	)
