@@ -1,6 +1,7 @@
 package etcd
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"strings"
@@ -59,7 +60,6 @@ func (p *etcdIterator) Next(ctx context.Context) bool {
 
 	r, err := p.etcd.Get(ctx, p.lastKey,
 		clientv3.WithFromKey(),
-		clientv3.WithPrefix(),
 		clientv3.WithLimit(p.iterLimit),
 		clientv3.WithSort(clientv3.SortByKey, clientv3.SortAscend),
 	)
@@ -68,6 +68,16 @@ func (p *etcdIterator) Next(ctx context.Context) bool {
 		return false
 	}
 	p.wasLast = !r.More
+
+	n := 0
+	for _, x := range r.Kvs {
+		if bytes.HasPrefix(x.Key, storage.KeyPrefix) {
+			r.Kvs[n] = x
+			n++
+		}
+	}
+	r.Kvs = r.Kvs[:n]
+
 	if r.Count < 1 || len(r.Kvs) < 1 {
 		return false
 	}
