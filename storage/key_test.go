@@ -31,23 +31,23 @@ func TestKey(t *testing.T) {
 
 func TestKey_Parse(t *testing.T) {
 	tests := []struct {
-		fields  Key
+		fields  PeerKey
 		arg     string
 		wantErr bool
 	}{
-		{Key{}, "_10", true},
-		{Key{}, "10", true},
-		{Key{}, "10_", true},
-		{Key{}, "10_1", true},
-		{Key{}, "peer10_1", true},
-		{Key{
+		{PeerKey{}, "_10", true},
+		{PeerKey{}, "10", true},
+		{PeerKey{}, "10_", true},
+		{PeerKey{}, "10_1", true},
+		{PeerKey{}, "peer10_1", true},
+		{PeerKey{
 			Kind: peer.Channel,
 			ID:   1,
 		}, "peer" + strconv.Itoa(int(peer.Channel)) + "_1", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.arg, func(t *testing.T) {
-			k := Key{}
+			k := PeerKey{}
 
 			err := k.Parse([]byte(tt.arg))
 			if tt.wantErr {

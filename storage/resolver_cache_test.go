@@ -5,20 +5,25 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/tg"
 )
 
 type memStorage struct {
-	peers map[Key]Peer
-	keys  map[string]Key
+	peers map[PeerKey]Peer
+	keys  map[string]PeerKey
 }
 
 func newMemStorage() memStorage {
 	return memStorage{
-		peers: map[Key]Peer{},
-		keys:  map[string]Key{},
+		peers: map[PeerKey]Peer{},
+		keys:  map[string]PeerKey{},
 	}
+}
+
+func (m memStorage) Iterate(ctx context.Context) (PeerIterator, error) {
+	return nil, xerrors.New("unimplemented")
 }
 
 func (m memStorage) add(keys []string, p Peer) {
@@ -34,7 +39,7 @@ func (m memStorage) Add(ctx context.Context, p Peer) error {
 	return nil
 }
 
-func (m memStorage) Find(ctx context.Context, key Key) (Peer, error) {
+func (m memStorage) Find(ctx context.Context, key PeerKey) (Peer, error) {
 	v, ok := m.peers[key]
 	if !ok {
 		return Peer{}, ErrPeerNotFound

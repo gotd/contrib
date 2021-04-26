@@ -91,5 +91,30 @@ func TestPeerStorage(t *testing.T, st storage.PeerStorage) {
 		a.NoError(st.Assign(ctx, "abc", p))
 		_, err = st.Resolve(ctx, "abc")
 		a.NoError(err)
+
+		for i := range [5]struct{}{} {
+			a.NoError(p.FromInputPeer(&tg.InputPeerUser{
+				UserID:     i + 11,
+				AccessHash: int64(i + 11),
+			}))
+			a.NoError(st.Add(ctx, p))
+		}
+
+		iter, err := st.Iterate(ctx)
+		a.NoError(err)
+		defer func() {
+			a.NoError(iter.Close())
+		}()
+
+		var peers []storage.Peer
+		for iter.Next(ctx) {
+			peers = append(peers, iter.Value())
+		}
+		if err := iter.Err(); err != nil {
+			a.NoError(err)
+		}
+
+		a.GreaterOrEqual(len(peers), 6)
+		a.Contains(peers, p)
 	})
 }
