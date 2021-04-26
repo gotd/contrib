@@ -10,12 +10,17 @@ require (
 	github.com/gotd/neo v0.1.3
 	github.com/gotd/td v0.37.0
 	github.com/hashicorp/vault/api v1.1.0
+	github.com/m3db/prometheus_client_golang v0.8.1 // indirect
+	github.com/m3db/prometheus_client_model v0.1.0 // indirect
+	github.com/m3db/prometheus_common v0.1.0 // indirect
+	github.com/m3db/prometheus_procfs v0.8.1 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/traefik/yaegi v0.9.17
+	github.com/uber-go/tally v3.3.17+incompatible
 	go.etcd.io/etcd/client/v3 v3.5.0-alpha.0
 	go.uber.org/multierr v1.6.0
-	golang.org/x/term v0.0.0-20210406210042-72f3dc4e9b72
-	golang.org/x/text v0.3.3
+	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
+	golang.org/x/text v0.3.6
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 )
 
