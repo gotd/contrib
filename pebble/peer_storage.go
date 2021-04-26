@@ -16,12 +16,19 @@ var _ storage.PeerStorage = PeerStorage{}
 
 // PeerStorage is a peer storage based on pebble.
 type PeerStorage struct {
-	pebble *pebble.DB
+	pebble    *pebble.DB
+	writeOpts *pebble.WriteOptions
 }
 
 // NewPeerStorage creates new peer storage using pebble.
 func NewPeerStorage(db *pebble.DB) *PeerStorage {
 	return &PeerStorage{pebble: db}
+}
+
+// WithWriteOptions sets pebble's write options for write operations.
+func (s *PeerStorage) WithWriteOptions(writeOpts *pebble.WriteOptions) *PeerStorage {
+	s.writeOpts = writeOpts
+	return s
 }
 
 type pebbleIterator struct {
