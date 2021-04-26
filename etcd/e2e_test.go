@@ -32,5 +32,5 @@ func TestE2E(t *testing.T) {
 
 	tests.TestSessionStorage(t, etcd.NewSessionStorage(client, "session"))
 	tests.TestCredentials(t, etcd.NewCredentials(client))
-	tests.TestPeerStorage(t, etcd.NewPeerStorage(client))
+	tests.TestPeerStorage(t, etcd.NewPeerStorage(client).WithIterLimit(2))
 }

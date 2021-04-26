@@ -49,10 +49,18 @@ func (p *etcdIterator) Close() error {
 	return nil
 }
 
+func (p *etcdIterator) bufNext() bool {
+	if len(p.buf)-1 <= p.cursor {
+		return false
+	}
+
+	p.cursor++
+	return true
+}
+
 func (p *etcdIterator) Next(ctx context.Context) bool {
 	switch {
-	case p.cursor < len(p.buf):
-		p.cursor++
+	case p.bufNext():
 		return true
 	case p.wasLast:
 		return false
@@ -60,7 +68,7 @@ func (p *etcdIterator) Next(ctx context.Context) bool {
 
 	r, err := p.etcd.Get(ctx, p.lastKey,
 		clientv3.WithFromKey(),
-		clientv3.WithLimit(p.iterLimit),
+		clientv3.WithLimit(p.iterLimit+1),
 		clientv3.WithSort(clientv3.SortByKey, clientv3.SortAscend),
 	)
 	if err != nil {
@@ -70,8 +78,9 @@ func (p *etcdIterator) Next(ctx context.Context) bool {
 	p.wasLast = !r.More
 
 	n := 0
+	lastKey := []byte(p.lastKey)
 	for _, x := range r.Kvs {
-		if bytes.HasPrefix(x.Key, storage.KeyPrefix) {
+		if bytes.HasPrefix(x.Key, storage.KeyPrefix) && !bytes.Equal(x.Key, lastKey) {
 			r.Kvs[n] = x
 			n++
 		}
@@ -82,6 +91,8 @@ func (p *etcdIterator) Next(ctx context.Context) bool {
 		return false
 	}
 
+	p.buf = p.buf[:0]
+	p.cursor = 0
 	for _, pair := range r.Kvs {
 		var value storage.Peer
 		if err := json.Unmarshal(pair.Value, &value); err != nil {
@@ -101,7 +112,7 @@ func (p *etcdIterator) Err() error {
 }
 
 func (p *etcdIterator) Value() storage.Peer {
-	return p.buf[p.cursor-1]
+	return p.buf[p.cursor]
 }
 
 // Iterate creates and returns new PeerIterator
@@ -110,7 +121,8 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 		etcd:      s.etcd,
 		iterLimit: s.iterLimit,
 		lastKey:   string(storage.KeyPrefix),
-		buf:       make([]storage.Peer, 0, s.iterLimit),
+		buf:       make([]storage.Peer, 0, s.iterLimit+1),
+		cursor:    -1,
 	}, nil
 }
 
