@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/multierr"
@@ -10,6 +11,8 @@ import (
 
 	"github.com/gotd/contrib/storage"
 )
+
+var _ storage.PeerStorage = PeerStorage{}
 
 // PeerStorage is a peer storage based on redis.
 type PeerStorage struct {
@@ -19,6 +22,60 @@ type PeerStorage struct {
 // NewPeerStorage creates new peer storage using redis.
 func NewPeerStorage(client *redis.Client) *PeerStorage {
 	return &PeerStorage{redis: client}
+}
+
+type redisIterator struct {
+	client  *redis.Client
+	iter    *redis.ScanIterator
+	lastErr error
+	value   storage.Peer
+}
+
+func (p *redisIterator) Close() error {
+	return nil
+}
+
+func (p *redisIterator) Next(ctx context.Context) bool {
+	if !p.iter.Next(ctx) {
+		return false
+	}
+
+	key := p.iter.Val()
+	value, err := p.client.Get(ctx, key).Result()
+	if err != nil {
+		p.lastErr = xerrors.Errorf("get %q: %w", key, err)
+		return false
+	}
+
+	r := strings.NewReader(value)
+	if err := json.NewDecoder(r).Decode(&p.value); err != nil {
+		p.lastErr = xerrors.Errorf("unmarshal: %w", err)
+		return false
+	}
+
+	return true
+}
+
+func (p *redisIterator) Err() error {
+	return multierr.Append(p.lastErr, p.iter.Err())
+}
+
+func (p *redisIterator) Value() storage.Peer {
+	return p.value
+}
+
+// Iterate creates and returns new PeerIterator.
+func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) {
+	var b strings.Builder
+	b.Grow(len(storage.KeyPrefix) + 1)
+	b.Write(storage.KeyPrefix)
+	b.WriteByte('*')
+
+	result := s.redis.Scan(ctx, 0, b.String(), 0)
+	return &redisIterator{
+		client: s.redis,
+		iter:   result.Iterator(),
+	}, result.Err()
 }
 
 func (s PeerStorage) add(ctx context.Context, associated []string, value storage.Peer) (rerr error) {

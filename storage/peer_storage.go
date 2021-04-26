@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"io"
 
 	"golang.org/x/xerrors"
 )
@@ -22,4 +23,15 @@ type PeerStorage interface {
 	// Resolve finds peer using associated key.
 	// If peer not found, it returns ErrPeerNotFound error.
 	Resolve(ctx context.Context, key string) (Peer, error)
+
+	// Iterate creates and returns new PeerIterator.
+	Iterate(ctx context.Context) (PeerIterator, error)
+}
+
+// PeerIterator is a peer iterator.
+type PeerIterator interface {
+	Next(ctx context.Context) bool
+	Err() error
+	Value() Peer
+	io.Closer
 }

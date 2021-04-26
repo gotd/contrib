@@ -1,6 +1,7 @@
 package pebble
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/gotd/contrib/storage"
 )
 
+var _ storage.PeerStorage = PeerStorage{}
+
 // PeerStorage is a peer storage based on pebble.
 type PeerStorage struct {
 	pebble *pebble.DB
@@ -19,6 +22,80 @@ type PeerStorage struct {
 // NewPeerStorage creates new peer storage using pebble.
 func NewPeerStorage(db *pebble.DB) *PeerStorage {
 	return &PeerStorage{pebble: db}
+}
+
+type pebbleIterator struct {
+	snap    *pebble.Snapshot
+	iter    *pebble.Iterator
+	lastErr error
+	value   storage.Peer
+}
+
+func (p *pebbleIterator) Close() error {
+	return multierr.Append(p.iter.Close(), p.snap.Close())
+}
+
+func (p *pebbleIterator) Next(ctx context.Context) bool {
+	if !p.iter.Valid() {
+		return false
+	}
+
+	for {
+		if bytes.HasPrefix(p.iter.Key(), storage.KeyPrefix) {
+			break
+		}
+
+		if !p.iter.Next() {
+			return false
+		}
+	}
+
+	if err := json.Unmarshal(p.iter.Value(), &p.value); err != nil {
+		p.lastErr = xerrors.Errorf("unmarshal: %w", err)
+		return false
+	}
+
+	p.iter.Next()
+	return true
+}
+
+func (p *pebbleIterator) Err() error {
+	return p.lastErr
+}
+
+func (p *pebbleIterator) Value() storage.Peer {
+	return p.value
+}
+
+func keyUpperBound(b []byte) []byte {
+	end := make([]byte, len(b))
+	copy(end, b)
+	for i := len(end) - 1; i >= 0; i-- {
+		end[i] = end[i] + 1
+		if end[i] != 0 {
+			return end[:i+1]
+		}
+	}
+	return nil // no upper-bound
+}
+
+func prefixIterOptions(prefix []byte) *pebble.IterOptions {
+	return &pebble.IterOptions{
+		LowerBound: prefix,
+		UpperBound: keyUpperBound(prefix),
+	}
+}
+
+// Iterate creates and returns new PeerIterator.
+func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) {
+	snap := s.pebble.NewSnapshot()
+	iter := snap.NewIter(prefixIterOptions(storage.KeyPrefix))
+	iter.First()
+
+	return &pebbleIterator{
+		snap: snap,
+		iter: iter,
+	}, nil
 }
 
 func (s PeerStorage) add(associated []string, value storage.Peer) (rerr error) {

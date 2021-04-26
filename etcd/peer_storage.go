@@ -11,14 +11,98 @@ import (
 	"github.com/gotd/contrib/storage"
 )
 
+var _ storage.PeerStorage = PeerStorage{}
+
 // PeerStorage is a peer storage based on etcd.
 type PeerStorage struct {
-	etcd *clientv3.Client
+	etcd      *clientv3.Client
+	iterLimit int64
 }
 
 // NewPeerStorage creates new peer storage using etcd.
 func NewPeerStorage(etcd *clientv3.Client) *PeerStorage {
-	return &PeerStorage{etcd: etcd}
+	return &PeerStorage{etcd: etcd, iterLimit: 25}
+}
+
+// WithIterLimit sets limit of buffer for used for iteration.
+func (s *PeerStorage) WithIterLimit(iterLimit int64) *PeerStorage {
+	s.iterLimit = iterLimit
+	return s
+}
+
+type etcdIterator struct {
+	etcd      *clientv3.Client
+	iterLimit int64
+
+	// Iterator state.
+	lastKey string
+	lastErr error
+	wasLast bool
+
+	// Buffer state.
+	cursor int
+	buf    []storage.Peer
+}
+
+func (p *etcdIterator) Close() error {
+	return nil
+}
+
+func (p *etcdIterator) Next(ctx context.Context) bool {
+	switch {
+	case p.cursor < len(p.buf):
+		p.cursor++
+		return true
+	case p.wasLast:
+		return false
+	}
+
+	r, err := p.etcd.Get(ctx, p.lastKey,
+		clientv3.WithFromKey(),
+		clientv3.WithLimit(p.iterLimit),
+		clientv3.WithSort(clientv3.SortByKey, clientv3.SortAscend),
+	)
+	if err != nil {
+		p.lastErr = xerrors.Errorf("get from %q: %w", p.lastKey, err)
+		return false
+	}
+	p.wasLast = !r.More
+	if r.Count < 1 || len(r.Kvs) < 1 {
+		return false
+	}
+
+	for _, pair := range r.Kvs {
+		var value storage.Peer
+		if err := json.Unmarshal(pair.Value, &value); err != nil {
+			p.lastErr = xerrors.Errorf("unmarshal: %w", err)
+			return false
+		}
+
+		p.buf = append(p.buf, value)
+	}
+	p.lastKey = string(r.Kvs[len(r.Kvs)-1].Key)
+
+	return true
+}
+
+func (p *etcdIterator) Err() error {
+	return p.lastErr
+}
+
+func (p *etcdIterator) Value() storage.Peer {
+	if p.cursor > 0 && len(p.buf) > p.cursor {
+		return p.buf[p.cursor]
+	}
+	return storage.Peer{}
+}
+
+func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) {
+	return &etcdIterator{
+		etcd:      s.etcd,
+		iterLimit: s.iterLimit,
+		lastKey:   string(storage.KeyPrefix),
+		buf:       make([]storage.Peer, 0, s.iterLimit),
+	}, nil
 }
 
 func (s PeerStorage) add(ctx context.Context, associated []string, value storage.Peer) (rerr error) {
