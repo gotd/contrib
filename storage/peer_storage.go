@@ -16,7 +16,7 @@ type PeerStorage interface {
 	Add(ctx context.Context, value Peer) error
 	// Find finds peer using given key.
 	// If peer not found, it returns ErrPeerNotFound error.
-	Find(ctx context.Context, key Key) (Peer, error)
+	Find(ctx context.Context, key PeerKey) (Peer, error)
 
 	// Assign adds given peer to the storage and associates it to the given key.
 	Assign(ctx context.Context, key string, value Peer) error

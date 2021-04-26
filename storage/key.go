@@ -13,15 +13,15 @@ import (
 // KeyPrefix is a key prefix of peer key.
 var KeyPrefix = []byte("peer") // nolint:gochecknoglobals
 
-// Key is unique key of peer object.
-type Key struct {
+// PeerKey is unique key of peer object.
+type PeerKey struct {
 	Kind peer.Kind
 	ID   int
 }
 
 // KeyFromPeer creates key from peer.
-func KeyFromPeer(p Peer) Key {
-	return Key{
+func KeyFromPeer(p Peer) PeerKey {
+	return PeerKey{
 		Kind: p.Key.Kind,
 		ID:   p.Key.ID,
 	}
@@ -30,7 +30,7 @@ func KeyFromPeer(p Peer) Key {
 const keySeparator = '_'
 
 // Bytes returns bytes representation of key.
-func (k Key) Bytes(r []byte) []byte {
+func (k PeerKey) Bytes(r []byte) []byte {
 	r = append(r, KeyPrefix...)
 	r = strconv.AppendInt(r, int64(k.Kind), 10)
 	r = append(r, keySeparator)
@@ -39,7 +39,7 @@ func (k Key) Bytes(r []byte) []byte {
 }
 
 // String returns string representation of key.
-func (k Key) String() string {
+func (k PeerKey) String() string {
 	var (
 		b   strings.Builder
 		buf [64]byte
@@ -54,7 +54,7 @@ func (k Key) String() string {
 var invalidKey = xerrors.New("invalid key") // nolint:gochecknoglobals
 
 // Parse parses bytes representation from given slice.
-func (k *Key) Parse(r []byte) error {
+func (k *PeerKey) Parse(r []byte) error {
 	if !bytes.HasPrefix(r, KeyPrefix) {
 		return invalidKey
 	}

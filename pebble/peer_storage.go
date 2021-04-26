@@ -71,7 +71,7 @@ func keyUpperBound(b []byte) []byte {
 	end := make([]byte, len(b))
 	copy(end, b)
 	for i := len(end) - 1; i >= 0; i-- {
-		end[i] = end[i] + 1
+		end[i]++
 		if end[i] != 0 {
 			return end[:i+1]
 		}
@@ -135,7 +135,7 @@ func (s PeerStorage) Add(ctx context.Context, value storage.Peer) (rerr error) {
 }
 
 // Find finds peer using given key.
-func (s PeerStorage) Find(ctx context.Context, key storage.Key) (_ storage.Peer, rerr error) {
+func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (_ storage.Peer, rerr error) {
 	id := key.Bytes(nil)
 
 	data, closer, err := s.pebble.Get(id)

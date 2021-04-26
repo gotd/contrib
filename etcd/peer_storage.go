@@ -90,12 +90,10 @@ func (p *etcdIterator) Err() error {
 }
 
 func (p *etcdIterator) Value() storage.Peer {
-	if p.cursor > 0 && len(p.buf) > p.cursor {
-		return p.buf[p.cursor]
-	}
-	return storage.Peer{}
+	return p.buf[p.cursor-1]
 }
 
+// Iterate creates and returns new PeerIterator
 func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) {
 	return &etcdIterator{
 		etcd:      s.etcd,
@@ -139,7 +137,7 @@ func (s PeerStorage) Add(ctx context.Context, value storage.Peer) error {
 }
 
 // Find finds peer using given key.
-func (s PeerStorage) Find(ctx context.Context, key storage.Key) (storage.Peer, error) {
+func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (storage.Peer, error) {
 	id := key.String()
 
 	resp, err := s.etcd.Get(ctx, id)

@@ -121,7 +121,7 @@ func (s PeerStorage) Add(ctx context.Context, value storage.Peer) error {
 }
 
 // Find finds peer using given key.
-func (s PeerStorage) Find(ctx context.Context, key storage.Key) (storage.Peer, error) {
+func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (storage.Peer, error) {
 	id := key.String()
 
 	data, err := s.redis.Get(ctx, id).Bytes()
