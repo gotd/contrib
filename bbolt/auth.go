@@ -1,19 +1,19 @@
-package etcd
+package bbolt
 
 import (
-	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.etcd.io/bbolt"
 
 	"github.com/gotd/contrib/auth/kv"
 )
 
-// Credentials stores user credentials to etcd.
+// Credentials stores user credentials to bbolt.
 type Credentials struct {
 	kv.Credentials
 }
 
 // NewCredentials creates new Credentials.
-func NewCredentials(client *clientv3.Client) Credentials {
-	s := etcdClient{client: client}
+func NewCredentials(db *bbolt.DB, bucket []byte) Credentials {
+	s := bboltStorage{db: db, bucket: bucket}
 	return Credentials{
 		Credentials: kv.NewCredentials(s),
 	}
