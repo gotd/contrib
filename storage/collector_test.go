@@ -68,7 +68,8 @@ type participantsQuery struct {
 	result *tg.ChannelsChannelParticipants
 }
 
-func (p participantsQuery) Query(ctx context.Context, req participants.Request) (tg.ChannelsChannelParticipantsClass, error) {
+func (p *participantsQuery) Query(ctx context.Context, req participants.Request) (tg.ChannelsChannelParticipantsClass, error) {
+	p.result.Participants = p.result.Participants[req.Offset:]
 	return p.result, nil
 }
 
@@ -79,7 +80,7 @@ func TestPeerCollector_Participants(t *testing.T) {
 	ctx := context.Background()
 
 	user := testUser()
-	iter := participants.NewIterator(participantsQuery{
+	iter := participants.NewIterator(&participantsQuery{
 		result: &tg.ChannelsChannelParticipants{
 			Count: 1,
 			Participants: []tg.ChannelParticipantClass{

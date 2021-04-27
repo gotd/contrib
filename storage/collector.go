@@ -22,9 +22,24 @@ func (c PeerCollector) Dialogs(ctx context.Context, iter *dialogs.Iterator) erro
 			p     Peer
 			value = iter.Value()
 		)
-		if err := p.FromInputPeer(value.Peer); err != nil {
-			return err
+		switch dlg := value.Dialog.GetPeer().(type) {
+		case *tg.PeerUser:
+			user, ok := value.Entities.User(dlg.UserID)
+			if !ok || !p.FromUser(user) {
+				continue
+			}
+		case *tg.PeerChat:
+			chat, ok := value.Entities.Chat(dlg.ChatID)
+			if !ok || !p.FromChat(chat) {
+				continue
+			}
+		case *tg.PeerChannel:
+			channel, ok := value.Entities.Channel(dlg.ChannelID)
+			if !ok || !p.FromChat(channel) {
+				continue
+			}
 		}
+
 		if err := c.storage.Add(ctx, p); err != nil {
 			return xerrors.Errorf("add: %w", err)
 		}
