@@ -9,11 +9,9 @@ import (
 	pebbledb "github.com/cockroachdb/pebble"
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/td/telegram/message"
-
-	"github.com/gotd/td/tg"
-
 	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/telegram/message"
+	"github.com/gotd/td/tg"
 
 	"github.com/gotd/contrib/pebble"
 	"github.com/gotd/contrib/storage"
@@ -43,6 +41,9 @@ func updatesHook(ctx context.Context) error {
 			return nil
 		}
 
+		// Use PeerID to find peer because *Short updates does not contain any entities, so it necessary to
+		// store some entities.
+		// Storage can be filled using PeerCollector.
 		p, err := storage.FindPeer(ctx, s, msg.GetPeerID())
 		if err != nil {
 			return err
