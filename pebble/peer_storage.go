@@ -48,7 +48,7 @@ func (p *pebbleIterator) Next(ctx context.Context) bool {
 	}
 
 	for {
-		if bytes.HasPrefix(p.iter.Key(), storage.KeyPrefix) {
+		if bytes.HasPrefix(p.iter.Key(), storage.PeerKeyPrefix) {
 			break
 		}
 
@@ -96,7 +96,7 @@ func prefixIterOptions(prefix []byte) *pebble.IterOptions {
 // Iterate creates and returns new PeerIterator.
 func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) {
 	snap := s.pebble.NewSnapshot()
-	iter := snap.NewIter(prefixIterOptions(storage.KeyPrefix))
+	iter := snap.NewIter(prefixIterOptions(storage.PeerKeyPrefix))
 	iter.First()
 
 	return &pebbleIterator{

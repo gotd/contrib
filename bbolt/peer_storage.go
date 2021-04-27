@@ -42,7 +42,7 @@ func (p *bboltIterator) Next(ctx context.Context) bool {
 	}
 
 	for {
-		if bytes.HasPrefix(k, storage.KeyPrefix) {
+		if bytes.HasPrefix(k, storage.PeerKeyPrefix) {
 			break
 		}
 
@@ -81,7 +81,7 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 	}
 
 	cur := bucket.Cursor()
-	cur.Seek(storage.KeyPrefix)
+	cur.Seek(storage.PeerKeyPrefix)
 	cur.Prev()
 	return &bboltIterator{
 		tx:   tx,
