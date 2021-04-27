@@ -133,3 +133,42 @@ jobs:
         uses: codecov/codecov-action@v1.4.1
         with:
           file: profile.out
+
+  s3:
+    runs-on: ubuntu-latest
+    services:
+      etcd:
+        image: "minio/minio"
+        ports:
+          - 9000:9000
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2.1.3
+        with:
+          go-version: 1.16
+
+      - name: Get Go environment
+        id: go-env
+        run: |
+          echo "::set-output name=cache::$(go env GOCACHE)"
+          echo "::set-output name=modcache::$(go env GOMODCACHE)"
+      - name: Set up cache
+        uses: actions/cache@v2.1.5
+        with:
+          path: |
+            ${{ steps.go-env.outputs.cache }}
+            ${{ steps.go-env.outputs.modcache }}
+          key: check-mod-${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            check-mod-${{ runner.os }}-go-
+
+      - name: Run tests
+        env:
+          S3_ADDR: "localhost:9000"
+        run: make e2e_s3_test
+
+      - name: Send coverage
+        uses: codecov/codecov-action@v1.4.1
+        with:
+          file: profile.out
