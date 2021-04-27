@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 
 	"github.com/gotd/contrib/internal/tests"
 	"github.com/gotd/contrib/s3"
@@ -17,7 +18,13 @@ func TestE2E(t *testing.T) {
 		t.Skip("Set S3_ADDR to run E2E test")
 	}
 
-	db, err := minio.New(addr, &minio.Options{})
+	db, err := minio.New(addr, &minio.Options{
+		Creds: credentials.NewStaticV4(
+			os.Getenv("MINIO_ACCESS_KEY"),
+			os.Getenv("MINIO_SECRET_KEY"),
+			"",
+		),
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -136,11 +136,6 @@ jobs:
 
   s3:
     runs-on: ubuntu-latest
-    services:
-      etcd:
-        image: "minio/minio"
-        ports:
-          - 9000:9000
     steps:
       - uses: actions/checkout@v2
       - name: Install Go
@@ -163,8 +158,19 @@ jobs:
           restore-keys: |
             check-mod-${{ runner.os }}-go-
 
+      - name: Setup minio
+        run: |
+          docker run -d -p 9000:9000 --name minio \
+                     -e "MINIO_ACCESS_KEY=minioadmin" \
+                     -e "MINIO_SECRET_KEY=minioadmin" \
+                     -v /tmp/data:/data \
+                     -v /tmp/config:/root/.minio \
+                     minio/minio server /data
+
       - name: Run tests
         env:
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
           S3_ADDR: "localhost:9000"
         run: make e2e_s3_test
 
