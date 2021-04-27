@@ -67,8 +67,8 @@ func (p *redisIterator) Value() storage.Peer {
 // Iterate creates and returns new PeerIterator.
 func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) {
 	var b strings.Builder
-	b.Grow(len(storage.KeyPrefix) + 1)
-	b.Write(storage.KeyPrefix)
+	b.Grow(len(storage.PeerKeyPrefix) + 1)
+	b.Write(storage.PeerKeyPrefix)
 	b.WriteByte('*')
 
 	result := s.redis.Scan(ctx, 0, b.String(), 0)

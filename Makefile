@@ -14,6 +14,10 @@ e2e_etcd_test:
 	@./go.e2e.sh ./etcd/...
 .PHONY: e2e_etcd_test
 
+e2e_s3_test:
+	@./go.e2e.sh ./s3/...
+.PHONY: e2e_s3_test
+
 coverage:
 	@./go.coverage.sh
 .PHONY: coverage

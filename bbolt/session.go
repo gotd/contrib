@@ -1,7 +1,7 @@
-package etcd
+package bbolt
 
 import (
-	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.etcd.io/bbolt"
 
 	"github.com/gotd/td/session"
 
@@ -10,14 +10,14 @@ import (
 
 var _ session.Storage = SessionStorage{}
 
-// SessionStorage is a MTProto session etcd storage.
+// SessionStorage is a MTProto session bbolt storage.
 type SessionStorage struct {
 	kv.Session
 }
 
 // NewSessionStorage creates new SessionStorage.
-func NewSessionStorage(client *clientv3.Client, key string) SessionStorage {
-	s := etcdClient{client: client}
+func NewSessionStorage(db *bbolt.DB, key string, bucket []byte) SessionStorage {
+	s := bboltStorage{db: db, bucket: bucket}
 	return SessionStorage{
 		Session: kv.NewSession(s, key),
 	}

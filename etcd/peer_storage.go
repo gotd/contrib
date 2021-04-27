@@ -80,7 +80,7 @@ func (p *etcdIterator) Next(ctx context.Context) bool {
 	n := 0
 	lastKey := []byte(p.lastKey)
 	for _, x := range r.Kvs {
-		if bytes.HasPrefix(x.Key, storage.KeyPrefix) && !bytes.Equal(x.Key, lastKey) {
+		if bytes.HasPrefix(x.Key, storage.PeerKeyPrefix) && !bytes.Equal(x.Key, lastKey) {
 			r.Kvs[n] = x
 			n++
 		}
@@ -120,7 +120,7 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 	return &etcdIterator{
 		etcd:      s.etcd,
 		iterLimit: s.iterLimit,
-		lastKey:   string(storage.KeyPrefix),
+		lastKey:   string(storage.PeerKeyPrefix),
 		buf:       make([]storage.Peer, 0, s.iterLimit+1),
 		cursor:    -1,
 	}, nil
