@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/gotd/td/telegram/message"
 	"github.com/gotd/td/telegram/uploader"
+	"github.com/gotd/td/telegram/uploader/source"
 	"github.com/gotd/td/tg"
 	"go/constant"
 	"go/token"
@@ -47,6 +48,8 @@ func init() {
 		"FromFile":           reflect.ValueOf(message.FromFile),
 		"FromPath":           reflect.ValueOf(message.FromPath),
 		"FromReader":         reflect.ValueOf(message.FromReader),
+		"FromSource":         reflect.ValueOf(message.FromSource),
+		"FromURL":            reflect.ValueOf(message.FromURL),
 		"GIF":                reflect.ValueOf(message.GIF),
 		"Game":               reflect.ValueOf(message.Game),
 		"GeoPoint":           reflect.ValueOf(message.GeoPoint),
@@ -61,6 +64,7 @@ func init() {
 		"RoundVideo":         reflect.ValueOf(message.RoundVideo),
 		"StartBotInputUser":  reflect.ValueOf(message.StartBotInputUser),
 		"StartBotParam":      reflect.ValueOf(message.StartBotParam),
+		"Upload":             reflect.ValueOf(message.Upload),
 		"UploadedDocument":   reflect.ValueOf(message.UploadedDocument),
 		"UploadedPhoto":      reflect.ValueOf(message.UploadedPhoto),
 		"UploadedSticker":    reflect.ValueOf(message.UploadedSticker),
@@ -76,6 +80,7 @@ func init() {
 		"DocumentExternalBuilder": reflect.ValueOf((*message.DocumentExternalBuilder)(nil)),
 		"EditMessageBuilder":      reflect.ValueOf((*message.EditMessageBuilder)(nil)),
 		"FileLocation":            reflect.ValueOf((*message.FileLocation)(nil)),
+		"FilePromise":             reflect.ValueOf((*message.FilePromise)(nil)),
 		"ForwardBuilder":          reflect.ValueOf((*message.ForwardBuilder)(nil)),
 		"InlineUpdate":            reflect.ValueOf((*message.InlineUpdate)(nil)),
 		"MediaOption":             reflect.ValueOf((*message.MediaOption)(nil)),
@@ -171,6 +176,8 @@ type _github_com_gotd_td_telegram_message_Uploader struct {
 	WFromFile   func(ctx context.Context, f uploader.File) (tg.InputFileClass, error)
 	WFromPath   func(ctx context.Context, path string) (tg.InputFileClass, error)
 	WFromReader func(ctx context.Context, name string, f io.Reader) (tg.InputFileClass, error)
+	WFromSource func(ctx context.Context, src source.Source, rawURL string) (tg.InputFileClass, error)
+	WFromURL    func(ctx context.Context, rawURL string) (tg.InputFileClass, error)
 }
 
 func (W _github_com_gotd_td_telegram_message_Uploader) FromBytes(ctx context.Context, name string, b []byte) (tg.InputFileClass, error) {
@@ -187,4 +194,10 @@ func (W _github_com_gotd_td_telegram_message_Uploader) FromPath(ctx context.Cont
 }
 func (W _github_com_gotd_td_telegram_message_Uploader) FromReader(ctx context.Context, name string, f io.Reader) (tg.InputFileClass, error) {
 	return W.WFromReader(ctx, name, f)
+}
+func (W _github_com_gotd_td_telegram_message_Uploader) FromSource(ctx context.Context, src source.Source, rawURL string) (tg.InputFileClass, error) {
+	return W.WFromSource(ctx, src, rawURL)
+}
+func (W _github_com_gotd_td_telegram_message_Uploader) FromURL(ctx context.Context, rawURL string) (tg.InputFileClass, error) {
+	return W.WFromURL(ctx, rawURL)
 }
