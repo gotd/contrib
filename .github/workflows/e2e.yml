@@ -49,7 +49,7 @@ jobs:
         run: make e2e_vault_test
 
       - name: Send coverage
-        uses: codecov/codecov-action@v1.4.1
+        uses: codecov/codecov-action@v1.5.0
         with:
           file: profile.out
 
@@ -88,7 +88,7 @@ jobs:
         run: make e2e_redis_test
 
       - name: Send coverage
-        uses: codecov/codecov-action@v1.4.1
+        uses: codecov/codecov-action@v1.5.0
         with:
           file: profile.out
 
@@ -130,7 +130,7 @@ jobs:
         run: make e2e_etcd_test
 
       - name: Send coverage
-        uses: codecov/codecov-action@v1.4.1
+        uses: codecov/codecov-action@v1.5.0
         with:
           file: profile.out
 
@@ -175,6 +175,6 @@ jobs:
         run: make e2e_s3_test
 
       - name: Send coverage
-        uses: codecov/codecov-action@v1.4.1
+        uses: codecov/codecov-action@v1.5.0
         with:
           file: profile.out
