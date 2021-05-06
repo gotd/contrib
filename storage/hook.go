@@ -14,27 +14,33 @@ type updateHook struct {
 	storage PeerStorage
 }
 
-func (h updateHook) Handle(ctx context.Context, u *tg.Updates) error {
+type updatesWithPeers interface {
+	GetUsers() []tg.UserClass
+	GetChats() []tg.ChatClass
+	tg.UpdatesClass
+}
+
+func (h updateHook) Handle(ctx context.Context, u tg.UpdatesClass) error {
 	rerr := h.next.Handle(ctx, u)
 
-	for _, chat := range u.Chats {
+	updates, ok := u.(updatesWithPeers)
+	if !ok {
+		return rerr
+	}
+
+	for _, chat := range updates.GetChats() {
 		if value := (Peer{}); value.FromChat(chat) {
 			multierr.AppendInto(&rerr, h.storage.Add(ctx, value))
 		}
 	}
 
-	for _, user := range u.Users {
+	for _, user := range updates.GetUsers() {
 		if value := (Peer{}); value.FromUser(user) {
 			multierr.AppendInto(&rerr, h.storage.Add(ctx, value))
 		}
 	}
 
 	return rerr
-}
-
-func (h updateHook) HandleShort(ctx context.Context, u *tg.UpdateShort) error {
-	// Short does not contain peer data.
-	return h.next.HandleShort(ctx, u)
 }
 
 // UpdateHook creates update hook, to collect peer data from updates.

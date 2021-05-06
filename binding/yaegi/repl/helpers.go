@@ -26,7 +26,7 @@ func helpers(ctx context.Context, client *telegram.Client) map[string]reflect.Va
 			return err
 		}),
 		"HTML": reflect.ValueOf(func(msg, to string) error {
-			_, err := sender.Resolve(to).StyledText(ctx, html.String(msg))
+			_, err := sender.Resolve(to).StyledText(ctx, html.String(nil, msg))
 			return err
 		}),
 

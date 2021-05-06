@@ -14,19 +14,21 @@ import (
 func init() {
 	Symbols["github.com/gotd/td/telegram/dcs"] = map[string]reflect.Value{
 		// function, constant and variable definitions
-		"FindDCs":         reflect.ValueOf(dcs.FindDCs),
-		"FindPrimaryDCs":  reflect.ValueOf(dcs.FindPrimaryDCs),
-		"MTProxyResolver": reflect.ValueOf(dcs.MTProxyResolver),
-		"PlainResolver":   reflect.ValueOf(dcs.PlainResolver),
-		"ProdDCs":         reflect.ValueOf(dcs.ProdDCs),
-		"StagingDCs":      reflect.ValueOf(dcs.StagingDCs),
+		"FindDCs":           reflect.ValueOf(dcs.FindDCs),
+		"FindPrimaryDCs":    reflect.ValueOf(dcs.FindPrimaryDCs),
+		"MTProxyResolver":   reflect.ValueOf(dcs.MTProxyResolver),
+		"PlainResolver":     reflect.ValueOf(dcs.PlainResolver),
+		"ProdDCs":           reflect.ValueOf(dcs.ProdDCs),
+		"StagingDCs":        reflect.ValueOf(dcs.StagingDCs),
+		"WebsocketResolver": reflect.ValueOf(dcs.WebsocketResolver),
 
 		// type definitions
-		"DialFunc":       reflect.ValueOf((*dcs.DialFunc)(nil)),
-		"MTProxyOptions": reflect.ValueOf((*dcs.MTProxyOptions)(nil)),
-		"PlainOptions":   reflect.ValueOf((*dcs.PlainOptions)(nil)),
-		"Protocol":       reflect.ValueOf((*dcs.Protocol)(nil)),
-		"Resolver":       reflect.ValueOf((*dcs.Resolver)(nil)),
+		"DialFunc":         reflect.ValueOf((*dcs.DialFunc)(nil)),
+		"MTProxyOptions":   reflect.ValueOf((*dcs.MTProxyOptions)(nil)),
+		"PlainOptions":     reflect.ValueOf((*dcs.PlainOptions)(nil)),
+		"Protocol":         reflect.ValueOf((*dcs.Protocol)(nil)),
+		"Resolver":         reflect.ValueOf((*dcs.Resolver)(nil)),
+		"WebsocketOptions": reflect.ValueOf((*dcs.WebsocketOptions)(nil)),
 
 		// interface wrapper definitions
 		"_Protocol": reflect.ValueOf((*_github_com_gotd_td_telegram_dcs_Protocol)(nil)),

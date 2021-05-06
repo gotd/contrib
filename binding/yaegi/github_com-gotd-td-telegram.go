@@ -54,6 +54,7 @@ func init() {
 		"SignUp":                reflect.ValueOf((*telegram.SignUp)(nil)),
 		"SignUpRequired":        reflect.ValueOf((*telegram.SignUpRequired)(nil)),
 		"UpdateHandler":         reflect.ValueOf((*telegram.UpdateHandler)(nil)),
+		"UpdateHandlerFunc":     reflect.ValueOf((*telegram.UpdateHandlerFunc)(nil)),
 		"UserAuthenticator":     reflect.ValueOf((*telegram.UserAuthenticator)(nil)),
 		"UserInfo":              reflect.ValueOf((*telegram.UserInfo)(nil)),
 
@@ -123,15 +124,11 @@ func (W _github_com_gotd_td_telegram_SessionStorage) StoreSession(ctx context.Co
 
 // _github_com_gotd_td_telegram_UpdateHandler is an interface wrapper for UpdateHandler type
 type _github_com_gotd_td_telegram_UpdateHandler struct {
-	WHandle      func(ctx context.Context, u *tg.Updates) error
-	WHandleShort func(ctx context.Context, u *tg.UpdateShort) error
+	WHandle func(ctx context.Context, u tg.UpdatesClass) error
 }
 
-func (W _github_com_gotd_td_telegram_UpdateHandler) Handle(ctx context.Context, u *tg.Updates) error {
+func (W _github_com_gotd_td_telegram_UpdateHandler) Handle(ctx context.Context, u tg.UpdatesClass) error {
 	return W.WHandle(ctx, u)
-}
-func (W _github_com_gotd_td_telegram_UpdateHandler) HandleShort(ctx context.Context, u *tg.UpdateShort) error {
-	return W.WHandleShort(ctx, u)
 }
 
 // _github_com_gotd_td_telegram_UserAuthenticator is an interface wrapper for UserAuthenticator type

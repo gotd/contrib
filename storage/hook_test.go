@@ -14,11 +14,7 @@ type testHandler struct {
 	returnErr error
 }
 
-func (t testHandler) Handle(ctx context.Context, u *tg.Updates) error {
-	return t.returnErr
-}
-
-func (t testHandler) HandleShort(ctx context.Context, u *tg.UpdateShort) error {
+func (t testHandler) Handle(ctx context.Context, u tg.UpdatesClass) error {
 	return t.returnErr
 }
 

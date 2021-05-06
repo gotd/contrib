@@ -41,7 +41,7 @@ func init() {
 		"DocumentExternal":   reflect.ValueOf(message.DocumentExternal),
 		"File":               reflect.ValueOf(message.File),
 		"Football":           reflect.ValueOf(message.Football),
-		"FootballEmoticon":   reflect.ValueOf(constant.MakeFromLiteral("\"🏀\"", token.STRING, 0)),
+		"FootballEmoticon":   reflect.ValueOf(constant.MakeFromLiteral("\"⚽\"", token.STRING, 0)),
 		"ForceMulti":         reflect.ValueOf(message.ForceMulti),
 		"FromBytes":          reflect.ValueOf(message.FromBytes),
 		"FromFS":             reflect.ValueOf(message.FromFS),
