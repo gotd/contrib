@@ -20,7 +20,7 @@ require (
 	github.com/uber-go/tally v3.3.17+incompatible
 	go.etcd.io/bbolt v1.3.5
 	go.etcd.io/etcd/client/v3 v3.5.0-alpha.0
-	go.uber.org/multierr v1.6.0
+	go.uber.org/multierr v1.7.0
 	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
 	golang.org/x/text v0.3.6
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
