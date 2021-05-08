@@ -107,3 +107,7 @@ issues:
     - path: internal\.go
       text: "should have.+comment"
       linters: [golint]
+
+    # Allow underscores in package names.
+    - linters: [golint, stylecheck]
+      text: "underscores? in package names?"
