@@ -81,6 +81,9 @@ func (p *Peer) FromChat(chat tg.ChatClass) bool {
 		r.Key.ID = c.ID
 		r.Key.Kind = peer.Chat
 	case *tg.Channel:
+		if c.Min {
+			return false
+		}
 		r.Key.ID = c.ID
 		r.Key.AccessHash = c.AccessHash
 		r.Key.Kind = peer.Channel
