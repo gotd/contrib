@@ -21,13 +21,12 @@ type updatesWithPeers interface {
 }
 
 func (h updateHook) Handle(ctx context.Context, u tg.UpdatesClass) error {
-	rerr := h.next.Handle(ctx, u)
-
 	updates, ok := u.(updatesWithPeers)
 	if !ok {
-		return rerr
+		return h.next.Handle(ctx, u)
 	}
 
+	var rerr error
 	for _, chat := range updates.GetChats() {
 		if value := (Peer{}); value.FromChat(chat) {
 			multierr.AppendInto(&rerr, h.storage.Add(ctx, value))
@@ -40,7 +39,7 @@ func (h updateHook) Handle(ctx context.Context, u tg.UpdatesClass) error {
 		}
 	}
 
-	return rerr
+	return multierr.Append(rerr, h.next.Handle(ctx, u))
 }
 
 // UpdateHook creates update hook, to collect peer data from updates.
