@@ -7,6 +7,7 @@ require (
 	github.com/cockroachdb/pebble v0.0.0-20210423210359-b62f76615457
 	github.com/gen2brain/dlgs v0.0.0-20210406143744-f512297a108e
 	github.com/go-redis/redis/v8 v8.8.2
+	github.com/golang/mock v1.5.0
 	github.com/gotd/neo v0.1.3
 	github.com/gotd/td v0.40.0
 	github.com/hashicorp/vault/api v1.1.0
@@ -20,6 +21,7 @@ require (
 	github.com/uber-go/tally v3.3.17+incompatible
 	go.etcd.io/bbolt v1.3.5
 	go.etcd.io/etcd/client/v3 v3.5.0-alpha.0
+	go.uber.org/atomic v1.7.0
 	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.16.0
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
