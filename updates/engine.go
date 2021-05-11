@@ -294,7 +294,8 @@ func (e *Engine) recoverChannelState(channelID int, state *channelState) error {
 		// Check if the required hash has arrived.
 		accessHash, ok = e.getChannelAccessHash(channelID)
 		if !ok {
-			return xerrors.Errorf("server did not return required channel hash")
+			e.log.Info("Server did not return required channel hash", zap.Int("channel_id", channelID))
+			return nil
 		}
 	}
 
