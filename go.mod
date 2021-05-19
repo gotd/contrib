@@ -20,10 +20,10 @@ require (
 	github.com/traefik/yaegi v0.9.17
 	github.com/uber-go/tally v3.3.17+incompatible
 	go.etcd.io/bbolt v1.3.5
-	go.etcd.io/etcd/client/v3 v3.5.0-alpha.0
+	go.etcd.io/etcd/client/v3 v3.5.0-beta.3
 	go.uber.org/atomic v1.7.0
 	go.uber.org/multierr v1.7.0
-	go.uber.org/zap v1.16.0
+	go.uber.org/zap v1.16.1-0.20210329175301-c23abee72d19
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
 	golang.org/x/text v0.3.6
