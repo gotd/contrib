@@ -21,12 +21,12 @@ import (
 
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/dcs"
-	"github.com/gotd/td/telegram/invokers"
 	"github.com/gotd/td/telegram/message"
 	"github.com/gotd/td/telegram/uploader"
 	"github.com/gotd/td/tg"
 
 	"github.com/gotd/contrib/http_io"
+	"github.com/gotd/contrib/middleware/floodwait"
 	"github.com/gotd/contrib/partio"
 )
 
@@ -44,10 +44,10 @@ func TestE2E(t *testing.T) {
 
 	client := telegram.NewClient(telegram.TestAppID, telegram.TestAppHash, telegram.Options{
 		DC:     2,
-		DCList: dcs.StagingDCs(),
+		DCList: dcs.Staging(),
 		Logger: logger.Named("client"),
 	})
-	w := invokers.NewWaiter(client)
+	w := floodwait.NewWaiter(client)
 	go w.Run(ctx)
 	api := tg.NewClient(w)
 
@@ -55,7 +55,7 @@ func TestE2E(t *testing.T) {
 		if err := telegram.NewAuth(
 			telegram.TestAuth(rand.Reader, 2),
 			telegram.SendCodeOptions{},
-		).Run(ctx, client); err != nil {
+		).Run(ctx, client.Auth()); err != nil {
 			return err
 		}
 

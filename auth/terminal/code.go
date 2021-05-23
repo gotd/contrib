@@ -67,7 +67,7 @@ func (t *Terminal) Password(ctx context.Context) (string, error) {
 }
 
 // Code asks code using terminal.
-func (t *Terminal) Code(ctx context.Context) (string, error) {
+func (t *Terminal) Code(ctx context.Context, code *tg.AuthSentCode) (string, error) {
 	return t.read(t.printer.Sprintf(localization.CodeDialogPrompt) + ":")
 }
 

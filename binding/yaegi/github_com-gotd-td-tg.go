@@ -6796,11 +6796,11 @@ func (W _github_com_gotd_td_tg_InputWebFileLocationClass) Zero() bool       { re
 
 // _github_com_gotd_td_tg_Invoker is an interface wrapper for Invoker type
 type _github_com_gotd_td_tg_Invoker struct {
-	WInvokeRaw func(ctx context.Context, input bin.Encoder, output bin.Decoder) error
+	WInvoke func(ctx context.Context, input bin.Encoder, output bin.Decoder) error
 }
 
-func (W _github_com_gotd_td_tg_Invoker) InvokeRaw(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
-	return W.WInvokeRaw(ctx, input, output)
+func (W _github_com_gotd_td_tg_Invoker) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+	return W.WInvoke(ctx, input, output)
 }
 
 // _github_com_gotd_td_tg_JSONValueClass is an interface wrapper for JSONValueClass type

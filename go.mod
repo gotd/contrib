@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.8.3
 	github.com/golang/mock v1.5.0
 	github.com/gotd/neo v0.1.3
-	github.com/gotd/td v0.40.0
+	github.com/gotd/td v0.41.2-0.20210523210954-fa3064ef2b1c
 	github.com/hashicorp/vault/api v1.1.0
 	github.com/m3db/prometheus_client_golang v0.8.1 // indirect
 	github.com/m3db/prometheus_client_model v0.1.0 // indirect
@@ -27,6 +27,7 @@ require (
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
 	golang.org/x/text v0.3.6
+	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 )
 

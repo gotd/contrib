@@ -26,8 +26,8 @@ type tgObject interface {
 	TypeID() uint32
 }
 
-// InvokeRaw implements tg.Invoker.
-func (m Metrics) InvokeRaw(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+// Invoke implements tg.Invoker.
+func (m Metrics) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
 	stats := m.stats
 	tagging := stats.Capabilities().Tagging()
 
@@ -41,7 +41,7 @@ func (m Metrics) InvokeRaw(ctx context.Context, input bin.Encoder, output bin.De
 	}
 
 	sw := stats.Timer("tg_request_duration").Start()
-	err := m.next.InvokeRaw(ctx, input, output)
+	err := m.next.Invoke(ctx, input, output)
 	sw.Stop()
 
 	stats.Counter("tg_total_requests").Inc(1)

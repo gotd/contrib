@@ -35,6 +35,6 @@ func TestTerminal(t *testing.T) {
 		return t.Password(ctx)
 	})
 	test(localization.CodeDialogPrompt, "abc", func(t *Terminal) (string, error) {
-		return t.Code(ctx)
+		return t.Code(ctx, nil)
 	})
 }

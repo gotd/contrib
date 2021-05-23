@@ -554,11 +554,11 @@ func (W _github_com_gotd_td_tg_e2e_InputStickerSetClass) Zero() bool       { ret
 
 // _github_com_gotd_td_tg_e2e_Invoker is an interface wrapper for Invoker type
 type _github_com_gotd_td_tg_e2e_Invoker struct {
-	WInvokeRaw func(ctx context.Context, input bin.Encoder, output bin.Decoder) error
+	WInvoke func(ctx context.Context, input bin.Encoder, output bin.Decoder) error
 }
 
-func (W _github_com_gotd_td_tg_e2e_Invoker) InvokeRaw(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
-	return W.WInvokeRaw(ctx, input, output)
+func (W _github_com_gotd_td_tg_e2e_Invoker) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+	return W.WInvoke(ctx, input, output)
 }
 
 // _github_com_gotd_td_tg_e2e_MessageEntityClass is an interface wrapper for MessageEntityClass type
