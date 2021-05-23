@@ -62,7 +62,7 @@ func run(ctx context.Context) error {
 		options.SessionStorage = &session.FileStorage{Path: *sessionFile}
 	}
 	if *testDC {
-		options.DCList = dcs.StagingDCs()
+		options.DCList = dcs.Staging()
 	}
 
 	client, err := telegram.ClientFromEnvironment(options)
