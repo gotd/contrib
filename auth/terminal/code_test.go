@@ -6,10 +6,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gotd/td/tg"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
+
+	"github.com/gotd/td/tg"
 
 	"github.com/gotd/contrib/auth/localization"
 )
