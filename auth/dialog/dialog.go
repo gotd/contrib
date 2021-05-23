@@ -2,6 +2,7 @@ package dialog
 
 import (
 	"context"
+	"strings"
 
 	"github.com/gen2brain/dlgs"
 	"golang.org/x/text/message"
@@ -118,18 +119,39 @@ func (d Dialog) SignUp(ctx context.Context) (telegram.UserInfo, error) {
 }
 
 // Code implements telegram.UserAuthenticator.
-func (d Dialog) Code(ctx context.Context, code *tg.AuthSentCode) (string, error) {
-	r, ok, err := dlgs.Entry(
-		d.printer.Sprintf(localization.CodeDialogTitle),
-		d.printer.Sprintf(localization.CodeDialogPrompt),
-		"",
-	)
-	if err != nil {
-		return "", xerrors.Errorf("show dialog: %w", err)
-	}
-	if !ok {
-		return "", errDialogClosed
-	}
+func (d Dialog) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string, error) {
+	title := d.printer.Sprintf(localization.CodeDialogTitle)
+	prompt := d.printer.Sprintf(localization.CodeDialogPrompt)
+	for {
+		code, ok, err := dlgs.Entry(title, prompt, "")
+		if err != nil {
+			return "", xerrors.Errorf("show dialog: %w", err)
+		}
+		if !ok {
+			return "", errDialogClosed
+		}
 
-	return r, nil
+		code = strings.TrimSpace(code)
+
+		type notFlashing interface {
+			GetLength() int
+		}
+
+		switch v := sentCode.Type.(type) {
+		case notFlashing:
+			length := v.GetLength()
+			if len(code) != length {
+				_, err := dlgs.Error(title, d.printer.Sprintf(localization.CodeInvalidLength, length)+"\n")
+				if err != nil {
+					return "", xerrors.Errorf("write error message: %w", err)
+				}
+				continue
+			}
+
+			return code, nil
+		// TODO: add tg.AuthSentCodeTypeFlashCall support
+		default:
+			return code, nil
+		}
+	}
 }

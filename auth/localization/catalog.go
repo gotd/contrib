@@ -31,6 +31,10 @@ const (
 	CodeDialogTitle = "code_dialog_title"
 	// CodeDialogPrompt is key for localized message.
 	CodeDialogPrompt = "code_dialog_prompt"
+	// CodeInvalidLength is key for localized message.
+	CodeInvalidLength = "code_invalid_length"
+	// CodeDoesNotMatchPattern is key for localized message.
+	CodeDoesNotMatchPattern = "code_does_not_match_pattern"
 )
 
 func must(errs ...error) {
@@ -64,6 +68,9 @@ func Catalog() *catalog.Builder {
 
 		b.SetString(eng, CodeDialogTitle, "Verification code"),
 		b.SetString(eng, CodeDialogPrompt, "Code"),
+
+		b.SetString(eng, CodeInvalidLength, "Code is invalid, length must be %d"),
+		b.SetString(eng, CodeDoesNotMatchPattern, "Code is invalid, code must match %s"),
 	)
 	return b
 }

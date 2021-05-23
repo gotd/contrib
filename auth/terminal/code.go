@@ -67,8 +67,36 @@ func (t *Terminal) Password(ctx context.Context) (string, error) {
 }
 
 // Code asks code using terminal.
-func (t *Terminal) Code(ctx context.Context, code *tg.AuthSentCode) (string, error) {
-	return t.read(t.printer.Sprintf(localization.CodeDialogPrompt) + ":")
+func (t *Terminal) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string, error) {
+	prompt := t.printer.Sprintf(localization.CodeDialogPrompt)
+	for {
+		code, err := t.read(prompt + ":")
+		if err != nil {
+			return "", err
+		}
+		code = strings.TrimSpace(code)
+
+		type notFlashing interface {
+			GetLength() int
+		}
+
+		switch v := sentCode.Type.(type) {
+		case notFlashing:
+			length := v.GetLength()
+			if len(code) != length {
+				_, err := io.WriteString(t.Terminal, t.printer.Sprintf(localization.CodeInvalidLength, length)+"\n")
+				if err != nil {
+					return "", xerrors.Errorf("write error message: %w", err)
+				}
+				continue
+			}
+
+			return code, nil
+		// TODO: add tg.AuthSentCodeTypeFlashCall support
+		default:
+			return code, nil
+		}
+	}
 }
 
 // SignUp asks user info for sign up.
