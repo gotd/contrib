@@ -111,3 +111,6 @@ issues:
     # Allow underscores in package names.
     - linters: [golint, stylecheck]
       text: "underscores? in package names?"
+
+    - linters: [staticcheck]
+      text: "SA1019: (telegram|client).+ is deprecated:"
