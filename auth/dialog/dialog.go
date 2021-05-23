@@ -118,7 +118,7 @@ func (d Dialog) SignUp(ctx context.Context) (telegram.UserInfo, error) {
 }
 
 // Code implements telegram.UserAuthenticator.
-func (d Dialog) Code(ctx context.Context) (string, error) {
+func (d Dialog) Code(ctx context.Context, code *tg.AuthSentCode) (string, error) {
 	r, ok, err := dlgs.Entry(
 		d.printer.Sprintf(localization.CodeDialogTitle),
 		d.printer.Sprintf(localization.CodeDialogPrompt),

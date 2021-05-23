@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/tg"
 	"go/constant"
 	"go/token"
@@ -70,43 +71,43 @@ func init() {
 
 // _github_com_gotd_td_telegram_AuthFlowClient is an interface wrapper for AuthFlowClient type
 type _github_com_gotd_td_telegram_AuthFlowClient struct {
-	WAuthPassword func(ctx context.Context, password string) (*tg.AuthAuthorization, error)
-	WAuthSendCode func(ctx context.Context, phone string, options telegram.SendCodeOptions) (*tg.AuthSentCode, error)
-	WAuthSignIn   func(ctx context.Context, phone string, code string, codeHash string) (*tg.AuthAuthorization, error)
-	WAuthSignUp   func(ctx context.Context, s telegram.SignUp) (*tg.AuthAuthorization, error)
+	WPassword func(ctx context.Context, password string) (*tg.AuthAuthorization, error)
+	WSendCode func(ctx context.Context, phone string, options auth.SendCodeOptions) (*tg.AuthSentCode, error)
+	WSignIn   func(ctx context.Context, phone string, code string, codeHash string) (*tg.AuthAuthorization, error)
+	WSignUp   func(ctx context.Context, s auth.SignUp) (*tg.AuthAuthorization, error)
 }
 
-func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthPassword(ctx context.Context, password string) (*tg.AuthAuthorization, error) {
-	return W.WAuthPassword(ctx, password)
+func (W _github_com_gotd_td_telegram_AuthFlowClient) Password(ctx context.Context, password string) (*tg.AuthAuthorization, error) {
+	return W.WPassword(ctx, password)
 }
-func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSendCode(ctx context.Context, phone string, options telegram.SendCodeOptions) (*tg.AuthSentCode, error) {
-	return W.WAuthSendCode(ctx, phone, options)
+func (W _github_com_gotd_td_telegram_AuthFlowClient) SendCode(ctx context.Context, phone string, options auth.SendCodeOptions) (*tg.AuthSentCode, error) {
+	return W.WSendCode(ctx, phone, options)
 }
-func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSignIn(ctx context.Context, phone string, code string, codeHash string) (*tg.AuthAuthorization, error) {
-	return W.WAuthSignIn(ctx, phone, code, codeHash)
+func (W _github_com_gotd_td_telegram_AuthFlowClient) SignIn(ctx context.Context, phone string, code string, codeHash string) (*tg.AuthAuthorization, error) {
+	return W.WSignIn(ctx, phone, code, codeHash)
 }
-func (W _github_com_gotd_td_telegram_AuthFlowClient) AuthSignUp(ctx context.Context, s telegram.SignUp) (*tg.AuthAuthorization, error) {
-	return W.WAuthSignUp(ctx, s)
+func (W _github_com_gotd_td_telegram_AuthFlowClient) SignUp(ctx context.Context, s auth.SignUp) (*tg.AuthAuthorization, error) {
+	return W.WSignUp(ctx, s)
 }
 
 // _github_com_gotd_td_telegram_CloseInvoker is an interface wrapper for CloseInvoker type
 type _github_com_gotd_td_telegram_CloseInvoker struct {
-	WClose     func() error
-	WInvokeRaw func(ctx context.Context, input bin.Encoder, output bin.Decoder) error
+	WClose  func() error
+	WInvoke func(ctx context.Context, input bin.Encoder, output bin.Decoder) error
 }
 
 func (W _github_com_gotd_td_telegram_CloseInvoker) Close() error { return W.WClose() }
-func (W _github_com_gotd_td_telegram_CloseInvoker) InvokeRaw(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
-	return W.WInvokeRaw(ctx, input, output)
+func (W _github_com_gotd_td_telegram_CloseInvoker) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+	return W.WInvoke(ctx, input, output)
 }
 
 // _github_com_gotd_td_telegram_CodeAuthenticator is an interface wrapper for CodeAuthenticator type
 type _github_com_gotd_td_telegram_CodeAuthenticator struct {
-	WCode func(ctx context.Context) (string, error)
+	WCode func(ctx context.Context, sentCode *tg.AuthSentCode) (string, error)
 }
 
-func (W _github_com_gotd_td_telegram_CodeAuthenticator) Code(ctx context.Context) (string, error) {
-	return W.WCode(ctx)
+func (W _github_com_gotd_td_telegram_CodeAuthenticator) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string, error) {
+	return W.WCode(ctx, sentCode)
 }
 
 // _github_com_gotd_td_telegram_SessionStorage is an interface wrapper for SessionStorage type
@@ -134,17 +135,17 @@ func (W _github_com_gotd_td_telegram_UpdateHandler) Handle(ctx context.Context, 
 // _github_com_gotd_td_telegram_UserAuthenticator is an interface wrapper for UserAuthenticator type
 type _github_com_gotd_td_telegram_UserAuthenticator struct {
 	WAcceptTermsOfService func(ctx context.Context, tos tg.HelpTermsOfService) error
-	WCode                 func(ctx context.Context) (string, error)
+	WCode                 func(ctx context.Context, sentCode *tg.AuthSentCode) (string, error)
 	WPassword             func(ctx context.Context) (string, error)
 	WPhone                func(ctx context.Context) (string, error)
-	WSignUp               func(ctx context.Context) (telegram.UserInfo, error)
+	WSignUp               func(ctx context.Context) (auth.UserInfo, error)
 }
 
 func (W _github_com_gotd_td_telegram_UserAuthenticator) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfService) error {
 	return W.WAcceptTermsOfService(ctx, tos)
 }
-func (W _github_com_gotd_td_telegram_UserAuthenticator) Code(ctx context.Context) (string, error) {
-	return W.WCode(ctx)
+func (W _github_com_gotd_td_telegram_UserAuthenticator) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string, error) {
+	return W.WCode(ctx, sentCode)
 }
 func (W _github_com_gotd_td_telegram_UserAuthenticator) Password(ctx context.Context) (string, error) {
 	return W.WPassword(ctx)
@@ -152,6 +153,6 @@ func (W _github_com_gotd_td_telegram_UserAuthenticator) Password(ctx context.Con
 func (W _github_com_gotd_td_telegram_UserAuthenticator) Phone(ctx context.Context) (string, error) {
 	return W.WPhone(ctx)
 }
-func (W _github_com_gotd_td_telegram_UserAuthenticator) SignUp(ctx context.Context) (telegram.UserInfo, error) {
+func (W _github_com_gotd_td_telegram_UserAuthenticator) SignUp(ctx context.Context) (auth.UserInfo, error) {
 	return W.WSignUp(ctx)
 }

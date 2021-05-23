@@ -21,9 +21,9 @@ type UpdateHook struct {
 	next tg.Invoker
 }
 
-// InvokeRaw implements tg.Invoker.
-func (h UpdateHook) InvokeRaw(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
-	if err := h.next.InvokeRaw(ctx, input, output); err != nil {
+// Invoke implements tg.Invoker.
+func (h UpdateHook) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+	if err := h.next.Invoke(ctx, input, output); err != nil {
 		return err
 	}
 	if u, ok := output.(*tg.UpdatesBox); ok {

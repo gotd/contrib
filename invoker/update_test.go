@@ -15,7 +15,7 @@ type testInvoker struct {
 	invoke func(input bin.Encoder, output bin.Decoder) error
 }
 
-func (t testInvoker) InvokeRaw(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+func (t testInvoker) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
 	return t.invoke(input, output)
 }
 
@@ -31,7 +31,7 @@ func TestUpdateHook_InvokeRaw(t *testing.T) {
 			assert.NotNil(t, u)
 			hookCalled = true
 			return nil
-		}).InvokeRaw(context.TODO(), nil, &tg.UpdatesBox{
+		}).Invoke(context.TODO(), nil, &tg.UpdatesBox{
 			Updates: &tg.UpdateShortMessage{
 				ID: 100,
 			},
@@ -53,7 +53,7 @@ func TestUpdateHook_InvokeRaw(t *testing.T) {
 				assert.NotNil(t, u)
 				hookCalled = true
 				return nil
-			}).InvokeRaw(context.TODO(), nil, &tg.UpdatesBox{
+			}).Invoke(context.TODO(), nil, &tg.UpdatesBox{
 				Updates: &tg.UpdateShortMessage{
 					ID: 100,
 				},
@@ -74,7 +74,7 @@ func TestUpdateHook_InvokeRaw(t *testing.T) {
 				assert.NotNil(t, u)
 				hookCalled = true
 				return err
-			}).InvokeRaw(context.TODO(), nil, &tg.UpdatesBox{
+			}).Invoke(context.TODO(), nil, &tg.UpdatesBox{
 				Updates: &tg.UpdateShortMessage{
 					ID: 100,
 				},
@@ -95,7 +95,7 @@ func TestUpdateHook_InvokeRaw(t *testing.T) {
 			assert.NotNil(t, u)
 			hookCalled = true
 			return nil
-		}).InvokeRaw(context.TODO(), nil, &tg.User{}))
+		}).Invoke(context.TODO(), nil, &tg.User{}))
 
 		assert.True(t, invokerCalled, "invoker should be called")
 		assert.False(t, hookCalled, "hook should not be called")

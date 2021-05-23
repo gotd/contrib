@@ -47,12 +47,12 @@ func formatObject(input interface{}) string {
 	return tdp.Format(o)
 }
 
-// InvokeRaw implements tg.Invoker.
-func (d *Debug) InvokeRaw(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+// Invoke implements tg.Invoker.
+func (d *Debug) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
 	_, rerr := fmt.Fprintln(d.out, "→", formatObject(input))
 
 	start := time.Now()
-	if err := d.next.InvokeRaw(ctx, input, output); err != nil {
+	if err := d.next.Invoke(ctx, input, output); err != nil {
 		rerr = multierr.Append(rerr, err)
 		_, err := fmt.Fprintln(d.out, "←", err)
 		return multierr.Append(rerr, err)
