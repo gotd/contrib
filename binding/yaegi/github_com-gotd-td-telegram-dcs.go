@@ -4,11 +4,10 @@ package yaegi
 
 import (
 	"context"
-	"net"
-	"reflect"
-
 	"github.com/gotd/td/telegram/dcs"
 	"github.com/gotd/td/transport"
+	"net"
+	"reflect"
 )
 
 func init() {

@@ -4,12 +4,11 @@ package yaegi
 
 import (
 	"context"
+	"github.com/gotd/td/bin"
+	"github.com/gotd/td/tg"
 	"go/constant"
 	"go/token"
 	"reflect"
-
-	"github.com/gotd/td/bin"
-	"github.com/gotd/td/tg"
 )
 
 func init() {

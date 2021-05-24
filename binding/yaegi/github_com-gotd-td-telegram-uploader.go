@@ -4,13 +4,12 @@ package yaegi
 
 import (
 	"context"
+	"github.com/gotd/td/telegram/uploader"
+	"github.com/gotd/td/tg"
 	"go/constant"
 	"go/token"
 	"io/fs"
 	"reflect"
-
-	"github.com/gotd/td/telegram/uploader"
-	"github.com/gotd/td/tg"
 )
 
 func init() {

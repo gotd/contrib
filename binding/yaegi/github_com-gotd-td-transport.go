@@ -4,11 +4,10 @@ package yaegi
 
 import (
 	"context"
-	"io"
-	"reflect"
-
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/transport"
+	"io"
+	"reflect"
 )
 
 func init() {

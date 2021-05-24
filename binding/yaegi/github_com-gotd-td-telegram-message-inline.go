@@ -3,11 +3,10 @@
 package yaegi
 
 import (
+	"github.com/gotd/td/telegram/message/inline"
 	"go/constant"
 	"go/token"
 	"reflect"
-
-	"github.com/gotd/td/telegram/message/inline"
 )
 
 func init() {
