@@ -19,9 +19,8 @@ import (
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/td/middleware"
-	"github.com/gotd/td/middleware/floodwait"
 	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/telegram/dcs"
 	"github.com/gotd/td/telegram/message"
 	"github.com/gotd/td/telegram/uploader"
@@ -48,16 +47,13 @@ func TestE2E(t *testing.T) {
 		DC:     2,
 		DCList: dcs.Staging(),
 		Logger: logger.Named("client"),
-		Middleware: middleware.Chain(
-			floodwait.Middleware(),
-		),
 	})
-	api := tg.NewClient(client)
+	api := tg.NewClient(floodwait.Middleware()(client))
 
 	require.NoError(t, client.Run(ctx, func(ctx context.Context) error {
-		if err := telegram.NewAuth(
-			telegram.TestAuth(rand.Reader, 2),
-			telegram.SendCodeOptions{},
+		if err := auth.NewFlow(
+			auth.Test(rand.Reader, 2),
+			auth.SendCodeOptions{},
 		).Run(ctx, client.Auth()); err != nil {
 			return err
 		}

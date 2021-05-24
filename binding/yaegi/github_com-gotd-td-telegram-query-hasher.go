@@ -3,8 +3,9 @@
 package yaegi
 
 import (
-	"github.com/gotd/td/telegram/query/hasher"
 	"reflect"
+
+	"github.com/gotd/td/telegram/query/hasher"
 )
 
 func init() {

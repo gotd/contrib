@@ -3,8 +3,9 @@
 package yaegi
 
 import (
-	"github.com/gotd/td/telegram/message/html"
 	"reflect"
+
+	"github.com/gotd/td/telegram/message/html"
 )
 
 func init() {

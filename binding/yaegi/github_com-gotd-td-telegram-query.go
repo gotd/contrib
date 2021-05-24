@@ -3,8 +3,9 @@
 package yaegi
 
 import (
-	"github.com/gotd/td/telegram/query"
 	"reflect"
+
+	"github.com/gotd/td/telegram/query"
 )
 
 func init() {

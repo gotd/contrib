@@ -3,10 +3,11 @@
 package yaegi
 
 import (
-	"github.com/gotd/neo"
-	"github.com/gotd/td/clock"
 	"reflect"
 	"time"
+
+	"github.com/gotd/neo"
+	"github.com/gotd/td/clock"
 )
 
 func init() {

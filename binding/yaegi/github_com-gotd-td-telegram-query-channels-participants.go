@@ -4,9 +4,10 @@ package yaegi
 
 import (
 	"context"
+	"reflect"
+
 	"github.com/gotd/td/telegram/query/channels/participants"
 	"github.com/gotd/td/tg"
-	"reflect"
 )
 
 func init() {
