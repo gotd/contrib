@@ -13,7 +13,6 @@ func init() {
 	Symbols["github.com/gotd/td/telegram/downloader"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"ErrHashMismatch": reflect.ValueOf(&downloader.ErrHashMismatch).Elem(),
-		"ExpandThumbnail": reflect.ValueOf(downloader.ExpandThumbnail),
 		"NewDownloader":   reflect.ValueOf(downloader.NewDownloader),
 
 		// type definitions
