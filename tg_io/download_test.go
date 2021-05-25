@@ -51,10 +51,11 @@ func TestE2E(t *testing.T) {
 	api := tg.NewClient(floodwait.Middleware()(client))
 
 	require.NoError(t, client.Run(ctx, func(ctx context.Context) error {
+		authClient := auth.NewClient(api, rand.Reader, telegram.TestAppID, telegram.TestAppHash)
 		if err := auth.NewFlow(
 			auth.Test(rand.Reader, 2),
 			auth.SendCodeOptions{},
-		).Run(ctx, client.Auth()); err != nil {
+		).Run(ctx, authClient); err != nil {
 			return err
 		}
 
