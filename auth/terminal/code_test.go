@@ -10,6 +10,8 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
+	"github.com/gotd/td/tg"
+
 	"github.com/gotd/contrib/auth/localization"
 )
 
@@ -28,13 +30,18 @@ func TestTerminal(t *testing.T) {
 		out.Reset()
 	}
 
-	test(localization.PhoneDialogPrompt, "abc", func(t *Terminal) (string, error) {
+	input := "abc"
+	test(localization.PhoneDialogPrompt, input, func(t *Terminal) (string, error) {
 		return t.Phone(ctx)
 	})
-	test(localization.PasswordDialogPrompt, "abc", func(t *Terminal) (string, error) {
+	test(localization.PasswordDialogPrompt, input, func(t *Terminal) (string, error) {
 		return t.Password(ctx)
 	})
-	test(localization.CodeDialogPrompt, "abc", func(t *Terminal) (string, error) {
-		return t.Code(ctx, nil)
+	test(localization.CodeDialogPrompt, input, func(t *Terminal) (string, error) {
+		return t.Code(ctx, &tg.AuthSentCode{
+			Type: &tg.AuthSentCodeTypeApp{
+				Length: len(input),
+			},
+		})
 	})
 }

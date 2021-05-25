@@ -16,7 +16,7 @@ func TestBuild(t *testing.T) {
 		LastName:  "LastName",
 	}
 	signUp := ConstantSignUp(info)
-	codeAsk := telegram.CodeAuthenticatorFunc(func(ctx context.Context, code *tg.AuthSentCode) (string, error) {
+	codeAsk := telegram.CodeAuthenticatorFunc(func(context.Context, *tg.AuthSentCode) (string, error) {
 		return "code", nil
 	})
 
