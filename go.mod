@@ -21,7 +21,7 @@ require (
 	github.com/twmb/murmur3 v1.1.5 // indirect
 	github.com/uber-go/tally v3.4.0+incompatible
 	go.etcd.io/bbolt v1.3.5
-	go.etcd.io/etcd/client/v3 v3.5.0-beta.3
+	go.etcd.io/etcd/client/v3 v3.5.0-beta.4
 	go.uber.org/atomic v1.7.0
 	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.16.1-0.20210329175301-c23abee72d19
