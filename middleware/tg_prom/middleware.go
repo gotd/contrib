@@ -14,19 +14,19 @@ import (
 	"github.com/gotd/td/tgerr"
 )
 
-// Prometheus middleware.
-type Prometheus struct {
+// Middleware is prometheus metrics middleware for Telegram.
+type Middleware struct {
 	count    *prometheus.CounterVec
 	failures *prometheus.CounterVec
 	duration prometheus.ObserverVec
 }
 
 // Metrics returns slice of provided prometheus metrics.
-func (p Prometheus) Metrics() []prometheus.Collector {
+func (m Middleware) Metrics() []prometheus.Collector {
 	return []prometheus.Collector{
-		p.count,
-		p.failures,
-		p.duration,
+		m.count,
+		m.failures,
+		m.duration,
 	}
 }
 
@@ -37,18 +37,18 @@ const (
 )
 
 // Handle implements telegram.Middleware.
-func (p Prometheus) Handle(next tg.Invoker) telegram.InvokeFunc {
+func (m Middleware) Handle(next tg.Invoker) telegram.InvokeFunc {
 	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
 		// Prepare.
-		labels := p.labels(input)
-		p.count.With(labels).Inc()
+		labels := m.labels(input)
+		m.count.With(labels).Inc()
 		start := time.Now()
 
 		// Call actual method.
 		err := next.Invoke(ctx, input, output)
 
 		// Observe.
-		p.duration.With(labels).Observe(time.Since(start).Seconds())
+		m.duration.With(labels).Observe(time.Since(start).Seconds())
 		if err != nil {
 			failureLabels := prometheus.Labels{}
 			for k, v := range labels {
@@ -60,7 +60,7 @@ func (p Prometheus) Handle(next tg.Invoker) telegram.InvokeFunc {
 			} else {
 				failureLabels[labelErrType] = "CLIENT"
 			}
-			p.failures.With(failureLabels)
+			m.failures.With(failureLabels)
 		}
 
 		return err
@@ -72,7 +72,7 @@ type object interface {
 	TypeName() string
 }
 
-func (p Prometheus) labels(input bin.Encoder) prometheus.Labels {
+func (m Middleware) labels(input bin.Encoder) prometheus.Labels {
 	obj, ok := input.(object)
 	if !ok {
 		return prometheus.Labels{}
@@ -83,8 +83,8 @@ func (p Prometheus) labels(input bin.Encoder) prometheus.Labels {
 }
 
 // New initializes and returns new prometheus middleware.
-func New() *Prometheus {
-	return &Prometheus{
+func New() *Middleware {
+	return &Middleware{
 		count: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: "tg_rpc_count_total",
 			Help: "Telegram RPC calls total count.",
