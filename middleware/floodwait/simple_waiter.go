@@ -7,11 +7,9 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/bin"
-	"github.com/gotd/td/telegram"
-
-	"github.com/gotd/td/tg"
-
 	"github.com/gotd/td/clock"
+	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/tg"
 	"github.com/gotd/td/tgerr"
 )
 
