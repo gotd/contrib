@@ -1,2 +1,2 @@
-// Package middleware defines middleware abstraction for RPC invokers.
+// Package middleware wraps some useful middlewares for telegram.
 package middleware

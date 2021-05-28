@@ -7,8 +7,11 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/bin"
-	"github.com/gotd/td/clock"
+	"github.com/gotd/td/telegram"
+
 	"github.com/gotd/td/tg"
+
+	"github.com/gotd/td/clock"
 	"github.com/gotd/td/tgerr"
 )
 
@@ -19,7 +22,6 @@ import (
 //
 // See Waiter for a fully-blown scheduler-based flood wait handler.
 type SimpleWaiter struct {
-	next  tg.Invoker
 	clock clock.Clock
 
 	maxRetries uint
@@ -27,9 +29,8 @@ type SimpleWaiter struct {
 }
 
 // NewSimpleWaiter returns a new invoker that waits on the flood wait errors.
-func NewSimpleWaiter(invoker tg.Invoker) *SimpleWaiter {
+func NewSimpleWaiter() *SimpleWaiter {
 	return &SimpleWaiter{
-		next:  invoker,
 		clock: clock.System,
 	}
 }
@@ -37,7 +38,6 @@ func NewSimpleWaiter(invoker tg.Invoker) *SimpleWaiter {
 // clone returns a copy of the SimpleWaiter.
 func (w *SimpleWaiter) clone() *SimpleWaiter {
 	return &SimpleWaiter{
-		next:       w.next,
 		clock:      w.clock,
 		maxWait:    w.maxWait,
 		maxRetries: w.maxRetries,
@@ -69,50 +69,50 @@ func (w *SimpleWaiter) WithMaxWait(m time.Duration) *SimpleWaiter {
 	return w
 }
 
-// Invoke implements tg.Invoker.
-func (w *SimpleWaiter) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
-	var t clock.Timer
+// Handle implements telegram.Middleware.
+func (w *SimpleWaiter) Handle(next tg.Invoker) telegram.InvokeFunc {
+	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+		var t clock.Timer
 
-	var retries uint
-	for {
-		err := w.next.Invoke(ctx, input, output)
-		if err == nil {
-			return nil
-		}
+		var retries uint
+		for {
+			err := next.Invoke(ctx, input, output)
+			if err == nil {
+				return nil
+			}
 
-		floodWait, ok := tgerr.AsType(err, ErrFloodWait)
-		if !ok {
-			return err
-		}
+			d, ok := tgerr.AsFloodWait(err)
+			if !ok {
+				return err
+			}
 
-		retries++
+			retries++
 
-		if max := w.maxRetries; max != 0 && retries > max {
-			return xerrors.Errorf("flood wait retry limit exceeded (%d > %d): %w", retries, max, err)
-		}
+			if max := w.maxRetries; max != 0 && retries > max {
+				return xerrors.Errorf("flood wait retry limit exceeded (%d > %d): %w", retries, max, err)
+			}
 
-		arg := floodWait.Argument
-		if arg <= 0 {
-			arg = 1
-		}
-		d := time.Duration(arg) * time.Second
+			if d == 0 {
+				d = time.Second
+			}
 
-		if max := w.maxWait; max != 0 && d > max {
-			return xerrors.Errorf("flood wait argument is too big (%v > %v): %w", d, max, err)
-		}
+			if max := w.maxWait; max != 0 && d > max {
+				return xerrors.Errorf("flood wait argument is too big (%v > %v): %w", d, max, err)
+			}
 
-		if t == nil {
-			t = w.clock.Timer(d)
-		} else {
-			clock.StopTimer(t)
-			t.Reset(d)
-		}
-		select {
-		case <-t.C():
-			continue
-		case <-ctx.Done():
-			clock.StopTimer(t)
-			return ctx.Err()
+			if t == nil {
+				t = w.clock.Timer(d)
+			} else {
+				clock.StopTimer(t)
+				t.Reset(d)
+			}
+			select {
+			case <-t.C():
+				continue
+			case <-ctx.Done():
+				clock.StopTimer(t)
+				return ctx.Err()
+			}
 		}
 	}
 }

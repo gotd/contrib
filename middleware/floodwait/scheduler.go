@@ -7,6 +7,7 @@ import (
 
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/clock"
+	"github.com/gotd/td/tg"
 )
 
 type scheduler struct {
@@ -29,13 +30,14 @@ func newScheduler(c clock.Clock, dec time.Duration) *scheduler {
 	}
 }
 
-func (s *scheduler) new(ctx context.Context, input bin.Encoder, output bin.Decoder) <-chan error {
+func (s *scheduler) new(ctx context.Context, input bin.Encoder, output bin.Decoder, next tg.Invoker) <-chan error {
 	var k key
 	k.fromEncoder(input)
 	r := request{
 		ctx:    ctx,
 		input:  input,
 		output: output,
+		next:   next,
 		key:    k,
 		result: make(chan error, 1),
 	}

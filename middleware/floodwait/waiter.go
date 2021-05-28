@@ -6,9 +6,11 @@ import (
 
 	"golang.org/x/xerrors"
 
+	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/tg"
+
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/clock"
-	"github.com/gotd/td/tg"
 	"github.com/gotd/td/tgerr"
 )
 
@@ -27,7 +29,6 @@ const (
 //
 // See SimpleWaiter for a simple timer-based implementation.
 type Waiter struct {
-	next  tg.Invoker // immutable
 	clock clock.Clock
 	sch   *scheduler
 
@@ -37,9 +38,8 @@ type Waiter struct {
 }
 
 // NewWaiter returns a new invoker that waits on the flood wait errors.
-func NewWaiter(invoker tg.Invoker) *Waiter {
+func NewWaiter() *Waiter {
 	return &Waiter{
-		next:       invoker,
 		clock:      clock.System,
 		sch:        newScheduler(clock.System, time.Second),
 		tick:       defaultTick,
@@ -51,7 +51,6 @@ func NewWaiter(invoker tg.Invoker) *Waiter {
 // clone returns a copy of the Waiter.
 func (w *Waiter) clone() *Waiter {
 	return &Waiter{
-		next:       w.next,
 		clock:      w.clock,
 		sch:        w.sch,
 		tick:       w.tick,
@@ -124,7 +123,7 @@ func (w *Waiter) Run(ctx context.Context) error {
 }
 
 func (w *Waiter) send(s scheduled) (bool, error) {
-	err := w.next.Invoke(s.request.ctx, s.request.input, s.request.output)
+	err := s.request.next.Invoke(s.request.ctx, s.request.input, s.request.output)
 
 	floodWait, ok := tgerr.AsType(err, ErrFloodWait)
 	if !ok {
@@ -155,12 +154,13 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 // ErrFloodWait is error type of "FLOOD_WAIT" error.
 const ErrFloodWait = "FLOOD_WAIT"
 
-// Invoke implements tg.Invoker.
-func (w *Waiter) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
-	select {
-	case err := <-w.sch.new(ctx, input, output):
-		return err
-	case <-ctx.Done():
-		return ctx.Err()
+func (w *Waiter) Handle(next tg.Invoker) telegram.InvokeFunc {
+	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+		select {
+		case err := <-w.sch.new(ctx, input, output, next):
+			return err
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 	}
 }
