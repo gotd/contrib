@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 	"golang.org/x/sync/errgroup"
+	"golang.org/x/time/rate"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
@@ -28,6 +29,7 @@ import (
 
 	"github.com/gotd/contrib/http_io"
 	"github.com/gotd/contrib/middleware/floodwait"
+	"github.com/gotd/contrib/middleware/ratelimit"
 	"github.com/gotd/contrib/partio"
 )
 
@@ -48,6 +50,7 @@ func TestE2E(t *testing.T) {
 		DCList: dcs.Staging(),
 		Logger: logger.Named("client"),
 		Middlewares: []telegram.Middleware{
+			ratelimit.New(rate.Every(100*time.Millisecond), 5),
 			floodwait.NewWaiter(),
 		},
 	})
