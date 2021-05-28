@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.9.0
 	github.com/golang/mock v1.5.0
 	github.com/gotd/neo v0.1.3
-	github.com/gotd/td v0.42.0-alpha.2
+	github.com/gotd/td v0.42.0-alpha.4.0.20210528212319-55587fb12533
 	github.com/hashicorp/vault/api v1.1.0
 	github.com/m3db/prometheus_client_golang v0.8.1 // indirect
 	github.com/m3db/prometheus_client_model v0.1.0 // indirect
@@ -24,7 +24,7 @@ require (
 	go.etcd.io/etcd/client/v3 v3.5.0-beta.4
 	go.uber.org/atomic v1.7.0
 	go.uber.org/multierr v1.7.0
-	go.uber.org/zap v1.16.1-0.20210329175301-c23abee72d19
+	go.uber.org/zap v1.17.0
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
 	golang.org/x/text v0.3.6

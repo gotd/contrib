@@ -4,11 +4,14 @@ import (
 	"context"
 	"time"
 
+	"go.uber.org/atomic"
 	"golang.org/x/xerrors"
+
+	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/tg"
 
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/clock"
-	"github.com/gotd/td/tg"
 	"github.com/gotd/td/tgerr"
 )
 
@@ -27,19 +30,18 @@ const (
 //
 // See SimpleWaiter for a simple timer-based implementation.
 type Waiter struct {
-	next  tg.Invoker // immutable
 	clock clock.Clock
 	sch   *scheduler
 
+	running    atomic.Bool
 	tick       time.Duration
 	maxWait    time.Duration
 	maxRetries int
 }
 
 // NewWaiter returns a new invoker that waits on the flood wait errors.
-func NewWaiter(invoker tg.Invoker) *Waiter {
+func NewWaiter() *Waiter {
 	return &Waiter{
-		next:       invoker,
 		clock:      clock.System,
 		sch:        newScheduler(clock.System, time.Second),
 		tick:       defaultTick,
@@ -51,7 +53,6 @@ func NewWaiter(invoker tg.Invoker) *Waiter {
 // clone returns a copy of the Waiter.
 func (w *Waiter) clone() *Waiter {
 	return &Waiter{
-		next:       w.next,
 		clock:      w.clock,
 		sch:        w.sch,
 		tick:       w.tick,
@@ -96,6 +97,9 @@ func (w *Waiter) WithTick(t time.Duration) *Waiter {
 
 // Run runs send loop.
 func (w *Waiter) Run(ctx context.Context) error {
+	w.running.Store(true)
+	defer w.running.Store(false)
+
 	ticker := w.clock.Ticker(w.tick)
 	defer ticker.Stop()
 
@@ -124,9 +128,9 @@ func (w *Waiter) Run(ctx context.Context) error {
 }
 
 func (w *Waiter) send(s scheduled) (bool, error) {
-	err := w.next.Invoke(s.request.ctx, s.request.input, s.request.output)
+	err := s.request.next.Invoke(s.request.ctx, s.request.input, s.request.output)
 
-	floodWait, ok := tgerr.AsType(err, ErrFloodWait)
+	d, ok := tgerr.AsFloodWait(err)
 	if !ok {
 		w.sch.nice(s.request.key)
 		return true, err
@@ -138,12 +142,9 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 		return true, xerrors.Errorf("flood wait retry limit exceeded (%d > %d): %w", s.request.retry, max, err)
 	}
 
-	arg := floodWait.Argument
-	if arg <= 0 {
-		arg = 1
+	if d < time.Second {
+		d = time.Second
 	}
-	d := time.Duration(arg) * time.Second
-
 	if max := w.maxWait; max != 0 && d > max {
 		return true, xerrors.Errorf("flood wait argument is too big (%v > %v): %w", d, max, err)
 	}
@@ -152,15 +153,18 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 	return false, nil
 }
 
-// ErrFloodWait is error type of "FLOOD_WAIT" error.
-const ErrFloodWait = "FLOOD_WAIT"
-
-// Invoke implements tg.Invoker.
-func (w *Waiter) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
-	select {
-	case err := <-w.sch.new(ctx, input, output):
-		return err
-	case <-ctx.Done():
-		return ctx.Err()
+// Handle implements telegram.Middleware.
+func (w *Waiter) Handle(next tg.Invoker) telegram.InvokeFunc {
+	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+		if !w.running.Load() {
+			// Return explicit error if waiter is not running.
+			return xerrors.New("the Waiter middleware is not running: Run(ctx) method is not called or exited")
+		}
+		select {
+		case err := <-w.sch.new(ctx, input, output, next):
+			return err
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 	}
 }

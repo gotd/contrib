@@ -9,7 +9,6 @@ import (
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
 
-	"github.com/gotd/contrib/middleware"
 	"github.com/gotd/contrib/middleware/floodwait"
 	"github.com/gotd/contrib/middleware/ratelimit"
 )
@@ -20,20 +19,18 @@ func Example() {
 	//
 	// Note that you must not use test app credentials in production.
 	// See https://core.telegram.org/api/obtaining_api_id
-	//
 	client := telegram.NewClient(
 		telegram.TestAppID,
 		telegram.TestAppHash,
-		telegram.Options{},
+		telegram.Options{
+			Middlewares: []telegram.Middleware{
+				floodwait.NewSimpleWaiter().WithMaxRetries(10),
+				ratelimit.New(rate.Every(100*time.Millisecond), 5),
+			},
+		},
 	)
 
-	api := tg.NewClient(middleware.Chain(
-		floodwait.Middleware(),
-		ratelimit.Middleware(
-			rate.NewLimiter(rate.Every(100*time.Millisecond), 5),
-		),
-	)(client))
-
+	api := tg.NewClient(client)
 	ctx := context.TODO()
 	err := client.Run(ctx, func(ctx context.Context) error {
 		_, err := api.ContactsResolveUsername(ctx, "@self")

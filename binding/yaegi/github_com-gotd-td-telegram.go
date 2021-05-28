@@ -49,6 +49,9 @@ func init() {
 		"DeviceConfig":          reflect.ValueOf((*telegram.DeviceConfig)(nil)),
 		"Error":                 reflect.ValueOf((*telegram.Error)(nil)),
 		"FileSessionStorage":    reflect.ValueOf((*telegram.FileSessionStorage)(nil)),
+		"InvokeFunc":            reflect.ValueOf((*telegram.InvokeFunc)(nil)),
+		"Middleware":            reflect.ValueOf((*telegram.Middleware)(nil)),
+		"MiddlewareFunc":        reflect.ValueOf((*telegram.MiddlewareFunc)(nil)),
 		"Options":               reflect.ValueOf((*telegram.Options)(nil)),
 		"SendCodeOptions":       reflect.ValueOf((*telegram.SendCodeOptions)(nil)),
 		"SessionStorage":        reflect.ValueOf((*telegram.SessionStorage)(nil)),
@@ -63,6 +66,7 @@ func init() {
 		"_AuthFlowClient":    reflect.ValueOf((*_github_com_gotd_td_telegram_AuthFlowClient)(nil)),
 		"_CloseInvoker":      reflect.ValueOf((*_github_com_gotd_td_telegram_CloseInvoker)(nil)),
 		"_CodeAuthenticator": reflect.ValueOf((*_github_com_gotd_td_telegram_CodeAuthenticator)(nil)),
+		"_Middleware":        reflect.ValueOf((*_github_com_gotd_td_telegram_Middleware)(nil)),
 		"_SessionStorage":    reflect.ValueOf((*_github_com_gotd_td_telegram_SessionStorage)(nil)),
 		"_UpdateHandler":     reflect.ValueOf((*_github_com_gotd_td_telegram_UpdateHandler)(nil)),
 		"_UserAuthenticator": reflect.ValueOf((*_github_com_gotd_td_telegram_UserAuthenticator)(nil)),
@@ -108,6 +112,15 @@ type _github_com_gotd_td_telegram_CodeAuthenticator struct {
 
 func (W _github_com_gotd_td_telegram_CodeAuthenticator) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string, error) {
 	return W.WCode(ctx, sentCode)
+}
+
+// _github_com_gotd_td_telegram_Middleware is an interface wrapper for Middleware type
+type _github_com_gotd_td_telegram_Middleware struct {
+	WHandle func(next tg.Invoker) telegram.InvokeFunc
+}
+
+func (W _github_com_gotd_td_telegram_Middleware) Handle(next tg.Invoker) telegram.InvokeFunc {
+	return W.WHandle(next)
 }
 
 // _github_com_gotd_td_telegram_SessionStorage is an interface wrapper for SessionStorage type

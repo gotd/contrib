@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 	"golang.org/x/sync/errgroup"
+	"golang.org/x/time/rate"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
@@ -28,6 +29,7 @@ import (
 
 	"github.com/gotd/contrib/http_io"
 	"github.com/gotd/contrib/middleware/floodwait"
+	"github.com/gotd/contrib/middleware/ratelimit"
 	"github.com/gotd/contrib/partio"
 )
 
@@ -43,12 +45,19 @@ func TestE2E(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
+	floodWaiter := floodwait.NewWaiter()
+	go func() { _ = floodWaiter.Run(ctx) }()
+
 	client := telegram.NewClient(telegram.TestAppID, telegram.TestAppHash, telegram.Options{
 		DC:     2,
 		DCList: dcs.Staging(),
 		Logger: logger.Named("client"),
+		Middlewares: []telegram.Middleware{
+			ratelimit.New(rate.Every(100*time.Millisecond), 5),
+			floodWaiter,
+		},
 	})
-	api := tg.NewClient(floodwait.Middleware()(client))
+	api := tg.NewClient(client)
 
 	require.NoError(t, client.Run(ctx, func(ctx context.Context) error {
 		authClient := auth.NewClient(api, rand.Reader, telegram.TestAppID, telegram.TestAppHash)

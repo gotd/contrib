@@ -9,29 +9,27 @@ import (
 
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/clock"
+	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
 )
 
 // RateLimiter is a tg.Invoker that throttles RPC calls on underlying invoker.
 type RateLimiter struct {
-	next  tg.Invoker
 	clock clock.Clock
 	lim   *rate.Limiter
 }
 
-// NewRateLimiter returns a new invoker rate limiter using lim.
-func NewRateLimiter(invoker tg.Invoker, lim *rate.Limiter) *RateLimiter {
+// New returns a new invoker rate limiter using lim.
+func New(r rate.Limit, b int) *RateLimiter {
 	return &RateLimiter{
-		next:  invoker,
 		clock: clock.System,
-		lim:   lim,
+		lim:   rate.NewLimiter(r, b),
 	}
 }
 
 // clone returns a copy of the RateLimiter.
 func (l *RateLimiter) clone() *RateLimiter {
 	return &RateLimiter{
-		next:  l.next,
 		clock: l.clock,
 		lim:   l.lim,
 	}
@@ -86,10 +84,12 @@ func (l *RateLimiter) wait(ctx context.Context) error {
 	}
 }
 
-// Invoke implements tg.Invoker.
-func (l *RateLimiter) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
-	if err := l.wait(ctx); err != nil {
-		return err
+// Handle implements telegram.Middleware.
+func (l *RateLimiter) Handle(next tg.Invoker) telegram.InvokeFunc {
+	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+		if err := l.wait(ctx); err != nil {
+			return err
+		}
+		return next.Invoke(ctx, input, output)
 	}
-	return l.next.Invoke(ctx, input, output)
 }
