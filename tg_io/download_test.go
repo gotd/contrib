@@ -45,13 +45,16 @@ func TestE2E(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
+	floodWaiter := floodwait.NewWaiter()
+	go func() { _ = floodWaiter.Run(ctx) }()
+
 	client := telegram.NewClient(telegram.TestAppID, telegram.TestAppHash, telegram.Options{
 		DC:     2,
 		DCList: dcs.Staging(),
 		Logger: logger.Named("client"),
 		Middlewares: []telegram.Middleware{
 			ratelimit.New(rate.Every(100*time.Millisecond), 5),
-			floodwait.NewWaiter(),
+			floodWaiter,
 		},
 	})
 	api := tg.NewClient(client)
