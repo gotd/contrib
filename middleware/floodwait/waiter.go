@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"go.uber.org/atomic"
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
@@ -32,6 +33,7 @@ type Waiter struct {
 	clock clock.Clock
 	sch   *scheduler
 
+	running    atomic.Bool
 	tick       time.Duration
 	maxWait    time.Duration
 	maxRetries int
@@ -95,6 +97,9 @@ func (w *Waiter) WithTick(t time.Duration) *Waiter {
 
 // Run runs send loop.
 func (w *Waiter) Run(ctx context.Context) error {
+	w.running.Store(true)
+	defer w.running.Store(false)
+
 	ticker := w.clock.Ticker(w.tick)
 	defer ticker.Stop()
 
@@ -151,6 +156,10 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 // Handle implements telegram.Middleware.
 func (w *Waiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+		if !w.running.Load() {
+			// Return explicit error if waiter is not running.
+			return xerrors.New("the Waiter middleware is not running: Run(ctx) method is not called or exited")
+		}
 		select {
 		case err := <-w.sch.new(ctx, input, output, next):
 			return err
