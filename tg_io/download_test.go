@@ -47,8 +47,11 @@ func TestE2E(t *testing.T) {
 		DC:     2,
 		DCList: dcs.Staging(),
 		Logger: logger.Named("client"),
+		Middlewares: []telegram.Middleware{
+			floodwait.NewWaiter(),
+		},
 	})
-	api := tg.NewClient(floodwait.Middleware()(client))
+	api := tg.NewClient(client)
 
 	require.NoError(t, client.Run(ctx, func(ctx context.Context) error {
 		authClient := auth.NewClient(api, rand.Reader, telegram.TestAppID, telegram.TestAppHash)

@@ -125,7 +125,7 @@ func (w *Waiter) Run(ctx context.Context) error {
 func (w *Waiter) send(s scheduled) (bool, error) {
 	err := s.request.next.Invoke(s.request.ctx, s.request.input, s.request.output)
 
-	floodWait, ok := tgerr.AsType(err, ErrFloodWait)
+	d, ok := tgerr.AsFloodWait(err)
 	if !ok {
 		w.sch.nice(s.request.key)
 		return true, err
@@ -137,12 +137,9 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 		return true, xerrors.Errorf("flood wait retry limit exceeded (%d > %d): %w", s.request.retry, max, err)
 	}
 
-	arg := floodWait.Argument
-	if arg <= 0 {
-		arg = 1
+	if d < time.Second {
+		d = time.Second
 	}
-	d := time.Duration(arg) * time.Second
-
 	if max := w.maxWait; max != 0 && d > max {
 		return true, xerrors.Errorf("flood wait argument is too big (%v > %v): %w", d, max, err)
 	}
@@ -151,9 +148,7 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 	return false, nil
 }
 
-// ErrFloodWait is error type of "FLOOD_WAIT" error.
-const ErrFloodWait = "FLOOD_WAIT"
-
+// Handle implements telegram.Middleware.
 func (w *Waiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
 		select {
