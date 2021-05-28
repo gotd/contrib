@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/transport"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/transport/transport"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"Abridged":              reflect.ValueOf(&transport.Abridged).Elem(),
 		"Full":                  reflect.ValueOf(&transport.Full).Elem(),

@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/message/html"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/message/html/html"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"Bytes":  reflect.ValueOf(html.Bytes),
 		"Format": reflect.ValueOf(html.Format),

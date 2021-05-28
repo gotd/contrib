@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/message/entity"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/message/entity/entity"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"BankCard":      reflect.ValueOf(entity.BankCard),
 		"Blockquote":    reflect.ValueOf(entity.Blockquote),

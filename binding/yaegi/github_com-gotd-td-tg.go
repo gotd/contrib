@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/tg"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/tg/tg"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"AccessPointRuleTypeID":                                   reflect.ValueOf(constant.MakeFromLiteral("1182381663", token.INT, 0)),
 		"AccountAcceptAuthorizationRequestTypeID":                 reflect.ValueOf(constant.MakeFromLiteral("3875699860", token.INT, 0)),
