@@ -17,7 +17,7 @@ require (
 	github.com/m3db/prometheus_procfs v0.8.1 // indirect
 	github.com/minio/minio-go/v7 v7.0.10
 	github.com/stretchr/testify v1.7.0
-	github.com/traefik/yaegi v0.9.18
+	github.com/traefik/yaegi v0.9.17
 	github.com/twmb/murmur3 v1.1.5 // indirect
 	github.com/uber-go/tally v3.4.0+incompatible
 	go.etcd.io/bbolt v1.3.5
