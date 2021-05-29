@@ -1,16 +1,18 @@
 package auth
 
-import "github.com/gotd/td/telegram"
+import (
+	tgauth "github.com/gotd/td/telegram/auth"
+)
 
 type auth struct {
 	Credentials
 	Ask
 }
 
-var _ telegram.UserAuthenticator = auth{}
+var _ tgauth.UserAuthenticator = auth{}
 
 // Build creates new UserAuthenticator.
-func Build(cred Credentials, ask Ask) telegram.UserAuthenticator {
+func Build(cred Credentials, ask Ask) tgauth.UserAuthenticator {
 	return auth{
 		Credentials: cred,
 		Ask:         ask,

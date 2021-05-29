@@ -8,13 +8,13 @@ import (
 	"golang.org/x/text/message"
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/td/telegram"
+	tgauth "github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/tg"
 
 	"github.com/gotd/contrib/auth/localization"
 )
 
-var _ telegram.UserAuthenticator = Dialog{}
+var _ tgauth.UserAuthenticator = Dialog{}
 
 // Dialog is authenticator implementation using GUI dialogs.
 type Dialog struct {
@@ -87,17 +87,17 @@ func (d Dialog) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfServ
 }
 
 // SignUp implements telegram.UserAuthenticator.
-func (d Dialog) SignUp(ctx context.Context) (telegram.UserInfo, error) {
+func (d Dialog) SignUp(ctx context.Context) (tgauth.UserInfo, error) {
 	firstName, ok, err := dlgs.Entry(
 		d.printer.Sprintf(localization.FirstNameDialogTitle),
 		d.printer.Sprintf(localization.FirstNameDialogPrompt),
 		"",
 	)
 	if err != nil {
-		return telegram.UserInfo{}, xerrors.Errorf("show dialog: %w", err)
+		return tgauth.UserInfo{}, xerrors.Errorf("show dialog: %w", err)
 	}
 	if !ok {
-		return telegram.UserInfo{}, errDialogClosed
+		return tgauth.UserInfo{}, errDialogClosed
 	}
 
 	secondName, ok, err := dlgs.Entry(
@@ -106,13 +106,13 @@ func (d Dialog) SignUp(ctx context.Context) (telegram.UserInfo, error) {
 		"",
 	)
 	if err != nil {
-		return telegram.UserInfo{}, xerrors.Errorf("show dialog: %w", err)
+		return tgauth.UserInfo{}, xerrors.Errorf("show dialog: %w", err)
 	}
 	if !ok {
-		return telegram.UserInfo{}, errDialogClosed
+		return tgauth.UserInfo{}, errDialogClosed
 	}
 
-	return telegram.UserInfo{
+	return tgauth.UserInfo{
 		FirstName: firstName,
 		LastName:  secondName,
 	}, nil

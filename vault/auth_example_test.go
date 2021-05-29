@@ -10,6 +10,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
+	tgauth "github.com/gotd/td/telegram/auth"
 
 	"github.com/gotd/contrib/auth"
 	"github.com/gotd/contrib/auth/terminal"
@@ -31,9 +32,9 @@ func vaultAuth(ctx context.Context) error {
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {
-		return client.AuthIfNecessary(
+		return client.Auth().IfNecessary(
 			ctx,
-			telegram.NewAuth(auth.Build(cred, terminal.OS()), telegram.SendCodeOptions{}),
+			tgauth.NewFlow(auth.Build(cred, terminal.OS()), tgauth.SendCodeOptions{}),
 		)
 	})
 }

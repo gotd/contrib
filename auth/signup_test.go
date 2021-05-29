@@ -6,14 +6,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/gotd/td/telegram"
+	tgauth "github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/tg"
 )
 
 func TestConstant(t *testing.T) {
 	firstName := "first"
 	lastName := "last"
-	info := telegram.UserInfo{
+	info := tgauth.UserInfo{
 		FirstName: firstName,
 		LastName:  lastName,
 	}

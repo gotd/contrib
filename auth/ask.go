@@ -1,23 +1,25 @@
 package auth
 
-import "github.com/gotd/td/telegram"
+import (
+	tgauth "github.com/gotd/td/telegram/auth"
+)
 
 // Ask represents parts of auth flow which
 // requires user interaction.
 type Ask interface {
-	telegram.CodeAuthenticator
+	tgauth.CodeAuthenticator
 	SignUpFlow
 }
 
 type ask struct {
-	telegram.CodeAuthenticator
+	tgauth.CodeAuthenticator
 	SignUpFlow
 }
 
 var _ Ask = ask{}
 
 // BuildAsk creates new Ask.
-func BuildAsk(code telegram.CodeAuthenticator, signUp SignUpFlow) Ask {
+func BuildAsk(code tgauth.CodeAuthenticator, signUp SignUpFlow) Ask {
 	return ask{
 		CodeAuthenticator: code,
 		SignUpFlow:        signUp,

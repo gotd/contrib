@@ -9,6 +9,8 @@ import (
 	redisclient "github.com/go-redis/redis/v8"
 	"golang.org/x/xerrors"
 
+	tgauth "github.com/gotd/td/telegram/auth"
+
 	"github.com/gotd/td/telegram"
 
 	"github.com/gotd/contrib/auth"
@@ -28,9 +30,9 @@ func redisAuth(ctx context.Context) error {
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {
-		return client.AuthIfNecessary(
+		return client.Auth().IfNecessary(
 			ctx,
-			telegram.NewAuth(auth.Build(cred, terminal.OS()), telegram.SendCodeOptions{}),
+			tgauth.NewFlow(auth.Build(cred, terminal.OS()), tgauth.SendCodeOptions{}),
 		)
 	})
 }

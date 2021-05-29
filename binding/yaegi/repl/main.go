@@ -14,6 +14,7 @@ import (
 
 	"github.com/gotd/td/session"
 	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/telegram/dcs"
 
 	"github.com/gotd/contrib/auth/terminal"
@@ -71,9 +72,9 @@ func run(ctx context.Context) error {
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {
-		if err := client.AuthIfNecessary(ctx, telegram.NewAuth(
-			telegram.EnvAuth("", telegram.CodeAuthenticatorFunc(terminal.OS().Code)),
-			telegram.SendCodeOptions{},
+		if err := client.Auth().IfNecessary(ctx, auth.NewFlow(
+			auth.Env("", auth.CodeAuthenticatorFunc(terminal.OS().Code)),
+			auth.SendCodeOptions{},
 		)); err != nil {
 			return fmt.Errorf("auth: %w", err)
 		}

@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/td/telegram"
+	tgauth "github.com/gotd/td/telegram/auth"
 )
 
 // Credentials is a generic implementation of credential storage
@@ -45,7 +45,7 @@ func (c Credentials) Phone(ctx context.Context) (string, error) {
 func (c Credentials) Password(ctx context.Context) (string, error) {
 	r, err := c.storage.Get(ctx, c.passwordKey)
 	if xerrors.Is(err, ErrKeyNotFound) {
-		return r, telegram.ErrPasswordNotProvided
+		return r, tgauth.ErrPasswordNotProvided
 	}
 	return r, err
 }

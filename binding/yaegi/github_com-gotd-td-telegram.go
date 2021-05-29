@@ -6,7 +6,6 @@ import (
 	"context"
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/telegram"
-	"github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/tg"
 	"go/constant"
 	"go/token"
@@ -21,77 +20,35 @@ func init() {
 		"AsFloodWait":            reflect.ValueOf(&telegram.AsFloodWait).Elem(),
 		"BotFromEnvironment":     reflect.ValueOf(telegram.BotFromEnvironment),
 		"ClientFromEnvironment":  reflect.ValueOf(telegram.ClientFromEnvironment),
-		"CodeOnlyAuth":           reflect.ValueOf(telegram.CodeOnlyAuth),
-		"ConstantAuth":           reflect.ValueOf(telegram.ConstantAuth),
-		"EnvAuth":                reflect.ValueOf(telegram.EnvAuth),
 		"ErrFloodWait":           reflect.ValueOf(constant.MakeFromLiteral("\"FLOOD_WAIT\"", token.STRING, 0)),
-		"ErrPasswordAuthNeeded":  reflect.ValueOf(&telegram.ErrPasswordAuthNeeded).Elem(),
-		"ErrPasswordInvalid":     reflect.ValueOf(&telegram.ErrPasswordInvalid).Elem(),
-		"ErrPasswordNotProvided": reflect.ValueOf(&telegram.ErrPasswordNotProvided).Elem(),
-		"NewAuth":                reflect.ValueOf(telegram.NewAuth),
 		"NewClient":              reflect.ValueOf(telegram.NewClient),
 		"OptionsFromEnvironment": reflect.ValueOf(telegram.OptionsFromEnvironment),
 		"Port":                   reflect.ValueOf(constant.MakeFromLiteral("443", token.INT, 0)),
 		"RunUntilCanceled":       reflect.ValueOf(telegram.RunUntilCanceled),
 		"TestAppHash":            reflect.ValueOf(constant.MakeFromLiteral("\"344583e45741c457fe1862106095a5eb\"", token.STRING, 0)),
 		"TestAppID":              reflect.ValueOf(constant.MakeFromLiteral("17349", token.INT, 0)),
-		"TestAuth":               reflect.ValueOf(telegram.TestAuth),
 		"TestClient":             reflect.ValueOf(telegram.TestClient),
 
 		// type definitions
-		"AuthFlow":              reflect.ValueOf((*telegram.AuthFlow)(nil)),
-		"AuthFlowClient":        reflect.ValueOf((*telegram.AuthFlowClient)(nil)),
-		"AuthStatus":            reflect.ValueOf((*telegram.AuthStatus)(nil)),
-		"Client":                reflect.ValueOf((*telegram.Client)(nil)),
-		"CloseInvoker":          reflect.ValueOf((*telegram.CloseInvoker)(nil)),
-		"CodeAuthenticator":     reflect.ValueOf((*telegram.CodeAuthenticator)(nil)),
-		"CodeAuthenticatorFunc": reflect.ValueOf((*telegram.CodeAuthenticatorFunc)(nil)),
-		"DeviceConfig":          reflect.ValueOf((*telegram.DeviceConfig)(nil)),
-		"Error":                 reflect.ValueOf((*telegram.Error)(nil)),
-		"FileSessionStorage":    reflect.ValueOf((*telegram.FileSessionStorage)(nil)),
-		"InvokeFunc":            reflect.ValueOf((*telegram.InvokeFunc)(nil)),
-		"Middleware":            reflect.ValueOf((*telegram.Middleware)(nil)),
-		"MiddlewareFunc":        reflect.ValueOf((*telegram.MiddlewareFunc)(nil)),
-		"Options":               reflect.ValueOf((*telegram.Options)(nil)),
-		"SendCodeOptions":       reflect.ValueOf((*telegram.SendCodeOptions)(nil)),
-		"SessionStorage":        reflect.ValueOf((*telegram.SessionStorage)(nil)),
-		"SignUp":                reflect.ValueOf((*telegram.SignUp)(nil)),
-		"SignUpRequired":        reflect.ValueOf((*telegram.SignUpRequired)(nil)),
-		"UpdateHandler":         reflect.ValueOf((*telegram.UpdateHandler)(nil)),
-		"UpdateHandlerFunc":     reflect.ValueOf((*telegram.UpdateHandlerFunc)(nil)),
-		"UserAuthenticator":     reflect.ValueOf((*telegram.UserAuthenticator)(nil)),
-		"UserInfo":              reflect.ValueOf((*telegram.UserInfo)(nil)),
+		"Client":             reflect.ValueOf((*telegram.Client)(nil)),
+		"CloseInvoker":       reflect.ValueOf((*telegram.CloseInvoker)(nil)),
+		"DeviceConfig":       reflect.ValueOf((*telegram.DeviceConfig)(nil)),
+		"Error":              reflect.ValueOf((*telegram.Error)(nil)),
+		"FileSessionStorage": reflect.ValueOf((*telegram.FileSessionStorage)(nil)),
+		"InvokeFunc":         reflect.ValueOf((*telegram.InvokeFunc)(nil)),
+		"Middleware":         reflect.ValueOf((*telegram.Middleware)(nil)),
+		"MiddlewareFunc":     reflect.ValueOf((*telegram.MiddlewareFunc)(nil)),
+		"Options":            reflect.ValueOf((*telegram.Options)(nil)),
+		"SessionStorage":     reflect.ValueOf((*telegram.SessionStorage)(nil)),
+		"UpdateHandler":      reflect.ValueOf((*telegram.UpdateHandler)(nil)),
+		"UpdateHandlerFunc":  reflect.ValueOf((*telegram.UpdateHandlerFunc)(nil)),
 
 		// interface wrapper definitions
-		"_AuthFlowClient":    reflect.ValueOf((*_github_com_gotd_td_telegram_AuthFlowClient)(nil)),
-		"_CloseInvoker":      reflect.ValueOf((*_github_com_gotd_td_telegram_CloseInvoker)(nil)),
-		"_CodeAuthenticator": reflect.ValueOf((*_github_com_gotd_td_telegram_CodeAuthenticator)(nil)),
-		"_Middleware":        reflect.ValueOf((*_github_com_gotd_td_telegram_Middleware)(nil)),
-		"_SessionStorage":    reflect.ValueOf((*_github_com_gotd_td_telegram_SessionStorage)(nil)),
-		"_UpdateHandler":     reflect.ValueOf((*_github_com_gotd_td_telegram_UpdateHandler)(nil)),
-		"_UserAuthenticator": reflect.ValueOf((*_github_com_gotd_td_telegram_UserAuthenticator)(nil)),
+		"_CloseInvoker":   reflect.ValueOf((*_github_com_gotd_td_telegram_CloseInvoker)(nil)),
+		"_Middleware":     reflect.ValueOf((*_github_com_gotd_td_telegram_Middleware)(nil)),
+		"_SessionStorage": reflect.ValueOf((*_github_com_gotd_td_telegram_SessionStorage)(nil)),
+		"_UpdateHandler":  reflect.ValueOf((*_github_com_gotd_td_telegram_UpdateHandler)(nil)),
 	}
-}
-
-// _github_com_gotd_td_telegram_AuthFlowClient is an interface wrapper for AuthFlowClient type
-type _github_com_gotd_td_telegram_AuthFlowClient struct {
-	WPassword func(ctx context.Context, password string) (*tg.AuthAuthorization, error)
-	WSendCode func(ctx context.Context, phone string, options auth.SendCodeOptions) (*tg.AuthSentCode, error)
-	WSignIn   func(ctx context.Context, phone string, code string, codeHash string) (*tg.AuthAuthorization, error)
-	WSignUp   func(ctx context.Context, s auth.SignUp) (*tg.AuthAuthorization, error)
-}
-
-func (W _github_com_gotd_td_telegram_AuthFlowClient) Password(ctx context.Context, password string) (*tg.AuthAuthorization, error) {
-	return W.WPassword(ctx, password)
-}
-func (W _github_com_gotd_td_telegram_AuthFlowClient) SendCode(ctx context.Context, phone string, options auth.SendCodeOptions) (*tg.AuthSentCode, error) {
-	return W.WSendCode(ctx, phone, options)
-}
-func (W _github_com_gotd_td_telegram_AuthFlowClient) SignIn(ctx context.Context, phone string, code string, codeHash string) (*tg.AuthAuthorization, error) {
-	return W.WSignIn(ctx, phone, code, codeHash)
-}
-func (W _github_com_gotd_td_telegram_AuthFlowClient) SignUp(ctx context.Context, s auth.SignUp) (*tg.AuthAuthorization, error) {
-	return W.WSignUp(ctx, s)
 }
 
 // _github_com_gotd_td_telegram_CloseInvoker is an interface wrapper for CloseInvoker type
@@ -103,15 +60,6 @@ type _github_com_gotd_td_telegram_CloseInvoker struct {
 func (W _github_com_gotd_td_telegram_CloseInvoker) Close() error { return W.WClose() }
 func (W _github_com_gotd_td_telegram_CloseInvoker) Invoke(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
 	return W.WInvoke(ctx, input, output)
-}
-
-// _github_com_gotd_td_telegram_CodeAuthenticator is an interface wrapper for CodeAuthenticator type
-type _github_com_gotd_td_telegram_CodeAuthenticator struct {
-	WCode func(ctx context.Context, sentCode *tg.AuthSentCode) (string, error)
-}
-
-func (W _github_com_gotd_td_telegram_CodeAuthenticator) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string, error) {
-	return W.WCode(ctx, sentCode)
 }
 
 // _github_com_gotd_td_telegram_Middleware is an interface wrapper for Middleware type
@@ -143,29 +91,4 @@ type _github_com_gotd_td_telegram_UpdateHandler struct {
 
 func (W _github_com_gotd_td_telegram_UpdateHandler) Handle(ctx context.Context, u tg.UpdatesClass) error {
 	return W.WHandle(ctx, u)
-}
-
-// _github_com_gotd_td_telegram_UserAuthenticator is an interface wrapper for UserAuthenticator type
-type _github_com_gotd_td_telegram_UserAuthenticator struct {
-	WAcceptTermsOfService func(ctx context.Context, tos tg.HelpTermsOfService) error
-	WCode                 func(ctx context.Context, sentCode *tg.AuthSentCode) (string, error)
-	WPassword             func(ctx context.Context) (string, error)
-	WPhone                func(ctx context.Context) (string, error)
-	WSignUp               func(ctx context.Context) (auth.UserInfo, error)
-}
-
-func (W _github_com_gotd_td_telegram_UserAuthenticator) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfService) error {
-	return W.WAcceptTermsOfService(ctx, tos)
-}
-func (W _github_com_gotd_td_telegram_UserAuthenticator) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string, error) {
-	return W.WCode(ctx, sentCode)
-}
-func (W _github_com_gotd_td_telegram_UserAuthenticator) Password(ctx context.Context) (string, error) {
-	return W.WPassword(ctx)
-}
-func (W _github_com_gotd_td_telegram_UserAuthenticator) Phone(ctx context.Context) (string, error) {
-	return W.WPhone(ctx)
-}
-func (W _github_com_gotd_td_telegram_UserAuthenticator) SignUp(ctx context.Context) (auth.UserInfo, error) {
-	return W.WSignUp(ctx)
 }

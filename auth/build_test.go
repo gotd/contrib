@@ -6,17 +6,18 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/gotd/td/telegram"
+	tgauth "github.com/gotd/td/telegram/auth"
+
 	"github.com/gotd/td/tg"
 )
 
 func TestBuild(t *testing.T) {
-	info := telegram.UserInfo{
+	info := tgauth.UserInfo{
 		FirstName: "FirstName",
 		LastName:  "LastName",
 	}
 	signUp := ConstantSignUp(info)
-	codeAsk := telegram.CodeAuthenticatorFunc(func(context.Context, *tg.AuthSentCode) (string, error) {
+	codeAsk := tgauth.CodeAuthenticatorFunc(func(context.Context, *tg.AuthSentCode) (string, error) {
 		return "code", nil
 	})
 
@@ -25,7 +26,7 @@ func TestBuild(t *testing.T) {
 		signUp,
 	)
 
-	cred := telegram.ConstantAuth("phone", "password", codeAsk)
+	cred := tgauth.Constant("phone", "password", codeAsk)
 	auth := Build(cred, ask)
 
 	ctx := context.Background()

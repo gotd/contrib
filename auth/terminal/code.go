@@ -10,13 +10,14 @@ import (
 	"golang.org/x/text/message"
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/td/telegram"
+	tgauth "github.com/gotd/td/telegram/auth"
+
 	"github.com/gotd/td/tg"
 
 	"github.com/gotd/contrib/auth/localization"
 )
 
-var _ telegram.UserAuthenticator = (*Terminal)(nil)
+var _ tgauth.UserAuthenticator = (*Terminal)(nil)
 
 // Terminal implements UserAuthenticator.
 type Terminal struct {
@@ -100,7 +101,7 @@ func (t *Terminal) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string,
 }
 
 // SignUp asks user info for sign up.
-func (t *Terminal) SignUp(ctx context.Context) (u telegram.UserInfo, err error) {
+func (t *Terminal) SignUp(ctx context.Context) (u tgauth.UserInfo, err error) {
 	u.FirstName, err = t.read(t.printer.Sprintf(localization.FirstNameDialogPrompt) + ":")
 	if err != nil {
 		return u, xerrors.Errorf("read first name: %w", err)

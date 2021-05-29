@@ -32,7 +32,7 @@ func redisStorage(ctx context.Context) error {
 			return xerrors.Errorf("flush: %w", err)
 		}
 
-		_, err := client.AuthBot(ctx, os.Getenv("BOT_TOKEN"))
+		_, err := client.Auth().Bot(ctx, os.Getenv("BOT_TOKEN"))
 		return err
 	})
 }
