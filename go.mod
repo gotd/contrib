@@ -3,7 +3,7 @@ module github.com/gotd/contrib
 go 1.16
 
 require (
-	github.com/cenkalti/backoff/v4 v4.1.0
+	github.com/cenkalti/backoff/v4 v4.1.1
 	github.com/cockroachdb/pebble v0.0.0-20210423210359-b62f76615457
 	github.com/gen2brain/dlgs v0.0.0-20210406143744-f512297a108e
 	github.com/go-redis/redis/v8 v8.9.0
