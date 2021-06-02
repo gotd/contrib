@@ -21,7 +21,7 @@ require (
 	github.com/traefik/yaegi v0.9.17
 	github.com/twmb/murmur3 v1.1.5 // indirect
 	github.com/uber-go/tally v3.4.1+incompatible
-	go.etcd.io/bbolt v1.3.5
+	go.etcd.io/bbolt v1.3.6
 	go.etcd.io/etcd/client/v3 v3.5.0-beta.4
 	go.uber.org/atomic v1.7.0
 	go.uber.org/multierr v1.7.0
