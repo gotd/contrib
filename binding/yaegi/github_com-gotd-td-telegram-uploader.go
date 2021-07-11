@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/uploader"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/uploader/uploader"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"MaximumPartSize": reflect.ValueOf(constant.MakeFromLiteral("524288", token.INT, 0)),
 		"NewUpload":       reflect.ValueOf(uploader.NewUpload),

@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/clock"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/clock/clock"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"StopTimer": reflect.ValueOf(clock.StopTimer),
 		"System":    reflect.ValueOf(&clock.System).Elem(),

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/dcs"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/dcs/dcs"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"DefaultResolver": reflect.ValueOf(dcs.DefaultResolver),
 		"FindDCs":         reflect.ValueOf(dcs.FindDCs),

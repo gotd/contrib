@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/query/channels/participants"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/query/channels/participants/participants"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"NewIterator":     reflect.ValueOf(participants.NewIterator),
 		"NewQueryBuilder": reflect.ValueOf(participants.NewQueryBuilder),

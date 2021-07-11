@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/telegram"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"AddrProduction":         reflect.ValueOf(constant.MakeFromLiteral("\"149.154.167.50:443\"", token.STRING, 0)),
 		"AddrTest":               reflect.ValueOf(constant.MakeFromLiteral("\"149.154.167.40:443\"", token.STRING, 0)),

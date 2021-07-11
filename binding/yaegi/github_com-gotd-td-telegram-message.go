@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/message"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/message/message"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"Audio":              reflect.ValueOf(message.Audio),
 		"Basketball":         reflect.ValueOf(message.Basketball),

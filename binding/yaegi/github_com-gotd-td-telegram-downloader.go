@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/downloader"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/downloader/downloader"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"ErrHashMismatch": reflect.ValueOf(&downloader.ErrHashMismatch).Elem(),
 		"NewDownloader":   reflect.ValueOf(downloader.NewDownloader),

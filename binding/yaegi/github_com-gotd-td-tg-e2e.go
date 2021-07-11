@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/tg/e2e"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/tg/e2e/e2e"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"BoolFalseTypeID":                                reflect.ValueOf(constant.MakeFromLiteral("3162085175", token.INT, 0)),
 		"BoolTrueTypeID":                                 reflect.ValueOf(constant.MakeFromLiteral("2574415285", token.INT, 0)),
