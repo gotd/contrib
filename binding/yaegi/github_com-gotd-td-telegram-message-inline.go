@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/message/inline"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/message/inline/inline"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"Article":           reflect.ValueOf(inline.Article),
 		"ArticleType":       reflect.ValueOf(constant.MakeFromLiteral("\"article\"", token.STRING, 0)),

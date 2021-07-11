@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/message/peer"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/message/peer/peer"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"Channel":              reflect.ValueOf(peer.Channel),
 		"Chat":                 reflect.ValueOf(peer.Chat),

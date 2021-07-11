@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/query"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/query/query"] = map[string]reflect.Value{
 		// function, constant and variable definitions
 		"GetBlocked":             reflect.ValueOf(query.GetBlocked),
 		"GetDialogs":             reflect.ValueOf(query.GetDialogs),

@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	Symbols["github.com/gotd/td/telegram/query/hasher"] = map[string]reflect.Value{
+	Symbols["github.com/gotd/td/telegram/query/hasher/hasher"] = map[string]reflect.Value{
 		// type definitions
 		"Hasher": reflect.ValueOf((*hasher.Hasher)(nil)),
 	}
