@@ -18,7 +18,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.12
 	github.com/prometheus/client_golang v1.11.0
 	github.com/stretchr/testify v1.7.0
-	github.com/traefik/yaegi v0.9.19
+	github.com/traefik/yaegi v0.9.20
 	github.com/twmb/murmur3 v1.1.5 // indirect
 	github.com/uber-go/tally v3.4.1+incompatible
 	go.etcd.io/bbolt v1.3.6
