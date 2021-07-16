@@ -1,4 +1,2 @@
 paths:
   - 'auth'
-paths-ignore:
-  - 'binding/'

@@ -44,7 +44,7 @@ linters:
     - gocritic
     - gofmt
     - goimports
-    - golint
+    - revive
     - gosec
     - gosimple
     - govet
@@ -75,17 +75,17 @@ linters:
 issues:
   exclude-use-default: false
   exclude-rules:
-    - linters: [gocritic]
+    - linters: [ gocritic ]
       text: "commentedOutCode"
       source: "SHA1"
 
     # Allow embed globals
     - source: "embed\\.FS"
-      linters: [gochecknoglobals]
+      linters: [ gochecknoglobals ]
 
     # Exclude go:generate from lll
     - source: "//go:generate"
-      linters: [lll]
+      linters: [ lll ]
 
     # Disable linters that are annoying in tests.
     - path: _test\.go
@@ -101,16 +101,20 @@ issues:
         - lll
         - gochecknoglobals
     # Ignore shadowing of err.
-    - linters: [govet]
+    - linters: [ govet ]
       text: 'declaration of "(err|ctx|log)"'
 
     - path: internal\.go
       text: "should have.+comment"
-      linters: [golint]
+      linters: [ golint ]
 
     # Allow underscores in package names.
-    - linters: [golint, stylecheck]
+    - linters: [ golint, stylecheck ]
       text: "underscores? in package names?"
 
-    - linters: [staticcheck]
+    - linters: [ staticcheck ]
       text: "SA1019: (telegram|client).+ is deprecated:"
+
+    # ernado moment, lol no namespaces
+    - linters: [ revive ]
+      text: "var-naming: don't use an underscore in package name"
