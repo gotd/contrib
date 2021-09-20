@@ -17,7 +17,7 @@ type Entities struct {
 func newEntities() *Entities {
 	return &Entities{
 		Users:    map[int]*tg.User{},
-		Chats:    map[int]*tg.Chat{},
+		Chats:    map[int64]*tg.Chat{},
 		Channels: map[int]*tg.Channel{},
 	}
 }
