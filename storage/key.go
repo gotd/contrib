@@ -16,7 +16,7 @@ var PeerKeyPrefix = []byte("peer") // nolint:gochecknoglobals
 // PeerKey is unique key of peer object.
 type PeerKey struct {
 	Kind peer.Kind
-	ID   int
+	ID   int64
 }
 
 // KeyFromPeer creates key from peer.
@@ -34,7 +34,7 @@ func (k PeerKey) Bytes(r []byte) []byte {
 	r = append(r, PeerKeyPrefix...)
 	r = strconv.AppendInt(r, int64(k.Kind), 10)
 	r = append(r, keySeparator)
-	r = strconv.AppendInt(r, int64(k.ID), 10)
+	r = strconv.AppendInt(r, k.ID, 10)
 	return r
 }
 
@@ -47,7 +47,7 @@ func (k PeerKey) String() string {
 	b.Write(PeerKeyPrefix)
 	b.Write(strconv.AppendInt(buf[:0], int64(k.Kind), 10))
 	b.WriteRune(keySeparator)
-	b.Write(strconv.AppendInt(buf[:0], int64(k.ID), 10))
+	b.Write(strconv.AppendInt(buf[:0], k.ID, 10))
 	return b.String()
 }
 
@@ -78,7 +78,7 @@ func (k *PeerKey) Parse(r []byte) error {
 	}
 
 	{
-		v, err := strconv.Atoi(string(r[idx+1:]))
+		v, err := strconv.ParseInt(string(r[idx+1:]), 10, 64)
 		if err != nil {
 			return xerrors.Errorf("parse id: %w", err)
 		}

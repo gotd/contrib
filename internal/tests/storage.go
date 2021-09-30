@@ -93,8 +93,8 @@ func TestPeerStorage(t *testing.T, st storage.PeerStorage) {
 
 		for i := range [5]struct{}{} {
 			a.NoError(p.FromInputPeer(&tg.InputPeerUser{
-				UserID:     i + 11,
-				AccessHash: int64(i + 11),
+				UserID:     int64(i) + 11,
+				AccessHash: int64(i) + 11,
 			}))
 			a.NoError(st.Add(ctx, p))
 		}

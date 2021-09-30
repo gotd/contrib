@@ -61,8 +61,8 @@ func TestForEach(t *testing.T) {
 		for i := range [5]struct{}{} {
 			var p Peer
 			a.NoError(p.FromInputPeer(&tg.InputPeerUser{
-				UserID:     i + 11,
-				AccessHash: int64(i + 11),
+				UserID:     int64(i) + 11,
+				AccessHash: int64(i) + 11,
 			}))
 			r = append(r, p)
 		}
