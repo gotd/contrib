@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.3
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/gotd/neo v0.1.3
-	github.com/gotd/td v0.51.0
+	github.com/gotd/td v0.51.1
 	github.com/hashicorp/vault/api v1.1.0
 	github.com/m3db/prometheus_client_golang v0.8.1 // indirect
 	github.com/m3db/prometheus_client_model v0.1.0 // indirect
