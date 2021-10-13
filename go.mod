@@ -8,7 +8,7 @@ require (
 	github.com/gen2brain/dlgs v0.0.0-20210406143744-f512297a108e
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/golang/snappy v0.0.3 // indirect
-	github.com/gotd/neo v0.1.3
+	github.com/gotd/neo v0.1.4
 	github.com/gotd/td v0.51.1
 	github.com/hashicorp/vault/api v1.1.0
 	github.com/m3db/prometheus_client_golang v0.8.1 // indirect
@@ -29,7 +29,6 @@ require (
 	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
 	golang.org/x/text v0.3.7
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 )
 
 replace (
