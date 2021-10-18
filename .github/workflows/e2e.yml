@@ -21,7 +21,7 @@ jobs:
         env:
           VAULT_DEV_ROOT_TOKEN_ID: testtoken
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.5
       - name: Install Go
         uses: actions/setup-go@v2.1.4
         with:
@@ -61,7 +61,7 @@ jobs:
         ports:
           - 6379:6379
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.5
       - name: Install Go
         uses: actions/setup-go@v2.1.4
         with:
@@ -103,7 +103,7 @@ jobs:
           ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
           ETCD_ADVERTISE_CLIENT_URLS: http://0.0.0.0:2379
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.5
       - name: Install Go
         uses: actions/setup-go@v2.1.4
         with:
@@ -137,7 +137,7 @@ jobs:
   s3:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.5
       - name: Install Go
         uses: actions/setup-go@v2.1.4
         with:
@@ -182,7 +182,7 @@ jobs:
   tg_io:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.5
       - name: Install Go
         uses: actions/setup-go@v2.1.4
         with:
