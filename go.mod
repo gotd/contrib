@@ -10,7 +10,7 @@ require (
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/gotd/neo v0.1.4
 	github.com/gotd/td v0.51.1
-	github.com/hashicorp/vault/api v1.1.0
+	github.com/hashicorp/vault/api v1.2.0
 	github.com/m3db/prometheus_client_golang v0.8.1 // indirect
 	github.com/m3db/prometheus_client_model v0.1.0 // indirect
 	github.com/m3db/prometheus_common v0.1.0 // indirect
