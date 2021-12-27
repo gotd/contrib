@@ -207,8 +207,9 @@ github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/ad
 github.com/gotd/getdoc v0.6.2/go.mod h1:6Ul8cyaq+Aw0gVyuU+TKZPCmNjdlylzSIWVxjzI5t/U=
 github.com/gotd/ige v0.2.2 h1:XQ9dJZwBfDnOGSTxKXBGP4gMud3Qku2ekScRjDWWfEk=
 github.com/gotd/ige v0.2.2/go.mod h1:tuCRb+Y5Y3eNTo3ypIfNpQ4MFjrnONiL2jN2AKZXmb0=
-github.com/gotd/neo v0.1.4 h1:av+c/4R+3B/eAlr+Bz++q+/DOuGKz+sfwJXmPXRbU/s=
 github.com/gotd/neo v0.1.4/go.mod h1:9A2a4bn9zL6FADufBdt7tZt+WMhvZoc5gWXihOPoiBQ=
+github.com/gotd/neo v0.1.5 h1:oj0iQfMbGClP8xI59x7fE/uHoTJD7NZH9oV1WNuPukQ=
+github.com/gotd/neo v0.1.5/go.mod h1:9A2a4bn9zL6FADufBdt7tZt+WMhvZoc5gWXihOPoiBQ=
 github.com/gotd/td v0.52.0 h1:6RRaZ21Sp+c69rqg8qtUXz8O/qPGvdWjN286dKwusmE=
 github.com/gotd/td v0.52.0/go.mod h1:4hkaOstwF+NMJkSGyObp/19Iw3BrgCJiUQleL+sDIXw=
 github.com/gotd/tl v0.4.0/go.mod h1:CMIcjPWFS4qxxJ+1Ce7U/ilbtPrkoVo/t8uhN5Y/D7c=
