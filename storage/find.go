@@ -5,13 +5,13 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/td/telegram/message/peer"
+	"github.com/gotd/td/telegram/query/dialogs"
 	"github.com/gotd/td/tg"
 )
 
 // FindPeer finds peer using given storage.
 func FindPeer(ctx context.Context, s PeerStorage, p tg.PeerClass) (Peer, error) {
-	var key peer.DialogKey
+	var key dialogs.DialogKey
 
 	if err := key.FromPeer(p); err != nil {
 		return Peer{}, err

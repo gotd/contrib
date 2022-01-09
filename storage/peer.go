@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/td/telegram/message/peer"
+	"github.com/gotd/td/telegram/query/dialogs"
 	"github.com/gotd/td/tg"
 )
 
@@ -15,7 +15,7 @@ const LatestVersion = 1
 // Peer is abstraction for peer object.
 type Peer struct {
 	Version   int
-	Key       peer.DialogKey
+	Key       dialogs.DialogKey
 	CreatedAt int64
 	User      *tg.User               `json:",omitempty"`
 	Chat      *tg.Chat               `json:",omitempty"`
@@ -51,7 +51,7 @@ func (p *Peer) Keys() []string {
 
 // FromInputPeer fills Peer object using given tg.InputPeerClass.
 func (p *Peer) FromInputPeer(input tg.InputPeerClass) error {
-	k := peer.DialogKey{}
+	k := dialogs.DialogKey{}
 	if err := k.FromInputPeer(input); err != nil {
 		return xerrors.Errorf("unpack input peer: %w", err)
 	}
@@ -75,23 +75,23 @@ func (p *Peer) FromChat(chat tg.ChatClass) bool {
 	switch c := chat.(type) {
 	case *tg.Chat:
 		r.Key.ID = c.ID
-		r.Key.Kind = peer.Chat
+		r.Key.Kind = dialogs.Chat
 		r.Chat = c
 	case *tg.ChatForbidden:
 		r.Key.ID = c.ID
-		r.Key.Kind = peer.Chat
+		r.Key.Kind = dialogs.Chat
 	case *tg.Channel:
 		if c.Min {
 			return false
 		}
 		r.Key.ID = c.ID
 		r.Key.AccessHash = c.AccessHash
-		r.Key.Kind = peer.Channel
+		r.Key.Kind = dialogs.Channel
 		r.Channel = c
 	case *tg.ChannelForbidden:
 		r.Key.ID = c.ID
 		r.Key.AccessHash = c.AccessHash
-		r.Key.Kind = peer.Channel
+		r.Key.Kind = dialogs.Channel
 	default:
 		return false
 	}
@@ -109,8 +109,8 @@ func (p *Peer) FromUser(user tg.UserClass) bool {
 
 	*p = Peer{
 		Version: LatestVersion,
-		Key: peer.DialogKey{
-			Kind:       peer.User,
+		Key: dialogs.DialogKey{
+			Kind:       dialogs.User,
 			ID:         u.ID,
 			AccessHash: u.AccessHash,
 		},
