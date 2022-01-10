@@ -135,7 +135,7 @@ func TestE2E(t *testing.T) {
 				Scheme: "http",
 				Host:   ln.Addr().String(),
 			}
-			req, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL.String(), nil)
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL.String(), http.NoBody)
 			if err != nil {
 				return err
 			}
