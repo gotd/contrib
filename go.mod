@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	github.com/cenkalti/backoff/v4 v4.1.2
-	github.com/cockroachdb/pebble v0.0.0-20210423210359-b62f76615457
-	github.com/gen2brain/dlgs v0.0.0-20210406143744-f512297a108e
+	github.com/cockroachdb/pebble v0.0.0-20220107203702-aa376a819bf6
+	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
 	github.com/go-faster/errors v0.5.0
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/gotd/neo v0.1.5
@@ -20,9 +20,9 @@ require (
 	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.20.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/term v0.0.0-20210422114643-f5beecf764ed
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	golang.org/x/text v0.3.7
-	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
+	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11
 )
 
 require (
@@ -43,7 +43,7 @@ require (
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/go-faster/jx v0.25.0 // indirect
 	github.com/go-faster/xor v0.3.0 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.1.2 // indirect
@@ -98,12 +98,12 @@ require (
 	github.com/rs/xid v1.2.1 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/twmb/murmur3 v1.1.5 // indirect
+	github.com/twmb/murmur3 v1.1.6 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	golang.org/x/exp v0.0.0-20200513190911-00229845015e // indirect
 	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
-	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.41.0 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
@@ -111,4 +111,11 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
 	rsc.io/qr v0.2.0 // indirect
+)
+
+replace (
+	github.com/coreos/etcd v3.3.10+incompatible => github.com/coreos/etcd v3.3.25+incompatible
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible => github.com/form3tech-oss/jwt-go v3.2.2+incompatible
+	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
+	github.com/gorilla/websocket v1.4.0 => github.com/gorilla/websocket v1.4.2
 )

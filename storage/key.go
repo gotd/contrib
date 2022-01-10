@@ -51,19 +51,19 @@ func (k PeerKey) String() string {
 	return b.String()
 }
 
-var invalidKey = errors.New("invalid key") // nolint:gochecknoglobals
+var errInvalidKey = errors.New("invalid key") // nolint:gochecknoglobals
 
 // Parse parses bytes representation from given slice.
 func (k *PeerKey) Parse(r []byte) error {
 	if !bytes.HasPrefix(r, PeerKeyPrefix) {
-		return invalidKey
+		return errInvalidKey
 	}
 	r = r[len(PeerKeyPrefix):]
 
 	idx := bytes.IndexByte(r, keySeparator)
 	// Check that slice contains _ and it's not a first or last character.
 	if idx <= 0 || idx == len(r)-1 {
-		return invalidKey
+		return errInvalidKey
 	}
 
 	{
