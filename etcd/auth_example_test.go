@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-faster/errors"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"golang.org/x/xerrors"
 
 	tgauth "github.com/gotd/td/telegram/auth"
 
@@ -25,7 +25,7 @@ func etcdAuth(ctx context.Context) error {
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {
-		return xerrors.Errorf("create etcd storage: %w", err)
+		return errors.Errorf("create etcd storage: %w", err)
 	}
 	cred := etcd.NewCredentials(c).
 		WithPhoneKey("phone").
@@ -33,7 +33,7 @@ func etcdAuth(ctx context.Context) error {
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

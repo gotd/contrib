@@ -4,11 +4,11 @@ import (
 	"context"
 	"io"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 )
 
 // ErrPeerNotFound is a special error to return when peer not found.
-var ErrPeerNotFound = xerrors.New("peer not found")
+var ErrPeerNotFound = errors.New("peer not found")
 
 // PeerStorage is abstraction for peer storage.
 type PeerStorage interface {

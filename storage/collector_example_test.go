@@ -7,7 +7,7 @@ import (
 	"os/signal"
 
 	pebbledb "github.com/cockroachdb/pebble"
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/query"
@@ -20,14 +20,14 @@ import (
 func peerCollector(ctx context.Context) error {
 	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
 	if err != nil {
-		return xerrors.Errorf("create pebble storage: %w", err)
+		return errors.Errorf("create pebble storage: %w", err)
 	}
 	s := pebble.NewPeerStorage(db)
 	collector := storage.CollectPeers(s)
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 	raw := tg.NewClient(client)
 

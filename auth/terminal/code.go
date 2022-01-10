@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/go-faster/errors"
 	"golang.org/x/term"
 	"golang.org/x/text/message"
-	"golang.org/x/xerrors"
 
 	tgauth "github.com/gotd/td/telegram/auth"
 
@@ -87,7 +87,7 @@ func (t *Terminal) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string,
 			if len(code) != length {
 				_, err := io.WriteString(t.Terminal, t.printer.Sprintf(localization.CodeInvalidLength, length)+"\n")
 				if err != nil {
-					return "", xerrors.Errorf("write error message: %w", err)
+					return "", errors.Errorf("write error message: %w", err)
 				}
 				continue
 			}
@@ -104,12 +104,12 @@ func (t *Terminal) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string,
 func (t *Terminal) SignUp(ctx context.Context) (u tgauth.UserInfo, err error) {
 	u.FirstName, err = t.read(t.printer.Sprintf(localization.FirstNameDialogPrompt) + ":")
 	if err != nil {
-		return u, xerrors.Errorf("read first name: %w", err)
+		return u, errors.Errorf("read first name: %w", err)
 	}
 
 	u.LastName, err = t.read(t.printer.Sprintf(localization.SecondNameDialogPrompt) + ":")
 	if err != nil {
-		return u, xerrors.Errorf("read first name: %w", err)
+		return u, errors.Errorf("read first name: %w", err)
 	}
 
 	return u, nil
@@ -120,7 +120,7 @@ func (t *Terminal) SignUp(ctx context.Context) (u tgauth.UserInfo, err error) {
 func (t *Terminal) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfService) error {
 	_, err := io.WriteString(t.Terminal, t.printer.Sprintf(localization.TOSDialogTitle)+"\n\n"+tos.Text)
 	if err != nil {
-		return xerrors.Errorf("write terms of service: %w", err)
+		return errors.Errorf("write terms of service: %w", err)
 	}
 
 	t.Terminal.SetPrompt(t.printer.Sprintf(localization.TOSDialogPrompt) + "(Y/N):")
@@ -129,13 +129,13 @@ func (t *Terminal) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfS
 loop:
 	y, err := t.Terminal.ReadLine()
 	if err != nil {
-		return xerrors.Errorf("read answer: %w", err)
+		return errors.Errorf("read answer: %w", err)
 	}
 	switch strings.ToLower(y) {
 	case "y", "yes":
 		return nil
 	case "n", "no":
-		return xerrors.New("user answer is no")
+		return errors.New("user answer is no")
 	default:
 		goto loop
 	}

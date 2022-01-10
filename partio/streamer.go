@@ -4,11 +4,10 @@ package partio
 
 import (
 	"context"
-	"errors"
 	"io"
 	"time"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 )
 
 // ChunkSource downloads chunks.
@@ -40,7 +39,7 @@ func (s Streamer) safeRead(ctx context.Context, offset int64, data []byte) (int6
 		return n, err
 	}
 	if n < 0 || n > int64(len(data)) {
-		return n, xerrors.Errorf("invalid chunk: %d", n)
+		return n, errors.Errorf("invalid chunk: %d", n)
 	}
 
 	return n, nil

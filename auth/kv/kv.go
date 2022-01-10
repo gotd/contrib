@@ -3,7 +3,7 @@ package kv
 import (
 	"context"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 )
 
 // Storage represents generic KV storage.
@@ -13,4 +13,4 @@ type Storage interface {
 }
 
 // ErrKeyNotFound is a special error to return when given key not found.
-var ErrKeyNotFound = xerrors.New("key not found")
+var ErrKeyNotFound = errors.New("key not found")

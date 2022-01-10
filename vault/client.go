@@ -4,9 +4,9 @@ import (
 	"context"
 	"path"
 
+	"github.com/go-faster/errors"
 	"github.com/hashicorp/vault/api"
 	"go.uber.org/multierr"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/auth/kv"
 )
@@ -33,7 +33,7 @@ func (c vaultClient) putAll(ctx context.Context, data map[string]interface{}) er
 
 	err := req.SetJSONBody(data)
 	if err != nil {
-		return xerrors.Errorf("request encode: %w", err)
+		return errors.Errorf("request encode: %w", err)
 	}
 
 	resp, err := c.client.RawRequestWithContext(ctx, req)
@@ -43,7 +43,7 @@ func (c vaultClient) putAll(ctx context.Context, data map[string]interface{}) er
 		}()
 	}
 	if err != nil {
-		return xerrors.Errorf("secret send: %w", err)
+		return errors.Errorf("secret send: %w", err)
 	}
 
 	return nil
@@ -52,7 +52,7 @@ func (c vaultClient) putAll(ctx context.Context, data map[string]interface{}) er
 func (c vaultClient) add(ctx context.Context, key, value string) error {
 	s, err := c.getAll(ctx)
 	data := map[string]interface{}{}
-	if err != nil && !xerrors.Is(err, kv.ErrKeyNotFound) {
+	if err != nil && !errors.Is(err, kv.ErrKeyNotFound) {
 		return err
 	}
 	if err == nil {
@@ -77,12 +77,12 @@ func (c vaultClient) getAll(ctx context.Context) (*api.Secret, error) {
 		}
 	}
 	if err != nil {
-		return nil, xerrors.Errorf("secret fetch: %w", err)
+		return nil, errors.Errorf("secret fetch: %w", err)
 	}
 
 	secret, err := api.ParseSecret(resp.Body)
 	if err != nil {
-		return nil, xerrors.Errorf("secret parsing: %w", err)
+		return nil, errors.Errorf("secret parsing: %w", err)
 	}
 
 	return secret, nil
@@ -101,7 +101,7 @@ func (c vaultClient) get(ctx context.Context, key string) (string, error) {
 
 	session, ok := data.(string)
 	if !ok {
-		return "", xerrors.Errorf("expected %q have string type, got %T", key, data)
+		return "", errors.Errorf("expected %q have string type, got %T", key, data)
 	}
 
 	return session, nil

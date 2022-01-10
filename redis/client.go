@@ -3,8 +3,8 @@ package redis
 import (
 	"context"
 
+	"github.com/go-faster/errors"
 	"github.com/go-redis/redis/v8"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/auth/kv"
 )
@@ -20,7 +20,7 @@ func (r redisClient) Set(ctx context.Context, k, v string) error {
 func (r redisClient) Get(ctx context.Context, k string) (string, error) {
 	v, err := r.client.Get(ctx, k).Result()
 	if err != nil {
-		if xerrors.Is(err, redis.Nil) {
+		if errors.Is(err, redis.Nil) {
 			return "", kv.ErrKeyNotFound
 		}
 		return "", err

@@ -7,7 +7,7 @@ import (
 	"os/signal"
 
 	pebbledb "github.com/cockroachdb/pebble"
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/telegram"
 
@@ -17,7 +17,7 @@ import (
 func pebbleStorage(ctx context.Context) error {
 	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
 	if err != nil {
-		return xerrors.Errorf("create pebble storage: %w", err)
+		return errors.Errorf("create pebble storage: %w", err)
 	}
 	storage := pebble.NewSessionStorage(db, "session")
 
@@ -25,7 +25,7 @@ func pebbleStorage(ctx context.Context) error {
 		SessionStorage: storage,
 	})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

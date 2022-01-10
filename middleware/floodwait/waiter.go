@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-faster/errors"
 	"go.uber.org/atomic"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
@@ -139,14 +139,14 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 	s.request.retry++
 
 	if max := w.maxRetries; max != 0 && s.request.retry > max {
-		return true, xerrors.Errorf("flood wait retry limit exceeded (%d > %d): %w", s.request.retry, max, err)
+		return true, errors.Errorf("flood wait retry limit exceeded (%d > %d): %w", s.request.retry, max, err)
 	}
 
 	if d < time.Second {
 		d = time.Second
 	}
 	if max := w.maxWait; max != 0 && d > max {
-		return true, xerrors.Errorf("flood wait argument is too big (%v > %v): %w", d, max, err)
+		return true, errors.Errorf("flood wait argument is too big (%v > %v): %w", d, max, err)
 	}
 
 	w.sch.flood(s.request, d)
@@ -158,7 +158,7 @@ func (w *Waiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
 		if !w.running.Load() {
 			// Return explicit error if waiter is not running.
-			return xerrors.New("the Waiter middleware is not running: Run(ctx) method is not called or exited")
+			return errors.New("the Waiter middleware is not running: Run(ctx) method is not called or exited")
 		}
 		select {
 		case err := <-w.sch.new(ctx, input, output, next):

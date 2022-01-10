@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/clock"
@@ -87,7 +87,7 @@ func (w *SimpleWaiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 			retries++
 
 			if max := w.maxRetries; max != 0 && retries > max {
-				return xerrors.Errorf("flood wait retry limit exceeded (%d > %d): %w", retries, max, err)
+				return errors.Errorf("flood wait retry limit exceeded (%d > %d): %w", retries, max, err)
 			}
 
 			if d == 0 {
@@ -95,7 +95,7 @@ func (w *SimpleWaiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 			}
 
 			if max := w.maxWait; max != 0 && d > max {
-				return xerrors.Errorf("flood wait argument is too big (%v > %v): %w", d, max, err)
+				return errors.Errorf("flood wait argument is too big (%v > %v): %w", d, max, err)
 			}
 
 			if t == nil {

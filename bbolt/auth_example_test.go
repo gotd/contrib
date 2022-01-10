@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/go-faster/errors"
 	bboltdb "go.etcd.io/bbolt"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 	tgauth "github.com/gotd/td/telegram/auth"
@@ -20,7 +20,7 @@ import (
 func bboltAuth(ctx context.Context) error {
 	db, err := bboltdb.Open("bbolt.db", 0666, &bboltdb.Options{}) // nolint:gocritic
 	if err != nil {
-		return xerrors.Errorf("create bbolt storage: %w", err)
+		return errors.Errorf("create bbolt storage: %w", err)
 	}
 	cred := bbolt.NewCredentials(db, []byte("bucket")).
 		WithPhoneKey("phone").
@@ -28,7 +28,7 @@ func bboltAuth(ctx context.Context) error {
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

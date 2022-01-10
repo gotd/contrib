@@ -3,7 +3,7 @@ package storage
 import (
 	"time"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/telegram/query/dialogs"
 	"github.com/gotd/td/tg"
@@ -53,7 +53,7 @@ func (p *Peer) Keys() []string {
 func (p *Peer) FromInputPeer(input tg.InputPeerClass) error {
 	k := dialogs.DialogKey{}
 	if err := k.FromInputPeer(input); err != nil {
-		return xerrors.Errorf("unpack input peer: %w", err)
+		return errors.Errorf("unpack input peer: %w", err)
 	}
 
 	*p = Peer{

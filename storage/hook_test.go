@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/go-faster/errors"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/tg"
 )
@@ -61,7 +61,7 @@ func TestUpdateHook(t *testing.T) {
 		a := require.New(t)
 		storage := newMemStorage()
 		h := UpdateHook(testHandler{
-			returnErr: xerrors.New("testErr"),
+			returnErr: errors.New("testErr"),
 		}, storage)
 
 		a.Error(h.Handle(ctx, testData))

@@ -7,10 +7,10 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-faster/errors"
 	"github.com/uber-go/tally"
 	"github.com/uber-go/tally/prometheus"
 	"go.uber.org/multierr"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/message"
@@ -23,7 +23,7 @@ func metricsInvoker(ctx context.Context) (rerr error) {
 	prom := prometheus.NewReporter(prometheus.Options{})
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 
 	scope, closer := tally.NewRootScope(tally.ScopeOptions{

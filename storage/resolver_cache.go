@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/telegram/message/peer"
 	"github.com/gotd/td/tg"
@@ -33,11 +33,11 @@ func (r ResolverCache) notFound(
 
 	var value Peer
 	if err := value.FromInputPeer(resolved); err != nil {
-		return nil, xerrors.Errorf("extract object: %w", err)
+		return nil, errors.Errorf("extract object: %w", err)
 	}
 
 	if err := r.storage.Assign(ctx, key, value); err != nil {
-		return nil, xerrors.Errorf("assign %q: %W", key, value)
+		return nil, errors.Errorf("assign %q: %w", key, err)
 	}
 
 	return resolved, nil
@@ -50,10 +50,10 @@ func (r ResolverCache) tryResolve(
 ) (tg.InputPeerClass, error) {
 	b, err := r.storage.Resolve(ctx, key)
 	if err != nil {
-		if xerrors.Is(err, ErrPeerNotFound) {
+		if errors.Is(err, ErrPeerNotFound) {
 			return r.notFound(ctx, key, f)
 		}
-		return nil, xerrors.Errorf("get %q: %w", key, err)
+		return nil, errors.Errorf("get %q: %w", key, err)
 	}
 	return b.AsInputPeer(), nil
 }

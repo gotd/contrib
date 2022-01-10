@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	tgauth "github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/tg"
@@ -39,7 +39,7 @@ func ConstantSignUp(info tgauth.UserInfo) SignUpFlow {
 
 // ErrSignUpIsNotExpected is returned, when sign up request from Telegram server
 // is not expected.
-var ErrSignUpIsNotExpected = xerrors.New("signup call is not expected")
+var ErrSignUpIsNotExpected = errors.New("signup call is not expected")
 
 type noSignUp struct{}
 

@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/go-faster/errors"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/storage"
 )
@@ -72,7 +72,7 @@ func (p *etcdIterator) Next(ctx context.Context) bool {
 		clientv3.WithSort(clientv3.SortByKey, clientv3.SortAscend),
 	)
 	if err != nil {
-		p.lastErr = xerrors.Errorf("get from %q: %w", p.lastKey, err)
+		p.lastErr = errors.Errorf("get from %q: %w", p.lastKey, err)
 		return false
 	}
 	p.wasLast = !r.More
@@ -96,7 +96,7 @@ func (p *etcdIterator) Next(ctx context.Context) bool {
 	for _, pair := range r.Kvs {
 		var value storage.Peer
 		if err := json.Unmarshal(pair.Value, &value); err != nil {
-			p.lastErr = xerrors.Errorf("unmarshal: %w", err)
+			p.lastErr = errors.Errorf("unmarshal: %w", err)
 			return false
 		}
 
@@ -129,13 +129,13 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 func (s PeerStorage) add(ctx context.Context, associated []string, value storage.Peer) (rerr error) {
 	var buf strings.Builder
 	if err := json.NewEncoder(&buf).Encode(value); err != nil {
-		return xerrors.Errorf("marshal: %w", err)
+		return errors.Errorf("marshal: %w", err)
 	}
 	id := storage.KeyFromPeer(value).String()
 
 	if len(associated) == 0 {
 		if _, err := s.etcd.Put(ctx, id, buf.String()); err != nil {
-			return xerrors.Errorf("set id <-> data: %w", err)
+			return errors.Errorf("set id <-> data: %w", err)
 		}
 
 		return nil
@@ -148,7 +148,7 @@ func (s PeerStorage) add(ctx context.Context, associated []string, value storage
 	}
 
 	if _, err := s.etcd.Txn(ctx).Then(ops...).Commit(); err != nil {
-		return xerrors.Errorf("commit: %w", err)
+		return errors.Errorf("commit: %w", err)
 	}
 
 	return nil
@@ -165,7 +165,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (storage.Pee
 
 	resp, err := s.etcd.Get(ctx, id)
 	if err != nil {
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", id, err)
+		return storage.Peer{}, errors.Errorf("get %q: %w", id, err)
 	}
 	if resp.Count < 1 || len(resp.Kvs) < 1 {
 		return storage.Peer{}, storage.ErrPeerNotFound
@@ -173,7 +173,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (storage.Pee
 
 	var b storage.Peer
 	if err := json.Unmarshal(resp.Kvs[0].Value, &b); err != nil {
-		return storage.Peer{}, xerrors.Errorf("unmarshal: %w", err)
+		return storage.Peer{}, errors.Errorf("unmarshal: %w", err)
 	}
 
 	return b, nil
@@ -188,7 +188,7 @@ func (s PeerStorage) Assign(ctx context.Context, key string, value storage.Peer)
 func (s PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, error) {
 	resp, err := s.etcd.Get(ctx, key)
 	if err != nil {
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", key, err)
+		return storage.Peer{}, errors.Errorf("get %q: %w", key, err)
 	}
 	if resp.Count < 1 || len(resp.Kvs) < 1 {
 		return storage.Peer{}, storage.ErrPeerNotFound
@@ -197,7 +197,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, err
 	id := string(resp.Kvs[0].Value)
 	resp, err = s.etcd.Get(ctx, id)
 	if err != nil {
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", id, err)
+		return storage.Peer{}, errors.Errorf("get %q: %w", id, err)
 	}
 	if resp.Count < 1 || len(resp.Kvs) < 1 {
 		return storage.Peer{}, storage.ErrPeerNotFound
@@ -205,7 +205,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, err
 
 	var b storage.Peer
 	if err := json.Unmarshal(resp.Kvs[0].Value, &b); err != nil {
-		return storage.Peer{}, xerrors.Errorf("unmarshal: %w", err)
+		return storage.Peer{}, errors.Errorf("unmarshal: %w", err)
 	}
 
 	return b, nil

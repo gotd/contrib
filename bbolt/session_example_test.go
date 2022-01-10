@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/go-faster/errors"
 	bboltdb "go.etcd.io/bbolt"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 
@@ -17,7 +17,7 @@ import (
 func bboltStorage(ctx context.Context) error {
 	db, err := bboltdb.Open("bbolt.db", 0666, &bboltdb.Options{}) // nolint:gocritic
 	if err != nil {
-		return xerrors.Errorf("create bbolt storage: %w", err)
+		return errors.Errorf("create bbolt storage: %w", err)
 	}
 	storage := bbolt.NewSessionStorage(db, "session", []byte("bucket"))
 
@@ -25,7 +25,7 @@ func bboltStorage(ctx context.Context) error {
 		SessionStorage: storage,
 	})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

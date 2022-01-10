@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/telegram/query/dialogs"
 )
@@ -51,7 +51,7 @@ func (k PeerKey) String() string {
 	return b.String()
 }
 
-var invalidKey = xerrors.New("invalid key") // nolint:gochecknoglobals
+var invalidKey = errors.New("invalid key") // nolint:gochecknoglobals
 
 // Parse parses bytes representation from given slice.
 func (k *PeerKey) Parse(r []byte) error {
@@ -69,10 +69,10 @@ func (k *PeerKey) Parse(r []byte) error {
 	{
 		v, err := strconv.Atoi(string(r[:idx]))
 		if err != nil {
-			return xerrors.Errorf("parse kind: %w", err)
+			return errors.Errorf("parse kind: %w", err)
 		}
 		if v > int(dialogs.Channel) {
-			return xerrors.Errorf("invalid kind %d", v)
+			return errors.Errorf("invalid kind %d", v)
 		}
 		k.Kind = dialogs.PeerKind(v)
 	}
@@ -80,7 +80,7 @@ func (k *PeerKey) Parse(r []byte) error {
 	{
 		v, err := strconv.ParseInt(string(r[idx+1:]), 10, 64)
 		if err != nil {
-			return xerrors.Errorf("parse id: %w", err)
+			return errors.Errorf("parse id: %w", err)
 		}
 		k.ID = v
 	}

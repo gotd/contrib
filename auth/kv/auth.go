@@ -3,7 +3,7 @@ package kv
 import (
 	"context"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	tgauth "github.com/gotd/td/telegram/auth"
 )
@@ -44,7 +44,7 @@ func (c Credentials) Phone(ctx context.Context) (string, error) {
 // Password implements Credentials and returns password.
 func (c Credentials) Password(ctx context.Context) (string, error) {
 	r, err := c.storage.Get(ctx, c.passwordKey)
-	if xerrors.Is(err, ErrKeyNotFound) {
+	if errors.Is(err, ErrKeyNotFound) {
 		return r, tgauth.ErrPasswordNotProvided
 	}
 	return r, err

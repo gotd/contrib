@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/cockroachdb/pebble"
+	"github.com/go-faster/errors"
 	"go.uber.org/multierr"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/auth/kv"
 )
@@ -32,7 +32,7 @@ func (p pebbleStorage) Set(ctx context.Context, k, v string) (rerr error) {
 func (p pebbleStorage) Get(ctx context.Context, k string) (string, error) {
 	r, closer, err := p.db.Get([]byte(k))
 	if err != nil {
-		if xerrors.Is(err, pebble.ErrNotFound) {
+		if errors.Is(err, pebble.ErrNotFound) {
 			return "", kv.ErrKeyNotFound
 		}
 		return "", err

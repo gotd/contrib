@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/go-faster/errors"
 	redisclient "github.com/go-redis/redis/v8"
-	"golang.org/x/xerrors"
 
 	tgauth "github.com/gotd/td/telegram/auth"
 
@@ -26,7 +26,7 @@ func redisAuth(ctx context.Context) error {
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

@@ -5,8 +5,8 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/go-faster/errors"
 	"go.etcd.io/bbolt"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/storage"
 )
@@ -53,7 +53,7 @@ func (p *bboltIterator) Next(ctx context.Context) bool {
 	}
 
 	if err := json.Unmarshal(v, &p.value); err != nil {
-		p.lastErr = xerrors.Errorf("unmarshal: %w", err)
+		p.lastErr = errors.Errorf("unmarshal: %w", err)
 		return false
 	}
 
@@ -72,12 +72,12 @@ func (p *bboltIterator) Value() storage.Peer {
 func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) {
 	tx, err := s.bbolt.Begin(false)
 	if err != nil {
-		return nil, xerrors.Errorf("create tx: %w", err)
+		return nil, errors.Errorf("create tx: %w", err)
 	}
 
 	bucket := tx.Bucket(s.bucket)
 	if bucket == nil {
-		return nil, xerrors.Errorf("bucket %q does not exist", s.bucket)
+		return nil, errors.Errorf("bucket %q does not exist", s.bucket)
 	}
 
 	cur := bucket.Cursor()
@@ -93,22 +93,22 @@ func (s PeerStorage) add(associated []string, value storage.Peer) (err error) {
 	err = s.bbolt.Batch(func(tx *bbolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists(s.bucket)
 		if err != nil {
-			return xerrors.Errorf("create bucket: %w", err)
+			return errors.Errorf("create bucket: %w", err)
 		}
 
 		data, err := json.Marshal(value)
 		if err != nil {
-			return xerrors.Errorf("marshal: %w", err)
+			return errors.Errorf("marshal: %w", err)
 		}
 		id := storage.KeyFromPeer(value).Bytes(nil)
 
 		if err := bucket.Put(id, data); err != nil {
-			return xerrors.Errorf("set id <-> data: %w", err)
+			return errors.Errorf("set id <-> data: %w", err)
 		}
 
 		for _, key := range associated {
 			if err := bucket.Put([]byte(key), id); err != nil {
-				return xerrors.Errorf("set key <-> id: %w", err)
+				return errors.Errorf("set key <-> id: %w", err)
 			}
 		}
 
@@ -127,7 +127,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (p storage.P
 	rerr = s.bbolt.View(func(tx *bbolt.Tx) error {
 		bucket := tx.Bucket(s.bucket)
 		if bucket == nil {
-			return xerrors.Errorf("bucket %q does not exist", s.bucket)
+			return errors.Errorf("bucket %q does not exist", s.bucket)
 		}
 
 		data := bucket.Get(key.Bytes(nil))
@@ -136,7 +136,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (p storage.P
 		}
 
 		if err := json.Unmarshal(data, &p); err != nil {
-			return xerrors.Errorf("unmarshal: %w", err)
+			return errors.Errorf("unmarshal: %w", err)
 		}
 		return nil
 	})
@@ -153,7 +153,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (p storage.Peer, r
 	rerr = s.bbolt.View(func(tx *bbolt.Tx) error {
 		bucket := tx.Bucket(s.bucket)
 		if bucket == nil {
-			return xerrors.Errorf("bucket %q does not exist", s.bucket)
+			return errors.Errorf("bucket %q does not exist", s.bucket)
 		}
 
 		id := bucket.Get([]byte(key))
@@ -167,7 +167,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (p storage.Peer, r
 		}
 
 		if err := json.Unmarshal(data, &p); err != nil {
-			return xerrors.Errorf("unmarshal: %w", err)
+			return errors.Errorf("unmarshal: %w", err)
 		}
 		return nil
 	})

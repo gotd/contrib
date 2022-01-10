@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/telegram/query/dialogs"
 	"github.com/gotd/td/tg"
@@ -27,7 +27,7 @@ func FindPeer(ctx context.Context, s PeerStorage, p tg.PeerClass) (Peer, error) 
 func ForEach(ctx context.Context, iterator PeerIterator, cb func(Peer) error) error {
 	for iterator.Next(ctx) {
 		if err := cb(iterator.Value()); err != nil {
-			return xerrors.Errorf("callback: %w", err)
+			return errors.Errorf("callback: %w", err)
 		}
 	}
 	return iterator.Err()

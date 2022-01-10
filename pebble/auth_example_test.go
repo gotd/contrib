@@ -7,7 +7,7 @@ import (
 	"os/signal"
 
 	pebbledb "github.com/cockroachdb/pebble"
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	tgauth "github.com/gotd/td/telegram/auth"
 
@@ -21,7 +21,7 @@ import (
 func pebbleAuth(ctx context.Context) error {
 	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
 	if err != nil {
-		return xerrors.Errorf("create pebble storage: %w", err)
+		return errors.Errorf("create pebble storage: %w", err)
 	}
 	cred := pebble.NewCredentials(db).
 		WithPhoneKey("phone").
@@ -29,7 +29,7 @@ func pebbleAuth(ctx context.Context) error {
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

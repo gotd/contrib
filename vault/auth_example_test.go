@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/go-faster/errors"
 	"github.com/hashicorp/vault/api"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 	tgauth "github.com/gotd/td/telegram/auth"
@@ -20,7 +20,7 @@ import (
 func vaultAuth(ctx context.Context) error {
 	vaultClient, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
-		return xerrors.Errorf("create Vault client: %w", err)
+		return errors.Errorf("create Vault client: %w", err)
 	}
 	cred := vault.NewCredentials(vaultClient, "cubbyhole/telegram/user").
 		WithPhoneKey("phone").
@@ -28,7 +28,7 @@ func vaultAuth(ctx context.Context) error {
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

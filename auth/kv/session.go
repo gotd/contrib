@@ -3,7 +3,7 @@ package kv
 import (
 	"context"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/session"
 )
@@ -26,7 +26,7 @@ func NewSession(storage Storage, key string) Session {
 func (s Session) LoadSession(ctx context.Context) ([]byte, error) {
 	r, err := s.storage.Get(ctx, s.key)
 	if err != nil {
-		if xerrors.Is(err, ErrKeyNotFound) {
+		if errors.Is(err, ErrKeyNotFound) {
 			return nil, session.ErrNotFound
 		}
 		return nil, err

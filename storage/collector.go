@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/telegram/query/channels/participants"
 	"github.com/gotd/td/telegram/query/dialogs"
@@ -41,7 +41,7 @@ func (c PeerCollector) Dialogs(ctx context.Context, iter *dialogs.Iterator) erro
 		}
 
 		if err := c.storage.Add(ctx, p); err != nil {
-			return xerrors.Errorf("add: %w", err)
+			return errors.Errorf("add: %w", err)
 		}
 	}
 
@@ -64,7 +64,7 @@ func (c PeerCollector) Participants(ctx context.Context, iter *participants.Iter
 			continue
 		}
 		if err := c.storage.Add(ctx, p); err != nil {
-			return xerrors.Errorf("add: %w", err)
+			return errors.Errorf("add: %w", err)
 		}
 	}
 
@@ -79,7 +79,7 @@ func (c PeerCollector) Contacts(ctx context.Context, contacts *tg.ContactsContac
 			continue
 		}
 		if err := c.storage.Add(ctx, p); err != nil {
-			return xerrors.Errorf("add: %w", err)
+			return errors.Errorf("add: %w", err)
 		}
 	}
 	return nil

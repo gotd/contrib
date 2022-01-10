@@ -6,9 +6,9 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/go-faster/errors"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 
@@ -23,7 +23,7 @@ func s3Storage(ctx context.Context) error {
 		Creds: credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 	})
 	if err != nil {
-		return xerrors.Errorf("create s3 storage: %w", err)
+		return errors.Errorf("create s3 storage: %w", err)
 	}
 	storage := s3.NewSessionStorage(db, "telegram", "session")
 
@@ -31,7 +31,7 @@ func s3Storage(ctx context.Context) error {
 		SessionStorage: storage,
 	})
 	if err != nil {
-		return xerrors.Errorf("create client: %w", err)
+		return errors.Errorf("create client: %w", err)
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

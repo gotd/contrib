@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/go-faster/errors"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/multierr"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/storage"
 )
@@ -43,13 +43,13 @@ func (p *redisIterator) Next(ctx context.Context) bool {
 	key := p.iter.Val()
 	value, err := p.client.Get(ctx, key).Result()
 	if err != nil {
-		p.lastErr = xerrors.Errorf("get %q: %w", key, err)
+		p.lastErr = errors.Errorf("get %q: %w", key, err)
 		return false
 	}
 
 	r := strings.NewReader(value)
 	if err := json.NewDecoder(r).Decode(&p.value); err != nil {
-		p.lastErr = xerrors.Errorf("unmarshal: %w", err)
+		p.lastErr = errors.Errorf("unmarshal: %w", err)
 		return false
 	}
 
@@ -81,13 +81,13 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 func (s PeerStorage) add(ctx context.Context, associated []string, value storage.Peer) (rerr error) {
 	data, err := json.Marshal(value)
 	if err != nil {
-		return xerrors.Errorf("marshal: %w", err)
+		return errors.Errorf("marshal: %w", err)
 	}
 	id := storage.KeyFromPeer(value).String()
 
 	if len(associated) == 0 {
 		if err := s.redis.Set(ctx, id, data, 0).Err(); err != nil {
-			return xerrors.Errorf("set id <-> data: %w", err)
+			return errors.Errorf("set id <-> data: %w", err)
 		}
 
 		return nil
@@ -99,17 +99,17 @@ func (s PeerStorage) add(ctx context.Context, associated []string, value storage
 	}()
 
 	if err := tx.Set(ctx, id, data, 0).Err(); err != nil {
-		return xerrors.Errorf("set id <-> data: %w", err)
+		return errors.Errorf("set id <-> data: %w", err)
 	}
 
 	for _, key := range associated {
 		if err := tx.Set(ctx, key, id, 0).Err(); err != nil {
-			return xerrors.Errorf("set key <-> id: %w", err)
+			return errors.Errorf("set key <-> id: %w", err)
 		}
 	}
 
 	if _, err := tx.Exec(ctx); err != nil {
-		return xerrors.Errorf("exec: %w", err)
+		return errors.Errorf("exec: %w", err)
 	}
 
 	return nil
@@ -126,15 +126,15 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (storage.Pee
 
 	data, err := s.redis.Get(ctx, id).Bytes()
 	if err != nil {
-		if xerrors.Is(err, redis.Nil) {
+		if errors.Is(err, redis.Nil) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", key, err)
+		return storage.Peer{}, errors.Errorf("get %q: %w", key, err)
 	}
 
 	var b storage.Peer
 	if err := json.Unmarshal(data, &b); err != nil {
-		return storage.Peer{}, xerrors.Errorf("unmarshal: %w", err)
+		return storage.Peer{}, errors.Errorf("unmarshal: %w", err)
 	}
 
 	return b, nil
@@ -150,24 +150,24 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, err
 	// Find id by domain.
 	id, err := s.redis.Get(ctx, key).Result()
 	if err != nil {
-		if xerrors.Is(err, redis.Nil) {
+		if errors.Is(err, redis.Nil) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", key, err)
+		return storage.Peer{}, errors.Errorf("get %q: %w", key, err)
 	}
 
 	// Find object by id.
 	data, err := s.redis.Get(ctx, id).Bytes()
 	if err != nil {
-		if xerrors.Is(err, redis.Nil) {
+		if errors.Is(err, redis.Nil) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", id, err)
+		return storage.Peer{}, errors.Errorf("get %q: %w", id, err)
 	}
 
 	var b storage.Peer
 	if err := json.Unmarshal(data, &b); err != nil {
-		return storage.Peer{}, xerrors.Errorf("unmarshal: %w", err)
+		return storage.Peer{}, errors.Errorf("unmarshal: %w", err)
 	}
 
 	return b, nil

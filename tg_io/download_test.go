@@ -13,12 +13,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-faster/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/time/rate"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/auth"
@@ -71,22 +71,22 @@ func TestE2E(t *testing.T) {
 		const size = chunk1kb*5 + 100
 		f, err := uploader.NewUploader(api).FromBytes(ctx, "upload.bin", make([]byte, size))
 		if err != nil {
-			return xerrors.Errorf("upload: %w", err)
+			return errors.Errorf("upload: %w", err)
 		}
 
 		mc, err := message.NewSender(api).Self().UploadMedia(ctx, message.File(f))
 		if err != nil {
-			return xerrors.Errorf("create media: %w", err)
+			return errors.Errorf("create media: %w", err)
 		}
 
 		media, ok := mc.(*tg.MessageMediaDocument)
 		if !ok {
-			return xerrors.Errorf("unexpected type: %T", media)
+			return errors.Errorf("unexpected type: %T", media)
 		}
 
 		doc, ok := media.Document.AsNotEmpty()
 		if !ok {
-			return xerrors.Errorf("unexpected type: %T", media.Document)
+			return errors.Errorf("unexpected type: %T", media.Document)
 		}
 
 		t.Log("Streaming")
@@ -95,7 +95,7 @@ func TestE2E(t *testing.T) {
 
 		const offset = chunk1kb / 2
 		if err := u.StreamAt(ctx, offset, buf); err != nil {
-			return xerrors.Errorf("stream at %d: %w", offset, err)
+			return errors.Errorf("stream at %d: %w", offset, err)
 		}
 
 		t.Log(buf.Len())
@@ -103,7 +103,7 @@ func TestE2E(t *testing.T) {
 
 		ln, err := net.Listen("tcp", "localhost:0")
 		if err != nil {
-			return xerrors.Errorf("listen: %w", err)
+			return errors.Errorf("listen: %w", err)
 		}
 		defer func() {
 			_ = ln.Close()
@@ -124,7 +124,7 @@ func TestE2E(t *testing.T) {
 		})
 		g.Go(func() error {
 			if err := s.Serve(ln); err != nil && err != http.ErrServerClosed {
-				return xerrors.Errorf("server: %w", err)
+				return errors.Errorf("server: %w", err)
 			}
 			return nil
 		})
@@ -143,14 +143,14 @@ func TestE2E(t *testing.T) {
 
 			res, err := http.DefaultClient.Do(req)
 			if err != nil {
-				return xerrors.Errorf("send GET %q: %w", requestURL, err)
+				return errors.Errorf("send GET %q: %w", requestURL, err)
 			}
 			defer func() { _ = res.Body.Close() }()
 			t.Log(res.Status)
 
 			outBuf := new(bytes.Buffer)
 			if _, err := io.Copy(outBuf, res.Body); err != nil {
-				return xerrors.Errorf("read response: %w", err)
+				return errors.Errorf("read response: %w", err)
 			}
 
 			t.Log(outBuf.Len())

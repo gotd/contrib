@@ -5,7 +5,7 @@ import (
 	"context"
 	"io"
 
-	"golang.org/x/xerrors"
+	"github.com/go-faster/errors"
 
 	"github.com/gotd/td/tg"
 
@@ -65,6 +65,6 @@ func (s chunkSource) Chunk(ctx context.Context, offset int64, b []byte) (int64, 
 
 		return n, err
 	default:
-		return 0, xerrors.Errorf("unexpected type %T", r)
+		return 0, errors.Errorf("unexpected type %T", r)
 	}
 }

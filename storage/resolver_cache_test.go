@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/go-faster/errors"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/td/tg"
 )
@@ -23,7 +23,7 @@ func newMemStorage() memStorage {
 }
 
 func (m memStorage) Iterate(ctx context.Context) (PeerIterator, error) {
-	return nil, xerrors.New("unimplemented")
+	return nil, errors.New("unimplemented")
 }
 
 func (m memStorage) add(keys []string, p Peer) {

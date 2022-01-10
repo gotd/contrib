@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 
 	"github.com/cockroachdb/pebble"
+	"github.com/go-faster/errors"
 	"go.uber.org/multierr"
-	"golang.org/x/xerrors"
 
 	"github.com/gotd/contrib/storage"
 )
@@ -58,7 +58,7 @@ func (p *pebbleIterator) Next(ctx context.Context) bool {
 	}
 
 	if err := json.Unmarshal(p.iter.Value(), &p.value); err != nil {
-		p.lastErr = xerrors.Errorf("unmarshal: %w", err)
+		p.lastErr = errors.Errorf("unmarshal: %w", err)
 		return false
 	}
 
@@ -108,7 +108,7 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 func (s PeerStorage) add(associated []string, value storage.Peer) (rerr error) {
 	data, err := json.Marshal(value)
 	if err != nil {
-		return xerrors.Errorf("marshal: %w", err)
+		return errors.Errorf("marshal: %w", err)
 	}
 	id := storage.KeyFromPeer(value).Bytes(nil)
 
@@ -130,7 +130,7 @@ func (s PeerStorage) add(associated []string, value storage.Peer) (rerr error) {
 	}
 
 	if err := b.Commit(nil); err != nil {
-		return xerrors.Errorf("commit: %w", err)
+		return errors.Errorf("commit: %w", err)
 	}
 
 	return nil
@@ -147,10 +147,10 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (_ storage.P
 
 	data, closer, err := s.pebble.Get(id)
 	if err != nil {
-		if xerrors.Is(err, pebble.ErrNotFound) {
+		if errors.Is(err, pebble.ErrNotFound) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", id, err)
+		return storage.Peer{}, errors.Errorf("get %q: %w", id, err)
 	}
 	defer func() {
 		multierr.AppendInto(&rerr, closer.Close())
@@ -158,7 +158,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (_ storage.P
 
 	var b storage.Peer
 	if err := json.Unmarshal(data, &b); err != nil {
-		return storage.Peer{}, xerrors.Errorf("unmarshal: %w", err)
+		return storage.Peer{}, errors.Errorf("unmarshal: %w", err)
 	}
 
 	return b, nil
@@ -180,10 +180,10 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, r
 	// Find id by key.
 	id, idCloser, err := snap.Get([]byte(key))
 	if err != nil {
-		if xerrors.Is(err, pebble.ErrNotFound) {
+		if errors.Is(err, pebble.ErrNotFound) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", key, err)
+		return storage.Peer{}, errors.Errorf("get %q: %w", key, err)
 	}
 	defer func() {
 		multierr.AppendInto(&rerr, idCloser.Close())
@@ -192,10 +192,10 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, r
 	// Find object by id.
 	data, dataCloser, err := snap.Get(id)
 	if err != nil {
-		if xerrors.Is(err, pebble.ErrNotFound) {
+		if errors.Is(err, pebble.ErrNotFound) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}
-		return storage.Peer{}, xerrors.Errorf("get %q: %w", id, err)
+		return storage.Peer{}, errors.Errorf("get %q: %w", id, err)
 	}
 	defer func() {
 		multierr.AppendInto(&rerr, dataCloser.Close())
@@ -203,7 +203,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, r
 
 	var b storage.Peer
 	if err := json.Unmarshal(data, &b); err != nil {
-		return storage.Peer{}, xerrors.Errorf("unmarshal: %w", err)
+		return storage.Peer{}, errors.Errorf("unmarshal: %w", err)
 	}
 
 	return b, nil
