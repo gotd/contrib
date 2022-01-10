@@ -1,13 +1,13 @@
 package storage
 
 import (
-	"github.com/gotd/td/telegram/message/peer"
+	"github.com/gotd/td/telegram/query/dialogs"
 	"github.com/gotd/td/tg"
 )
 
 // AsInputUser tries to convert peer to *tg.InputUser.
 func (p Peer) AsInputUser() (*tg.InputUser, bool) {
-	if p.Key.Kind != peer.User {
+	if p.Key.Kind != dialogs.User {
 		return nil, false
 	}
 
@@ -19,7 +19,7 @@ func (p Peer) AsInputUser() (*tg.InputUser, bool) {
 
 // AsInputChannel tries to convert peer to *tg.InputChannel.
 func (p Peer) AsInputChannel() (*tg.InputChannel, bool) {
-	if p.Key.Kind != peer.Channel {
+	if p.Key.Kind != dialogs.Channel {
 		return nil, false
 	}
 
@@ -32,16 +32,16 @@ func (p Peer) AsInputChannel() (*tg.InputChannel, bool) {
 // AsInputPeer tries to convert peer to tg.InputPeerClass.
 func (p Peer) AsInputPeer() tg.InputPeerClass {
 	switch p.Key.Kind {
-	case peer.User:
+	case dialogs.User:
 		return &tg.InputPeerUser{
 			UserID:     p.Key.ID,
 			AccessHash: p.Key.AccessHash,
 		}
-	case peer.Chat:
+	case dialogs.Chat:
 		return &tg.InputPeerChat{
 			ChatID: p.Key.ID,
 		}
-	case peer.Channel:
+	case dialogs.Channel:
 		return &tg.InputPeerChannel{
 			ChannelID:  p.Key.ID,
 			AccessHash: p.Key.AccessHash,

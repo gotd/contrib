@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/xerrors"
 
-	"github.com/gotd/td/telegram/message/peer"
+	"github.com/gotd/td/telegram/query/dialogs"
 )
 
 // PeerKeyPrefix is a key prefix of peer key.
@@ -15,7 +15,7 @@ var PeerKeyPrefix = []byte("peer") // nolint:gochecknoglobals
 
 // PeerKey is unique key of peer object.
 type PeerKey struct {
-	Kind peer.Kind
+	Kind dialogs.PeerKind
 	ID   int64
 }
 
@@ -71,10 +71,10 @@ func (k *PeerKey) Parse(r []byte) error {
 		if err != nil {
 			return xerrors.Errorf("parse kind: %w", err)
 		}
-		if v > int(peer.Channel) {
+		if v > int(dialogs.Channel) {
 			return xerrors.Errorf("invalid kind %d", v)
 		}
-		k.Kind = peer.Kind(v)
+		k.Kind = dialogs.PeerKind(v)
 	}
 
 	{

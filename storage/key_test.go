@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/gotd/td/telegram/message/peer"
+	"github.com/gotd/td/telegram/query/dialogs"
 
 	"github.com/gotd/td/tg"
 )
@@ -41,9 +41,9 @@ func TestKey_Parse(t *testing.T) {
 		{PeerKey{}, "10_1", true},
 		{PeerKey{}, "peer10_1", true},
 		{PeerKey{
-			Kind: peer.Channel,
+			Kind: dialogs.Channel,
 			ID:   1,
-		}, "peer" + strconv.Itoa(int(peer.Channel)) + "_1", false},
+		}, "peer" + strconv.Itoa(int(dialogs.Channel)) + "_1", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.arg, func(t *testing.T) {
