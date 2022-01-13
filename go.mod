@@ -11,7 +11,7 @@ require (
 	github.com/gotd/neo v0.1.5
 	github.com/gotd/td v0.54.1
 	github.com/hashicorp/vault/api v1.3.1
-	github.com/minio/minio-go/v7 v7.0.20
+	github.com/minio/minio-go/v7 v7.0.21
 	github.com/prometheus/client_golang v1.11.0
 	github.com/stretchr/testify v1.7.0
 	github.com/uber-go/tally v3.4.3+incompatible
