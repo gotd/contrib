@@ -51,8 +51,10 @@ func Connect(client Client, options ...Option) (StopFunc, error) {
 	ctx, cancel := context.WithCancel(opt.ctx)
 	g, ctx := errgroup.WithContext(ctx)
 
+	initDone := make(chan struct{})
 	g.Go(func() error {
 		return client.Run(ctx, func(ctx context.Context) error {
+			close(initDone)
 			<-ctx.Done()
 			if errors.Is(ctx.Err(), context.Canceled) {
 				return nil
@@ -60,6 +62,7 @@ func Connect(client Client, options ...Option) (StopFunc, error) {
 			return ctx.Err()
 		})
 	})
+	<-initDone
 
 	return func() error {
 		cancel()
