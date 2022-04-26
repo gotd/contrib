@@ -1,11 +1,11 @@
 // Package bg implements wrapper for running client in background.
+//
+// TODO: Once https://github.com/gotd/contrib/pull/216 is merged can be removed.
 package bg
 
 import (
 	"context"
 	"errors"
-
-	"golang.org/x/sync/errgroup"
 )
 
 // Client abstracts telegram client.
@@ -49,11 +49,12 @@ func Connect(client Client, options ...Option) (StopFunc, error) {
 	}
 
 	ctx, cancel := context.WithCancel(opt.ctx)
-	g, ctx := errgroup.WithContext(ctx)
 
+	errC := make(chan error, 1)
 	initDone := make(chan struct{})
-	g.Go(func() error {
-		return client.Run(ctx, func(ctx context.Context) error {
+	go func() {
+		defer close(errC)
+		errC <- client.Run(ctx, func(ctx context.Context) error {
 			close(initDone)
 			<-ctx.Done()
 			if errors.Is(ctx.Err(), context.Canceled) {
@@ -61,11 +62,21 @@ func Connect(client Client, options ...Option) (StopFunc, error) {
 			}
 			return ctx.Err()
 		})
-	})
-	<-initDone
+	}()
 
-	return func() error {
+	select {
+	case <-ctx.Done(): // context cancelled
 		cancel()
-		return g.Wait()
-	}, nil
+		return func() error { return nil }, ctx.Err()
+	case err := <-errC: // startup timeout
+		cancel()
+		return func() error { return nil }, err
+	case <-initDone: // init done
+	}
+
+	stopFn := func() error {
+		cancel()
+		return <-errC
+	}
+	return stopFn, nil
 }
