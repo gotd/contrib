@@ -1,6 +1,4 @@
 // Package bg implements wrapper for running client in background.
-//
-// TODO: Once https://github.com/gotd/contrib/pull/216 is merged can be removed.
 package bg
 
 import (
