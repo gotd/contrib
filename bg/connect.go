@@ -4,8 +4,6 @@ package bg
 import (
 	"context"
 	"errors"
-
-	"golang.org/x/sync/errgroup"
 )
 
 // Client abstracts telegram client.
@@ -49,20 +47,34 @@ func Connect(client Client, options ...Option) (StopFunc, error) {
 	}
 
 	ctx, cancel := context.WithCancel(opt.ctx)
-	g, ctx := errgroup.WithContext(ctx)
 
-	g.Go(func() error {
-		return client.Run(ctx, func(ctx context.Context) error {
+	errC := make(chan error, 1)
+	initDone := make(chan struct{})
+	go func() {
+		defer close(errC)
+		errC <- client.Run(ctx, func(ctx context.Context) error {
+			close(initDone)
 			<-ctx.Done()
 			if errors.Is(ctx.Err(), context.Canceled) {
 				return nil
 			}
 			return ctx.Err()
 		})
-	})
+	}()
 
-	return func() error {
+	select {
+	case <-ctx.Done(): // context cancelled
 		cancel()
-		return g.Wait()
-	}, nil
+		return func() error { return nil }, ctx.Err()
+	case err := <-errC: // startup timeout
+		cancel()
+		return func() error { return nil }, err
+	case <-initDone: // init done
+	}
+
+	stopFn := func() error {
+		cancel()
+		return <-errC
+	}
+	return stopFn, nil
 }
