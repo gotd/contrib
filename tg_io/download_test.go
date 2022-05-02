@@ -50,7 +50,7 @@ func TestE2E(t *testing.T) {
 
 	client := telegram.NewClient(telegram.TestAppID, telegram.TestAppHash, telegram.Options{
 		DC:     2,
-		DCList: dcs.Staging(),
+		DCList: dcs.Test(),
 		Logger: logger.Named("client"),
 		Middlewares: []telegram.Middleware{
 			ratelimit.New(rate.Every(100*time.Millisecond), 5),
