@@ -63,7 +63,7 @@ func Connect(client Client, options ...Option) (StopFunc, error) {
 	}()
 
 	select {
-	case <-ctx.Done(): // context cancelled
+	case <-ctx.Done(): // context canceled
 		cancel()
 		return func() error { return nil }, ctx.Err()
 	case err := <-errC: // startup timeout
