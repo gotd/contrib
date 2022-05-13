@@ -9,7 +9,7 @@ require (
 	github.com/go-faster/errors v0.5.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.58.0
+	github.com/gotd/td v0.59.0
 	github.com/hashicorp/vault/api v1.5.0
 	github.com/minio/minio-go/v7 v7.0.26
 	github.com/prometheus/client_golang v1.12.1
@@ -68,7 +68,7 @@ require (
 	github.com/hashicorp/vault/sdk v0.4.1 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.15.2 // indirect
+	github.com/klauspost/compress v1.15.4 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
