@@ -4,11 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/otel/metric"
+
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/tg"
 	"github.com/gotd/td/tgerr"
-	"github.com/stretchr/testify/require"
-	"go.opentelemetry.io/otel/metric"
 )
 
 type invoker func(ctx context.Context, input bin.Encoder, output bin.Decoder) error
