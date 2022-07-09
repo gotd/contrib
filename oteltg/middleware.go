@@ -3,13 +3,16 @@ package oteltg
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/instrument/asyncint64"
 	"go.opentelemetry.io/otel/metric/instrument/syncfloat64"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/telegram"
@@ -22,6 +25,7 @@ type Middleware struct {
 	count    asyncint64.Counter
 	failures asyncint64.Counter
 	duration syncfloat64.Histogram
+	tracer   trace.Tracer
 }
 
 // Handle implements telegram.Middleware.
@@ -29,6 +33,16 @@ func (m Middleware) Handle(next tg.Invoker) telegram.InvokeFunc {
 	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
 		// Prepare.
 		attrs := m.attributes(input)
+
+		spanName := "tg.rpc"
+		for _, attr := range attrs {
+			if attr.Key == "tg.method" {
+				spanName = fmt.Sprintf("%s: %s", spanName, attr.Value.AsString())
+			}
+		}
+
+		ctx, span := m.tracer.Start(ctx, spanName, trace.WithAttributes(attrs...))
+		defer span.End()
 		m.count.Observe(ctx, 1, attrs...)
 		start := time.Now()
 
@@ -38,17 +52,24 @@ func (m Middleware) Handle(next tg.Invoker) telegram.InvokeFunc {
 		// Observe.
 		m.duration.Record(ctx, time.Since(start).Seconds(), attrs...)
 		if err != nil {
+			var errAttrs []attribute.KeyValue
 			if rpcErr, ok := tgerr.As(err); ok {
-				attrs = append(attrs,
+				span.SetStatus(codes.Error, "RPC error")
+				errAttrs = append(errAttrs,
 					attribute.String("tg.rpc.err", rpcErr.Type),
 					attribute.String("tg.rpc.code", strconv.Itoa(rpcErr.Code)),
 				)
 			} else {
-				attrs = append(attrs,
+				span.SetStatus(codes.Error, "Internal error")
+				errAttrs = append(errAttrs,
 					attribute.String("tg.rpc.err", "CLIENT"),
 				)
 			}
+			span.RecordError(err, trace.WithAttributes(errAttrs...))
+			attrs = append(attrs, errAttrs...)
 			m.failures.Observe(ctx, 1, attrs...)
+		} else {
+			span.SetStatus(codes.Ok, "")
 		}
 
 		return err
@@ -71,9 +92,12 @@ func (m Middleware) attributes(input bin.Encoder) []attribute.KeyValue {
 }
 
 // New initializes and returns new prometheus middleware.
-func New(provider metric.MeterProvider) (*Middleware, error) {
-	meter := provider.Meter("github.com/gotd/contrib/oteltg")
-	m := &Middleware{}
+func New(meterProvider metric.MeterProvider, tracerProvider trace.TracerProvider) (*Middleware, error) {
+	const name = "github.com/gotd/contrib/oteltg"
+	meter := meterProvider.Meter(name)
+	m := &Middleware{
+		tracer: tracerProvider.Tracer(name),
+	}
 	var err error
 	if m.count, err = meter.AsyncInt64().Counter("tg.rpc.count"); err != nil {
 		return nil, err

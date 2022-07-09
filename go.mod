@@ -18,6 +18,7 @@ require (
 	go.etcd.io/bbolt v1.3.6
 	go.opentelemetry.io/otel v1.8.0
 	go.opentelemetry.io/otel/metric v0.31.0
+	go.opentelemetry.io/otel/trace v1.8.0
 	go.uber.org/atomic v1.9.0
 	go.uber.org/multierr v1.8.0
 	go.uber.org/zap v1.21.0
@@ -102,7 +103,6 @@ require (
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/twmb/murmur3 v1.1.6 // indirect
-	go.opentelemetry.io/otel/trace v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/exp v0.0.0-20200513190911-00229845015e // indirect
 	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
