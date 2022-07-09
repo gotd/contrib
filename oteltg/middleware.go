@@ -6,14 +6,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gotd/td/bin"
-	"github.com/gotd/td/telegram"
-	"github.com/gotd/td/tg"
-	"github.com/gotd/td/tgerr"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/instrument/asyncint64"
 	"go.opentelemetry.io/otel/metric/instrument/syncfloat64"
+
+	"github.com/gotd/td/bin"
+	"github.com/gotd/td/telegram"
+	"github.com/gotd/td/tg"
+	"github.com/gotd/td/tgerr"
 )
 
 // Middleware is prometheus metrics middleware for Telegram.
