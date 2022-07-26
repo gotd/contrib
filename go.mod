@@ -9,7 +9,7 @@ require (
 	github.com/go-faster/errors v0.6.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.60.0
+	github.com/gotd/td v0.62.0
 	github.com/hashicorp/vault/api v1.7.2
 	github.com/minio/minio-go/v7 v7.0.32
 	github.com/prometheus/client_golang v1.12.2
@@ -44,7 +44,7 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/fatih/color v1.7.0 // indirect
-	github.com/go-faster/jx v0.35.2 // indirect
+	github.com/go-faster/jx v0.38.1 // indirect
 	github.com/go-faster/xor v0.3.0 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -71,7 +71,7 @@ require (
 	github.com/hashicorp/vault/sdk v0.5.1 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.15.6 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
