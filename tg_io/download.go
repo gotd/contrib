@@ -25,11 +25,11 @@ func NewDownloader(api *tg.Client) *Downloader {
 }
 
 // ChunkSource creates new chunk source for provided file.
-func (d *Downloader) ChunkSource(size int, loc tg.InputFileLocationClass) partio.ChunkSource {
+func (d *Downloader) ChunkSource(size int64, loc tg.InputFileLocationClass) partio.ChunkSource {
 	return &chunkSource{
 		loc:  loc,
 		api:  d.api,
-		size: int64(size),
+		size: size,
 	}
 }
 
@@ -42,7 +42,7 @@ type chunkSource struct {
 // Chunk implements partio.ChunkSource.
 func (s chunkSource) Chunk(ctx context.Context, offset int64, b []byte) (int64, error) {
 	req := &tg.UploadGetFileRequest{
-		Offset:   int(offset),
+		Offset:   offset,
 		Limit:    len(b),
 		Location: s.loc,
 	}
@@ -58,7 +58,7 @@ func (s chunkSource) Chunk(ctx context.Context, offset int64, b []byte) (int64, 
 		n := int64(copy(b, result.Bytes))
 
 		var err error
-		if int64(req.Offset)+n >= s.size {
+		if req.Offset+n >= s.size {
 			// No more data.
 			err = io.EOF
 		}

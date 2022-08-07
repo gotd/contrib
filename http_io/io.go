@@ -92,10 +92,10 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // NewHandler initializes and returns http handler for ranged requests using
 // provided StreamerAt as file source and total file size.
-func NewHandler(s StreamerAt, size int) *Handler {
+func NewHandler(s StreamerAt, size int64) *Handler {
 	return &Handler{
 		log:      zap.NewNop(),
-		size:     int64(size),
+		size:     size,
 		streamer: s,
 	}
 }
