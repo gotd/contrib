@@ -99,7 +99,7 @@ func TestE2E(t *testing.T) {
 		}
 
 		t.Log(buf.Len())
-		assert.Equal(t, doc.Size-offset, buf.Len())
+		assert.Equal(t, doc.Size-offset, int64(buf.Len()))
 
 		ln, err := net.Listen("tcp", "localhost:0")
 		if err != nil {
