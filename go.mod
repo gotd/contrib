@@ -9,7 +9,7 @@ require (
 	github.com/go-faster/errors v0.6.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.68.0
+	github.com/gotd/td v0.68.1
 	github.com/hashicorp/vault/api v1.7.2
 	github.com/minio/minio-go/v7 v7.0.34
 	github.com/prometheus/client_golang v1.13.0
