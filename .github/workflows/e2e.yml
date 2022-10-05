@@ -21,7 +21,7 @@ jobs:
         env:
           VAULT_DEV_ROOT_TOKEN_ID: testtoken
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Install Go
         uses: actions/setup-go@v3.3.0
         with:
@@ -61,7 +61,7 @@ jobs:
         ports:
           - 6379:6379
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Install Go
         uses: actions/setup-go@v3.3.0
         with:
@@ -95,7 +95,7 @@ jobs:
   s3:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Install Go
         uses: actions/setup-go@v3.3.0
         with:
@@ -140,7 +140,7 @@ jobs:
   tg_io:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
       - name: Install Go
         uses: actions/setup-go@v3.3.0
         with:
