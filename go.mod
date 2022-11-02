@@ -12,7 +12,7 @@ require (
 	github.com/gotd/td v0.70.1
 	github.com/hashicorp/vault/api v1.7.2
 	github.com/minio/minio-go/v7 v7.0.43
-	github.com/prometheus/client_golang v1.13.0
+	github.com/prometheus/client_golang v1.13.1
 	github.com/stretchr/testify v1.8.0
 	github.com/uber-go/tally v3.4.3+incompatible
 	go.etcd.io/bbolt v1.3.6
