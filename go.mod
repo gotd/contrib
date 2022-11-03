@@ -9,11 +9,11 @@ require (
 	github.com/go-faster/errors v0.6.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.70.1
+	github.com/gotd/td v0.71.0
 	github.com/hashicorp/vault/api v1.7.2
 	github.com/minio/minio-go/v7 v7.0.43
 	github.com/prometheus/client_golang v1.13.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	github.com/uber-go/tally v3.4.3+incompatible
 	go.etcd.io/bbolt v1.3.6
 	go.opentelemetry.io/otel v1.11.1
@@ -71,7 +71,7 @@ require (
 	github.com/hashicorp/vault/sdk v0.5.1 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/klauspost/compress v1.15.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.1.0 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
