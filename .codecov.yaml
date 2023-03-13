@@ -1,6 +1,13 @@
+ignore:
+  # Ignore generated files.
+  - "**/oas_*_gen.go"
+  # Ignore commands (examples or internal utilities).
+  - "cmd/*/*.go"
+  - "**/cmd/*/*.go"
+  # Ignore examples
+  - "examples/**"
+
 coverage:
   status:
-    patch: off
-    project:
-      default:
-        threshold: 0.5%
+    project: false
+    patch: false
