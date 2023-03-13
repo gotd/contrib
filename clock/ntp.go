@@ -1,11 +1,13 @@
+// Package clock wraps clock sources.
 package clock
 
 import (
 	"fmt"
 	"time"
 
-	"github.com/beevik/ntp"
 	"github.com/gotd/td/clock"
+
+	"github.com/beevik/ntp"
 )
 
 var _ clock.Clock = (*ntpClock)(nil)
