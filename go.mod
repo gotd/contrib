@@ -18,7 +18,7 @@ require (
 	github.com/uber-go/tally v3.4.3+incompatible
 	go.etcd.io/bbolt v1.3.6
 	go.opentelemetry.io/otel v1.14.0
-	go.opentelemetry.io/otel/metric v0.31.0
+	go.opentelemetry.io/otel/metric v0.37.0
 	go.opentelemetry.io/otel/trace v1.14.0
 	go.uber.org/atomic v1.10.0
 	go.uber.org/multierr v1.9.0

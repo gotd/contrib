@@ -10,8 +10,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/instrument/asyncint64"
-	"go.opentelemetry.io/otel/metric/instrument/syncfloat64"
+	"go.opentelemetry.io/otel/metric/instrument"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/gotd/td/bin"
@@ -22,9 +21,9 @@ import (
 
 // Middleware is prometheus metrics middleware for Telegram.
 type Middleware struct {
-	count    asyncint64.Counter
-	failures asyncint64.Counter
-	duration syncfloat64.Histogram
+	count    instrument.Int64Counter
+	failures instrument.Int64Counter
+	duration instrument.Float64Histogram
 	tracer   trace.Tracer
 }
 
@@ -43,7 +42,7 @@ func (m Middleware) Handle(next tg.Invoker) telegram.InvokeFunc {
 
 		ctx, span := m.tracer.Start(ctx, spanName, trace.WithAttributes(attrs...))
 		defer span.End()
-		m.count.Observe(ctx, 1, attrs...)
+		m.count.Add(ctx, 1, attrs...)
 		start := time.Now()
 
 		// Call actual method.
@@ -67,7 +66,7 @@ func (m Middleware) Handle(next tg.Invoker) telegram.InvokeFunc {
 			}
 			span.RecordError(err, trace.WithAttributes(errAttrs...))
 			attrs = append(attrs, errAttrs...)
-			m.failures.Observe(ctx, 1, attrs...)
+			m.failures.Add(ctx, 1, attrs...)
 		} else {
 			span.SetStatus(codes.Ok, "")
 		}
@@ -99,13 +98,13 @@ func New(meterProvider metric.MeterProvider, tracerProvider trace.TracerProvider
 		tracer: tracerProvider.Tracer(name),
 	}
 	var err error
-	if m.count, err = meter.AsyncInt64().Counter("tg.rpc.count"); err != nil {
+	if m.count, err = meter.Int64Counter("tg.rpc.count"); err != nil {
 		return nil, err
 	}
-	if m.failures, err = meter.AsyncInt64().Counter("tg.rpc.failures"); err != nil {
+	if m.failures, err = meter.Int64Counter("tg.rpc.failures"); err != nil {
 		return nil, err
 	}
-	if m.duration, err = meter.SyncFloat64().Histogram("tg.rpc.duration"); err != nil {
+	if m.duration, err = meter.Float64Histogram("tg.rpc.duration"); err != nil {
 		return nil, err
 	}
 	return m, nil
