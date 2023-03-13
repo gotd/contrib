@@ -3,6 +3,7 @@ module github.com/gotd/contrib
 go 1.18
 
 require (
+	github.com/beevik/ntp v0.3.0
 	github.com/cenkalti/backoff/v4 v4.2.0
 	github.com/cockroachdb/pebble v0.0.0-20220107203702-aa376a819bf6
 	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
