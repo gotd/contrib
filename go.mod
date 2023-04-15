@@ -1,6 +1,6 @@
 module github.com/gotd/contrib
 
-go 1.18
+go 1.20
 
 require (
 	github.com/beevik/ntp v0.3.0
@@ -8,6 +8,7 @@ require (
 	github.com/cockroachdb/pebble v0.0.0-20220107203702-aa376a819bf6
 	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
 	github.com/go-faster/errors v0.6.1
+	github.com/go-faster/jx v1.0.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/neo v0.1.5
 	github.com/gotd/td v0.79.0
@@ -42,7 +43,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/go-faster/jx v1.0.0 // indirect
 	github.com/go-faster/xor v0.3.0 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

@@ -158,6 +158,9 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (_ storage.P
 
 	var b storage.Peer
 	if err := json.Unmarshal(data, &b); err != nil {
+		if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
+			return storage.Peer{}, storage.ErrPeerNotFound
+		}
 		return storage.Peer{}, errors.Errorf("unmarshal: %w", err)
 	}
 
@@ -203,6 +206,9 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, r
 
 	var b storage.Peer
 	if err := json.Unmarshal(data, &b); err != nil {
+		if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
+			return storage.Peer{}, storage.ErrPeerNotFound
+		}
 		return storage.Peer{}, errors.Errorf("unmarshal: %w", err)
 	}
 

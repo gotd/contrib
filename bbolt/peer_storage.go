@@ -36,6 +36,7 @@ func (p *bboltIterator) Close() error {
 }
 
 func (p *bboltIterator) Next(ctx context.Context) bool {
+Next:
 	k, v := p.iter.Next()
 	if v == nil {
 		return false
@@ -53,7 +54,10 @@ func (p *bboltIterator) Next(ctx context.Context) bool {
 	}
 
 	if err := json.Unmarshal(v, &p.value); err != nil {
-		p.lastErr = errors.Errorf("unmarshal: %w", err)
+		if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
+			goto Next // skip
+		}
+		p.lastErr = errors.Wrap(err, "unmarshal")
 		return false
 	}
 
@@ -136,6 +140,9 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (p storage.P
 		}
 
 		if err := json.Unmarshal(data, &p); err != nil {
+			if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
+				return storage.ErrPeerNotFound
+			}
 			return errors.Errorf("unmarshal: %w", err)
 		}
 		return nil
@@ -167,6 +174,9 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (p storage.Peer, r
 		}
 
 		if err := json.Unmarshal(data, &p); err != nil {
+			if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
+				return storage.ErrPeerNotFound
+			}
 			return errors.Errorf("unmarshal: %w", err)
 		}
 		return nil

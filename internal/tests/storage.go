@@ -114,6 +114,14 @@ func TestPeerStorage(t *testing.T, st storage.PeerStorage) {
 		}
 
 		a.GreaterOrEqual(len(peers), 6)
-		a.Contains(peers, p)
+		var found bool
+		for _, vp := range peers {
+			if vp.Key != p.Key {
+				continue
+			}
+			found = true
+			break
+		}
+		a.True(found, "should contain")
 	})
 }
