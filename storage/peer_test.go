@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/go-faster/jx"
-	"github.com/gotd/td/telegram/query/dialogs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/gotd/td/telegram/query/dialogs"
 	"github.com/gotd/td/tg"
 )
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
+
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/telegram/query/dialogs"
 	"github.com/gotd/td/tg"

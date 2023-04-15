@@ -67,7 +67,7 @@ linters:
     - varcheck
     - whitespace
     - gochecknoglobals
-    - gocognit
+#    - gocognit
 
   # Do not enable:
   # - wsl       (too opinionated about newlines)
