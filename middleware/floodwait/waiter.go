@@ -37,6 +37,12 @@ type Waiter struct {
 	tick       time.Duration
 	maxWait    time.Duration
 	maxRetries int
+	callback   func(ctx context.Context, wait FloodWait)
+}
+
+// FloodWait event.
+type FloodWait struct {
+	Duration time.Duration
 }
 
 // NewWaiter returns a new invoker that waits on the flood wait errors.
@@ -47,7 +53,15 @@ func NewWaiter() *Waiter {
 		tick:       defaultTick,
 		maxWait:    defaultMaxWait,
 		maxRetries: defaultMaxRetries,
+		callback:   func(ctx context.Context, wait FloodWait) {},
 	}
+}
+
+// WithCallback sets callback for flood wait event.
+func (w *Waiter) WithCallback(f func(ctx context.Context, wait FloodWait)) *Waiter {
+	w = w.clone()
+	w.callback = f
+	return w
 }
 
 // clone returns a copy of the Waiter.
@@ -135,6 +149,11 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 		w.sch.nice(s.request.key)
 		return true, err
 	}
+
+	// Notify about flood wait.
+	w.callback(s.request.ctx, FloodWait{
+		Duration: d,
+	})
 
 	s.request.retry++
 
