@@ -39,7 +39,6 @@ linters-settings:
 linters:
   disable-all: true
   enable:
-    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -57,14 +56,11 @@ linters:
     - lll
     - misspell
     - nakedret
-    - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
     - gochecknoglobals
 #    - gocognit
