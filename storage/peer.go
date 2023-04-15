@@ -2,6 +2,8 @@ package storage
 
 import (
 	"encoding/json"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-faster/errors"
@@ -32,6 +34,37 @@ type Peer struct {
 	Chat      *tg.Chat
 	Channel   *tg.Channel
 	Metadata  map[string]any
+}
+
+func (p Peer) String() string {
+	var b strings.Builder
+	switch p.Key.Kind {
+	case dialogs.Chat:
+		b.WriteString("Chat")
+	case dialogs.Channel:
+		b.WriteString("Channel")
+	case dialogs.User:
+		b.WriteString("User")
+	}
+	b.WriteString("(")
+	b.WriteString(strconv.FormatInt(p.Key.ID, 10))
+	b.WriteString(")")
+
+	b.WriteString("[")
+	var entities []string
+	if p.User != nil {
+		entities = append(entities, "User")
+	}
+	if p.Chat != nil {
+		entities = append(entities, "Chat")
+	}
+	if p.Channel != nil {
+		entities = append(entities, "Channel")
+	}
+	b.WriteString(strings.Join(entities, ", "))
+	b.WriteString("]")
+
+	return b.String()
 }
 
 func decodeObject(d *jx.Decoder, v bin.Decoder) error {
