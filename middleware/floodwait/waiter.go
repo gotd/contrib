@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-faster/errors"
 	"go.uber.org/atomic"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
@@ -37,7 +38,7 @@ type Waiter struct {
 	tick       time.Duration
 	maxWait    time.Duration
 	maxRetries int
-	callback   func(ctx context.Context, wait FloodWait)
+	onWait     func(ctx context.Context, wait FloodWait)
 }
 
 // FloodWait event.
@@ -46,6 +47,15 @@ type FloodWait struct {
 }
 
 // NewWaiter returns a new invoker that waits on the flood wait errors.
+//
+// NB: You MUST use Run method. Example:
+//
+//	if err := waiter.Run(ctx, func(ctx context.Context) error {
+//		// Client should be started after waiter.
+//		return client.Run(ctx, handler)
+//	}); err != nil {
+//		return errors.Wrap(err, "run client")
+//	}
 func NewWaiter() *Waiter {
 	return &Waiter{
 		clock:      clock.System,
@@ -53,14 +63,14 @@ func NewWaiter() *Waiter {
 		tick:       defaultTick,
 		maxWait:    defaultMaxWait,
 		maxRetries: defaultMaxRetries,
-		callback:   func(ctx context.Context, wait FloodWait) {},
+		onWait:     func(ctx context.Context, wait FloodWait) {},
 	}
 }
 
 // WithCallback sets callback for flood wait event.
 func (w *Waiter) WithCallback(f func(ctx context.Context, wait FloodWait)) *Waiter {
 	w = w.clone()
-	w.callback = f
+	w.onWait = f
 	return w
 }
 
@@ -110,35 +120,54 @@ func (w *Waiter) WithTick(t time.Duration) *Waiter {
 }
 
 // Run runs send loop.
-func (w *Waiter) Run(ctx context.Context) error {
+//
+// Example:
+//
+//	if err := waiter.Run(ctx, func(ctx context.Context) error {
+//		// Client should be started after waiter.
+//		return client.Run(ctx, handler)
+//	}); err != nil {
+//		return errors.Wrap(err, "run client")
+//	}
+func (w *Waiter) Run(ctx context.Context, f func(ctx context.Context) error) (err error) {
 	w.running.Store(true)
 	defer w.running.Store(false)
 
-	ticker := w.clock.Ticker(w.tick)
-	defer ticker.Stop()
+	ctx, cancel := context.WithCancel(ctx)
+	wg, ctx := errgroup.WithContext(ctx)
+	wg.Go(func() error {
+		defer cancel()
+		return f(ctx)
+	})
+	wg.Go(func() error {
+		ticker := w.clock.Ticker(w.tick)
+		defer ticker.Stop()
 
-	var requests []scheduled
-	for {
-		select {
-		case <-ticker.C():
-			requests = w.sch.gather(requests[:0])
-			if len(requests) < 1 {
-				continue
-			}
+		var requests []scheduled
+		for {
+			select {
+			case <-ticker.C():
+				requests = w.sch.gather(requests[:0])
+				if len(requests) < 1 {
+					continue
+				}
 
-			for _, s := range requests {
-				ret, err := w.send(s)
-				if ret {
-					select {
-					case s.request.result <- err:
-					default:
+				for _, s := range requests {
+					ret, err := w.send(s)
+					if ret {
+						select {
+						case s.request.result <- err:
+						default:
+						}
 					}
 				}
+			case <-ctx.Done():
+				return ctx.Err()
 			}
-		case <-ctx.Done():
-			return ctx.Err()
 		}
-	}
+	})
+
+	return wg.Wait()
 }
 
 func (w *Waiter) send(s scheduled) (bool, error) {
@@ -151,7 +180,7 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 	}
 
 	// Notify about flood wait.
-	w.callback(s.request.ctx, FloodWait{
+	w.onWait(s.request.ctx, FloodWait{
 		Duration: d,
 	})
 
