@@ -162,5 +162,5 @@ func TestE2E(t *testing.T) {
 	run := func(ctx context.Context) error {
 		return client.Run(ctx, handler)
 	}
-	require.NoError(t, floodWaiter.Run(ctx, run))
+	require.ErrorIs(t, floodWaiter.Run(ctx, run), context.Canceled)
 }
