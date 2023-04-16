@@ -162,7 +162,7 @@ func (w *Waiter) Run(ctx context.Context, f func(ctx context.Context) error) (er
 					}
 				}
 			case <-ctx.Done():
-				return ctx.Err()
+				return nil
 			}
 		}
 	})
