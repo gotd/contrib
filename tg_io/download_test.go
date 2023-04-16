@@ -46,7 +46,6 @@ func TestE2E(t *testing.T) {
 	defer cancel()
 
 	floodWaiter := floodwait.NewWaiter()
-	go func() { _ = floodWaiter.Run(ctx) }()
 
 	client := telegram.NewClient(telegram.TestAppID, telegram.TestAppHash, telegram.Options{
 		DC:     2,
@@ -59,7 +58,7 @@ func TestE2E(t *testing.T) {
 	})
 	api := tg.NewClient(client)
 
-	require.NoError(t, client.Run(ctx, func(ctx context.Context) error {
+	handler := func(ctx context.Context) error {
 		authClient := auth.NewClient(api, rand.Reader, telegram.TestAppID, telegram.TestAppHash)
 		if err := auth.NewFlow(
 			auth.Test(rand.Reader, 2),
@@ -159,5 +158,9 @@ func TestE2E(t *testing.T) {
 		})
 
 		return g.Wait()
-	}))
+	}
+	run := func(ctx context.Context) error {
+		return client.Run(ctx, handler)
+	}
+	require.NoError(t, floodWaiter.Run(ctx, run))
 }
