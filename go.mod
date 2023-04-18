@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/beevik/ntp v0.3.0
-	github.com/cenkalti/backoff/v4 v4.2.0
+	github.com/cenkalti/backoff/v4 v4.2.1
 	github.com/cockroachdb/pebble v0.0.0-20220107203702-aa376a819bf6
 	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
 	github.com/go-faster/errors v0.6.1
