@@ -11,7 +11,7 @@ require (
 	github.com/go-faster/jx v1.0.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.80.0
+	github.com/gotd/td v0.81.0
 	github.com/hashicorp/vault/api v1.9.1
 	github.com/minio/minio-go/v7 v7.0.52
 	github.com/prometheus/client_golang v1.15.0
