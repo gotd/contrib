@@ -42,14 +42,14 @@ func (m Middleware) Handle(next tg.Invoker) telegram.InvokeFunc {
 
 		ctx, span := m.tracer.Start(ctx, spanName, trace.WithAttributes(attrs...))
 		defer span.End()
-		m.count.Add(ctx, 1, attrs...)
+		m.count.Add(ctx, 1, metric.WithAttributes(attrs...))
 		start := time.Now()
 
 		// Call actual method.
 		err := next.Invoke(ctx, input, output)
 
 		// Observe.
-		m.duration.Record(ctx, time.Since(start).Seconds(), attrs...)
+		m.duration.Record(ctx, time.Since(start).Seconds(), metric.WithAttributes(attrs...))
 		if err != nil {
 			var errAttrs []attribute.KeyValue
 			if rpcErr, ok := tgerr.As(err); ok {
@@ -66,7 +66,7 @@ func (m Middleware) Handle(next tg.Invoker) telegram.InvokeFunc {
 			}
 			span.RecordError(err, trace.WithAttributes(errAttrs...))
 			attrs = append(attrs, errAttrs...)
-			m.failures.Add(ctx, 1, attrs...)
+			m.failures.Add(ctx, 1, metric.WithAttributes(attrs...))
 		} else {
 			span.SetStatus(codes.Ok, "")
 		}

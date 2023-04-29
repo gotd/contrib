@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/metric/noop"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/gotd/td/bin"
@@ -20,7 +20,7 @@ func (i invoker) Invoke(ctx context.Context, input bin.Encoder, output bin.Decod
 }
 
 func TestMiddleware_Handle(t *testing.T) {
-	m, err := New(metric.NewNoopMeterProvider(), trace.NewNoopTracerProvider())
+	m, err := New(noop.NewMeterProvider(), trace.NewNoopTracerProvider())
 	require.NoError(t, err)
 
 	okInvoker := invoker(func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
