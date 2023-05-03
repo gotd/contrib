@@ -14,7 +14,7 @@ require (
 	github.com/gotd/td v0.81.0
 	github.com/hashicorp/vault/api v1.9.1
 	github.com/minio/minio-go/v7 v7.0.52
-	github.com/prometheus/client_golang v1.15.0
+	github.com/prometheus/client_golang v1.15.1
 	github.com/stretchr/testify v1.8.2
 	github.com/uber-go/tally v3.4.3+incompatible
 	go.etcd.io/bbolt v1.3.7
