@@ -10,7 +10,6 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/instrument"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/gotd/td/bin"
@@ -21,9 +20,9 @@ import (
 
 // Middleware is prometheus metrics middleware for Telegram.
 type Middleware struct {
-	count    instrument.Int64Counter
-	failures instrument.Int64Counter
-	duration instrument.Float64Histogram
+	count    metric.Int64Counter
+	failures metric.Int64Counter
+	duration metric.Float64Histogram
 	tracer   trace.Tracer
 }
 

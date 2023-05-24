@@ -11,16 +11,16 @@ require (
 	github.com/go-faster/jx v1.0.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.82.0
+	github.com/gotd/td v0.83.0
 	github.com/hashicorp/vault/api v1.9.1
 	github.com/minio/minio-go/v7 v7.0.53
 	github.com/prometheus/client_golang v1.15.1
 	github.com/stretchr/testify v1.8.3
 	github.com/uber-go/tally v3.4.3+incompatible
 	go.etcd.io/bbolt v1.3.7
-	go.opentelemetry.io/otel v1.15.1
-	go.opentelemetry.io/otel/metric v0.38.1
-	go.opentelemetry.io/otel/trace v1.15.1
+	go.opentelemetry.io/otel v1.16.0
+	go.opentelemetry.io/otel/metric v1.16.0
+	go.opentelemetry.io/otel/trace v1.16.0
 	go.uber.org/atomic v1.11.0
 	go.uber.org/multierr v1.11.0
 	go.uber.org/zap v1.24.0
