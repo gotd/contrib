@@ -13,7 +13,7 @@ require (
 	github.com/gotd/neo v0.1.5
 	github.com/gotd/td v0.83.0
 	github.com/hashicorp/vault/api v1.9.1
-	github.com/minio/minio-go/v7 v7.0.53
+	github.com/minio/minio-go/v7 v7.0.54
 	github.com/prometheus/client_golang v1.15.1
 	github.com/stretchr/testify v1.8.3
 	github.com/uber-go/tally v3.4.3+incompatible
@@ -70,7 +70,7 @@ require (
 	github.com/m3db/prometheus_procfs v0.8.1 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
-	github.com/minio/sha256-simd v1.0.0 // indirect
+	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -81,10 +81,10 @@ require (
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
-	github.com/rs/xid v1.4.0 // indirect
+	github.com/rs/xid v1.5.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
+	github.com/sirupsen/logrus v1.9.2 // indirect
 	github.com/twmb/murmur3 v1.1.6 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230116083435-1de6713980de // indirect
