@@ -96,7 +96,11 @@ func prefixIterOptions(prefix []byte) *pebble.IterOptions {
 // Iterate creates and returns new PeerIterator.
 func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) {
 	snap := s.pebble.NewSnapshot()
-	iter := snap.NewIter(prefixIterOptions(storage.PeerKeyPrefix))
+	iter, err := snap.NewIter(prefixIterOptions(storage.PeerKeyPrefix))
+	if err != nil {
+		_ = snap.Close()
+		return nil, errors.Errorf("new iter: %w", err)
+	}
 	iter.First()
 
 	return &pebbleIterator{
