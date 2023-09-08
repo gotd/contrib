@@ -3,7 +3,7 @@ module github.com/gotd/contrib
 go 1.20
 
 require (
-	github.com/beevik/ntp v1.0.0
+	github.com/beevik/ntp v1.3.0
 	github.com/cenkalti/backoff/v4 v4.2.1
 	github.com/cockroachdb/pebble v0.0.0-20230908002316-5093058d2c36
 	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
