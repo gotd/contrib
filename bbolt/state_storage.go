@@ -175,7 +175,7 @@ func (s *State) SetDateSeq(_ context.Context, userID int64, date, seq int) error
 	})
 }
 
-func (s *State) GetChannelPts(_ context.Context, userID, channelID int64) (int, bool, error) {
+func (s *State) GetChannelPts(_ context.Context, userID, channelID int64) (pts int, found bool, err error) {
 	tx, err := s.db.Begin(false)
 	if err != nil {
 		return 0, false, err
@@ -192,12 +192,12 @@ func (s *State) GetChannelPts(_ context.Context, userID, channelID int64) (int, 
 		return 0, false, nil
 	}
 
-	pts := channels.Get(i642b(channelID))
-	if pts == nil {
+	p := channels.Get(i642b(channelID))
+	if p == nil {
 		return 0, false, nil
 	}
 
-	return b2i(pts), true, nil
+	return b2i(p), true, nil
 }
 
 func (s *State) SetChannelPts(_ context.Context, userID, channelID int64, pts int) error {

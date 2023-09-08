@@ -24,7 +24,7 @@ func (p pebbleStorage) Set(ctx context.Context, k, v string) (rerr error) {
 	d := b.SetDeferred(len(k), len(v))
 	copy(d.Key, k)
 	copy(d.Value, v)
-	d.Finish()
+	_ = d.Finish()
 
 	return b.Commit(p.opts)
 }

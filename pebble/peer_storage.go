@@ -124,13 +124,13 @@ func (s PeerStorage) add(associated []string, value storage.Peer) (rerr error) {
 	set := b.SetDeferred(len(id), len(data))
 	copy(set.Key, id)
 	copy(set.Value, data)
-	set.Finish()
+	_ = set.Finish()
 
 	for _, key := range associated {
 		deferred := b.SetDeferred(len(key), len(id))
 		copy(deferred.Key, key)
 		copy(deferred.Value, id)
-		deferred.Finish()
+		_ = deferred.Finish()
 	}
 
 	if err := b.Commit(nil); err != nil {
