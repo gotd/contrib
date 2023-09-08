@@ -16,7 +16,7 @@ jobs:
       matrix:
         flags: [""]
         go:
-          - 1.20.x
+          - 1.21.x
         arch:
           - amd64
         runner:
@@ -24,16 +24,16 @@ jobs:
           - macos-latest
         include:
           - arch: 386
-            go: 1.20.x
+            go: 1.21.x
             runner: ubuntu-latest
 
           - arch: amd64
             runner: windows-latest
-            go: 1.20.x
+            go: 1.21.x
             flags: "-p=1"
 
           - arch: amd64
-            go: 1.20.x
+            go: 1.21.x
             runner: ubuntu-latest
             flags: "-race"
     steps:
@@ -44,6 +44,7 @@ jobs:
         uses: actions/setup-go@v4.1.0
         with:
           go-version: ${{ matrix.go }}
+          cache: false
 
       - name: Get Go environment
         id: go-env
