@@ -11,7 +11,7 @@ require (
 	github.com/go-faster/jx v1.1.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.87.0
+	github.com/gotd/td v0.88.0
 	github.com/hashicorp/vault/api v1.10.0
 	github.com/minio/minio-go/v7 v7.0.63
 	github.com/prometheus/client_golang v1.16.0
@@ -60,7 +60,7 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.16.7 // indirect
+	github.com/klauspost/compress v1.17.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
