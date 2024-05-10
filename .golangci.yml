@@ -5,7 +5,7 @@ linters-settings:
         severity: warning
         disabled: true
   govet:
-    check-shadowing: true
+   shadow: true
   gocyclo:
     min-complexity: 15
   maligned:
