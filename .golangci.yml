@@ -119,6 +119,9 @@ issues:
     - linters: [ revive ]
       text: "var-naming: don't use an underscore in package name"
 
+    - linters: [ gosec ]
+      text: "G115: integer overflow conversion"
+
     # Disable linters that are annoying in tests.
     - path: vault/client
       linters: [ staticcheck ]
