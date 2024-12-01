@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.22.5
 
 require (
-	github.com/beevik/ntp v1.4.1
+	github.com/beevik/ntp v1.4.3
 	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/cockroachdb/pebble v1.1.0
 	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
