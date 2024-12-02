@@ -15,7 +15,7 @@ require (
 	github.com/gotd/neo v0.1.5
 	github.com/gotd/td v0.102.0
 	github.com/hashicorp/vault/api v1.15.0
-	github.com/minio/minio-go/v7 v7.0.80
+	github.com/minio/minio-go/v7 v7.0.81
 	github.com/prometheus/client_golang v1.20.5
 	github.com/stretchr/testify v1.9.0
 	go.etcd.io/bbolt v1.3.11
