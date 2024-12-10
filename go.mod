@@ -1,6 +1,7 @@
 module github.com/gotd/contrib
 
-go 1.22
+go 1.23.3
+
 toolchain go1.23.4
 
 require (
