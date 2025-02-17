@@ -1,8 +1,7 @@
 module github.com/gotd/contrib
 
 go 1.22
-
-toolchain go1.22.5
+toolchain go1.23.6
 
 require (
 	github.com/beevik/ntp v1.4.3
@@ -18,7 +17,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.86
 	github.com/prometheus/client_golang v1.20.5
 	github.com/stretchr/testify v1.10.0
-	go.etcd.io/bbolt v1.3.11
+	go.etcd.io/bbolt v1.4.0
 	go.opentelemetry.io/otel v1.32.0
 	go.opentelemetry.io/otel/metric v1.32.0
 	go.opentelemetry.io/otel/trace v1.32.0
