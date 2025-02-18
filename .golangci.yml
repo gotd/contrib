@@ -8,8 +8,6 @@ linters-settings:
    shadow: true
   gocyclo:
     min-complexity: 15
-  maligned:
-    suggest-new: true
   dupl:
     threshold: 120
   goconst:
