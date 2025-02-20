@@ -16,7 +16,7 @@ require (
 	github.com/gotd/td v0.120.0
 	github.com/hashicorp/vault/api v1.16.0
 	github.com/minio/minio-go/v7 v7.0.86
-	github.com/prometheus/client_golang v1.20.5
+	github.com/prometheus/client_golang v1.21.0
 	github.com/stretchr/testify v1.10.0
 	go.etcd.io/bbolt v1.4.0
 	go.opentelemetry.io/otel v1.34.0
@@ -82,7 +82,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.55.0 // indirect
+	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
@@ -94,7 +94,7 @@ require (
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/tools v0.30.0 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	rsc.io/qr v0.2.0 // indirect
