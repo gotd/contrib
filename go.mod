@@ -16,7 +16,7 @@ require (
 	github.com/gotd/td v0.120.0
 	github.com/hashicorp/vault/api v1.16.0
 	github.com/minio/minio-go/v7 v7.0.87
-	github.com/prometheus/client_golang v1.21.0
+	github.com/prometheus/client_golang v1.21.1
 	github.com/stretchr/testify v1.10.0
 	go.etcd.io/bbolt v1.4.0
 	go.opentelemetry.io/otel v1.34.0
