@@ -1,124 +1,121 @@
-linters-settings:
-  revive:
-    rules:
-      - name: unused-parameter
-        severity: warning
-        disabled: true
-  gocyclo:
-    min-complexity: 15
-  dupl:
-    threshold: 120
-  goconst:
-    min-len: 2
-    min-occurrences: 3
-  misspell:
-    locale: US
-  lll:
-    line-length: 140
-  goimports:
-    local-prefixes: github.com/gotd/
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
-    disabled-checks:
-      - hugeParam
-      - rangeValCopy
-      - exitAfterDefer
-      - whyNoLint
-      - singleCaseSwitch
-      - commentedOutCode
-
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
     - dogsled
     - dupl
     - errcheck
+    - gochecknoglobals
     - gochecknoinits
     - goconst
     - gocritic
-    - gofmt
-    - goimports
-    - revive
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - lll
     - misspell
     - nakedret
-    - stylecheck
-    - typecheck
+    - revive
+    - staticcheck
     - unconvert
     - unparam
     - unused
     - whitespace
-    - gochecknoglobals
-#    - gocognit
-
-  # Do not enable:
-  # - wsl       (too opinionated about newlines)
-  # - godox     (todos are OK)
-  # - bodyclose (false positives on helper functions)
-  # - prealloc  (not worth it in scope of this project)
-  # - maligned  (same as prealloc)
-  # - funlen    (gocyclo is enough)
-
-issues:
-  exclude-use-default: false
-  exclude-rules:
-    - linters: [ gocritic ]
-      text: "commentedOutCode"
-      source: "SHA1"
-
-    # Allow embed globals
-    - source: "embed\\.FS"
-      linters: [ gochecknoglobals ]
-
-    # Exclude go:generate from lll
-    - source: "//go:generate"
-      linters: [ lll ]
-
-    # Disable linters that are annoying in tests.
-    - path: _test\.go
-      linters:
-        - gocyclo
-        - errcheck
-        - dupl
-        - gosec
-        - funlen
-        - goconst
-        - gocognit
-        - scopelint
-        - lll
-        - gochecknoglobals
-    # Ignore shadowing of err.
-    - linters: [ govet ]
-      text: 'declaration of "(err|ctx|log)"'
-
-    - path: internal\.go
-      text: "should have.+comment"
-      linters: [ golint ]
-
-    # Allow underscores in package names.
-    - linters: [ golint, stylecheck ]
-      text: "underscores? in package names?"
-
-    - linters: [ staticcheck ]
-      text: "SA1019: (telegram|client).+ is deprecated:"
-
-    # ernado moment, lol no namespaces
-    - linters: [ revive ]
-      text: "var-naming: don't use an underscore in package name"
-
-    - linters: [ gosec ]
-      text: "G115: integer overflow conversion"
-
-    # Disable linters that are annoying in tests.
-    - path: vault/client
-      linters: [ staticcheck ]
-      text: deprecated
+  settings:
+    dupl:
+      threshold: 120
+    goconst:
+      min-len: 2
+      min-occurrences: 3
+    gocritic:
+      disabled-checks:
+        - hugeParam
+        - rangeValCopy
+        - exitAfterDefer
+        - whyNoLint
+        - singleCaseSwitch
+        - commentedOutCode
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+    gocyclo:
+      min-complexity: 15
+    lll:
+      line-length: 140
+    misspell:
+      locale: US
+    revive:
+      rules:
+        - name: unused-parameter
+          severity: warning
+          disabled: true
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - gocritic
+        text: commentedOutCode
+        source: SHA1
+      - linters:
+          - gochecknoglobals
+        source: embed\.FS
+      - linters:
+          - lll
+        source: //go:generate
+      - linters:
+          - dupl
+          - errcheck
+          - funlen
+          - gochecknoglobals
+          - gocognit
+          - goconst
+          - gocyclo
+          - gosec
+          - lll
+          - scopelint
+        path: _test\.go
+      - linters:
+          - govet
+        text: declaration of "(err|ctx|log)"
+      - linters:
+          - golint
+        path: internal\.go
+        text: should have.+comment
+      - linters:
+          - golint
+          - staticcheck
+        text: underscores? in package names?
+      - linters:
+          - staticcheck
+        text: 'SA1019: (telegram|client).+ is deprecated:'
+      - linters:
+          - revive
+        text: 'var-naming: don''t use an underscore in package name'
+      - linters:
+          - gosec
+        text: 'G115: integer overflow conversion'
+      - linters:
+          - staticcheck
+        path: vault/client
+        text: deprecated
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/gotd/
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
