@@ -14,7 +14,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v5.5.0
         with:
-          go-version: 1.21.x
+          go-version: 1.24.x
           cache: false
 
       - name: Get Go environment

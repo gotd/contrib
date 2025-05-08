@@ -52,9 +52,9 @@ func (t *Terminal) WithPrinter(printer *message.Printer) *Terminal {
 }
 
 func (t *Terminal) read(prompt string) (string, error) {
-	t.Terminal.SetPrompt(prompt)
-	defer t.Terminal.SetPrompt("")
-	return t.Terminal.ReadLine()
+	t.SetPrompt(prompt)
+	defer t.SetPrompt("")
+	return t.ReadLine()
 }
 
 // Phone asks phone using terminal.
@@ -123,11 +123,11 @@ func (t *Terminal) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfS
 		return errors.Errorf("write terms of service: %w", err)
 	}
 
-	t.Terminal.SetPrompt(t.printer.Sprintf(localization.TOSDialogPrompt) + "(Y/N):")
-	defer t.Terminal.SetPrompt("")
+	t.SetPrompt(t.printer.Sprintf(localization.TOSDialogPrompt) + "(Y/N):")
+	defer t.SetPrompt("")
 
 loop:
-	y, err := t.Terminal.ReadLine()
+	y, err := t.ReadLine()
 	if err != nil {
 		return errors.Errorf("read answer: %w", err)
 	}
