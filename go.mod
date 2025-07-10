@@ -13,7 +13,7 @@ require (
 	github.com/go-faster/jx v1.1.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.126.0
+	github.com/gotd/td v0.127.0
 	github.com/hashicorp/vault/api v1.20.0
 	github.com/minio/minio-go/v7 v7.0.94
 	github.com/prometheus/client_golang v1.22.0
@@ -71,7 +71,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/minio/crc64nvme v1.0.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
