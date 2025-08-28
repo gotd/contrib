@@ -17,7 +17,7 @@ require (
 	github.com/hashicorp/vault/api v1.20.0
 	github.com/minio/minio-go/v7 v7.0.94
 	github.com/prometheus/client_golang v1.22.0
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 	go.etcd.io/bbolt v1.4.3
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/metric v1.37.0
