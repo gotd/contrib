@@ -82,6 +82,7 @@ func (w *Waiter) clone() *Waiter {
 		tick:       w.tick,
 		maxWait:    w.maxWait,
 		maxRetries: w.maxRetries,
+		onWait:     w.onWait,
 	}
 }
 
