@@ -89,3 +89,10 @@ func (s *scheduler) flood(req request, d time.Duration) {
 
 	s.queue.move(k, now, d)
 }
+
+// retry re-schedules a single request after d without updating the per-type
+// state. It is used for chat- or operation-specific waits (e.g. SLOWMODE_WAIT)
+// that must not throttle unrelated requests of the same type.
+func (s *scheduler) retry(req request, d time.Duration) {
+	s.queue.add(req, s.clock.Now().Add(d))
+}

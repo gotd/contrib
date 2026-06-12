@@ -10,7 +10,6 @@ import (
 	"github.com/gotd/td/clock"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/tg"
-	"github.com/gotd/td/tgerr"
 )
 
 // SimpleWaiter is a tg.Invoker that handles flood wait errors on underlying invoker.
@@ -79,7 +78,9 @@ func (w *SimpleWaiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 				return nil
 			}
 
-			d, ok := tgerr.AsFloodWait(err)
+			// Detect flood wait and similar retriable wait errors, mirroring TDLib.
+			// SimpleWaiter sleeps inline, so the per-type distinction is unused.
+			d, _, ok := asWait(err)
 			if !ok {
 				return err
 			}
@@ -88,10 +89,6 @@ func (w *SimpleWaiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 
 			if v := w.maxRetries; v != 0 && retries > v {
 				return errors.Errorf("flood wait retry limit exceeded (%d > %d): %w", retries, v, err)
-			}
-
-			if d == 0 {
-				d = time.Second
 			}
 
 			if v := w.maxWait; v != 0 && d > v {

@@ -13,7 +13,6 @@ import (
 
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/clock"
-	"github.com/gotd/td/tgerr"
 )
 
 const (
@@ -174,7 +173,8 @@ func (w *Waiter) Run(ctx context.Context, f func(ctx context.Context) error) (er
 func (w *Waiter) send(s scheduled) (bool, error) {
 	err := s.request.next.Invoke(s.request.ctx, s.request.input, s.request.output)
 
-	d, ok := tgerr.AsFloodWait(err)
+	// Detect flood wait and similar retriable wait errors, mirroring TDLib.
+	d, perType, ok := asWait(err)
 	if !ok {
 		w.sch.nice(s.request.key)
 		return true, err
@@ -191,14 +191,17 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 		return true, errors.Errorf("flood wait retry limit exceeded (%d > %d): %w", s.request.retry, v, err)
 	}
 
-	if d < time.Second {
-		d = time.Second
-	}
 	if v := w.maxWait; v != 0 && d > v {
 		return true, errors.Errorf("flood wait argument is too big (%v > %v): %w", d, v, err)
 	}
 
-	w.sch.flood(s.request, d)
+	if perType {
+		// Per-method rate limit: proactively delay future requests of this type.
+		w.sch.flood(s.request, d)
+	} else {
+		// Chat- or operation-specific wait: retry only this request.
+		w.sch.retry(s.request, d)
+	}
 	return false, nil
 }
 
