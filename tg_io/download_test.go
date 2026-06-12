@@ -20,6 +20,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/time/rate"
 
+	"github.com/gotd/log/logzap"
 	"github.com/gotd/td/telegram"
 	"github.com/gotd/td/telegram/auth"
 	"github.com/gotd/td/telegram/dcs"
@@ -50,7 +51,7 @@ func TestE2E(t *testing.T) {
 	client := telegram.NewClient(telegram.TestAppID, telegram.TestAppHash, telegram.Options{
 		DC:     2,
 		DCList: dcs.Test(),
-		Logger: logger.Named("client"),
+		Logger: logzap.New(logger.Named("client")),
 		Middlewares: []telegram.Middleware{
 			ratelimit.New(rate.Every(100*time.Millisecond), 5),
 			floodWaiter,
