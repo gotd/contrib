@@ -22,12 +22,12 @@ import (
 func resolverCache(ctx context.Context) error {
 	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
 	if err != nil {
-		return errors.Errorf("create pebble storage: %w", err)
+		return errors.Wrap(err, "create pebble storage")
 	}
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

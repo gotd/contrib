@@ -20,7 +20,7 @@ import (
 func bboltAuth(ctx context.Context) error {
 	db, err := bboltdb.Open("bbolt.db", 0666, &bboltdb.Options{}) // nolint:gocritic
 	if err != nil {
-		return errors.Errorf("create bbolt storage: %w", err)
+		return errors.Wrap(err, "create bbolt storage")
 	}
 	cred := bbolt.NewCredentials(db, []byte("bucket")).
 		WithPhoneKey("phone").
@@ -28,7 +28,7 @@ func bboltAuth(ctx context.Context) error {
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

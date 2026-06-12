@@ -17,7 +17,7 @@ import (
 func vaultStorage(ctx context.Context) error {
 	vaultClient, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
-		return errors.Errorf("create Vault client: %w", err)
+		return errors.Wrap(err, "create Vault client")
 	}
 	storage := vault.NewSessionStorage(vaultClient, "cubbyhole/telegram/user", "session")
 
@@ -25,7 +25,7 @@ func vaultStorage(ctx context.Context) error {
 		SessionStorage: storage,
 	})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

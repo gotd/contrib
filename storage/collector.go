@@ -41,7 +41,7 @@ func (c PeerCollector) Dialogs(ctx context.Context, iter *dialogs.Iterator) erro
 		}
 
 		if err := c.storage.Add(ctx, p); err != nil {
-			return errors.Errorf("add: %w", err)
+			return errors.Wrap(err, "add")
 		}
 	}
 
@@ -64,7 +64,7 @@ func (c PeerCollector) Participants(ctx context.Context, iter *participants.Iter
 			continue
 		}
 		if err := c.storage.Add(ctx, p); err != nil {
-			return errors.Errorf("add: %w", err)
+			return errors.Wrap(err, "add")
 		}
 	}
 
@@ -79,7 +79,7 @@ func (c PeerCollector) Contacts(ctx context.Context, contacts *tg.ContactsContac
 			continue
 		}
 		if err := c.storage.Add(ctx, p); err != nil {
-			return errors.Errorf("add: %w", err)
+			return errors.Wrap(err, "add")
 		}
 	}
 	return nil

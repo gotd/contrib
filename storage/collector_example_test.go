@@ -20,14 +20,14 @@ import (
 func peerCollector(ctx context.Context) error {
 	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
 	if err != nil {
-		return errors.Errorf("create pebble storage: %w", err)
+		return errors.Wrap(err, "create pebble storage")
 	}
 	s := pebble.NewPeerStorage(db)
 	collector := storage.CollectPeers(s)
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 	raw := tg.NewClient(client)
 

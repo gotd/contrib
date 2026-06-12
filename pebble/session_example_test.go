@@ -17,7 +17,7 @@ import (
 func pebbleStorage(ctx context.Context) error {
 	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
 	if err != nil {
-		return errors.Errorf("create pebble storage: %w", err)
+		return errors.Wrap(err, "create pebble storage")
 	}
 	storage := pebble.NewSessionStorage(db, "session")
 
@@ -25,7 +25,7 @@ func pebbleStorage(ctx context.Context) error {
 		SessionStorage: storage,
 	})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

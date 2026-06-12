@@ -24,7 +24,7 @@ func (h UpdateHook) Handle(next tg.Invoker) telegram.InvokeFunc {
 		}
 		if u, ok := output.(*tg.UpdatesBox); ok {
 			if err := h(ctx, u.Updates); err != nil {
-				return errors.Errorf("hook: %w", err)
+				return errors.Wrap(err, "hook")
 			}
 		}
 

@@ -70,12 +70,12 @@ func TestE2E(t *testing.T) {
 		const size = chunk1kb*5 + 100
 		f, err := uploader.NewUploader(api).FromBytes(ctx, "upload.bin", make([]byte, size))
 		if err != nil {
-			return errors.Errorf("upload: %w", err)
+			return errors.Wrap(err, "upload")
 		}
 
 		mc, err := message.NewSender(api).Self().UploadMedia(ctx, message.File(f))
 		if err != nil {
-			return errors.Errorf("create media: %w", err)
+			return errors.Wrap(err, "create media")
 		}
 
 		media, ok := mc.(*tg.MessageMediaDocument)
@@ -94,7 +94,7 @@ func TestE2E(t *testing.T) {
 
 		const offset = chunk1kb / 2
 		if err := u.StreamAt(ctx, offset, buf); err != nil {
-			return errors.Errorf("stream at %d: %w", offset, err)
+			return errors.Wrapf(err, "stream at %d", offset)
 		}
 
 		t.Log(buf.Len())
@@ -102,7 +102,7 @@ func TestE2E(t *testing.T) {
 
 		ln, err := net.Listen("tcp", "localhost:0")
 		if err != nil {
-			return errors.Errorf("listen: %w", err)
+			return errors.Wrap(err, "listen")
 		}
 		defer func() {
 			_ = ln.Close()
@@ -123,7 +123,7 @@ func TestE2E(t *testing.T) {
 		})
 		g.Go(func() error {
 			if err := s.Serve(ln); err != nil && err != http.ErrServerClosed {
-				return errors.Errorf("server: %w", err)
+				return errors.Wrap(err, "server")
 			}
 			return nil
 		})
@@ -142,14 +142,14 @@ func TestE2E(t *testing.T) {
 
 			res, err := http.DefaultClient.Do(req)
 			if err != nil {
-				return errors.Errorf("send GET %q: %w", requestURL, err)
+				return errors.Wrapf(err, "send GET %q", requestURL)
 			}
 			defer func() { _ = res.Body.Close() }()
 			t.Log(res.Status)
 
 			outBuf := new(bytes.Buffer)
 			if _, err := io.Copy(outBuf, res.Body); err != nil {
-				return errors.Errorf("read response: %w", err)
+				return errors.Wrap(err, "read response")
 			}
 
 			t.Log(outBuf.Len())

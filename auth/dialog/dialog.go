@@ -44,7 +44,7 @@ func (d Dialog) Phone(ctx context.Context) (string, error) {
 		"",
 	)
 	if err != nil {
-		return "", errors.Errorf("show dialog: %w", err)
+		return "", errors.Wrap(err, "show dialog")
 	}
 	if !ok {
 		return "", errDialogClosed
@@ -60,7 +60,7 @@ func (d Dialog) Password(ctx context.Context) (string, error) {
 		d.printer.Sprintf(localization.PasswordDialogPrompt),
 	)
 	if err != nil {
-		return "", errors.Errorf("show dialog: %w", err)
+		return "", errors.Wrap(err, "show dialog")
 	}
 	if !ok {
 		return "", errDialogClosed
@@ -77,7 +77,7 @@ func (d Dialog) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfServ
 		false,
 	)
 	if err != nil {
-		return errors.Errorf("show dialog: %w", err)
+		return errors.Wrap(err, "show dialog")
 	}
 	if !ok {
 		return errDialogClosed
@@ -94,7 +94,7 @@ func (d Dialog) SignUp(ctx context.Context) (tgauth.UserInfo, error) {
 		"",
 	)
 	if err != nil {
-		return tgauth.UserInfo{}, errors.Errorf("show dialog: %w", err)
+		return tgauth.UserInfo{}, errors.Wrap(err, "show dialog")
 	}
 	if !ok {
 		return tgauth.UserInfo{}, errDialogClosed
@@ -106,7 +106,7 @@ func (d Dialog) SignUp(ctx context.Context) (tgauth.UserInfo, error) {
 		"",
 	)
 	if err != nil {
-		return tgauth.UserInfo{}, errors.Errorf("show dialog: %w", err)
+		return tgauth.UserInfo{}, errors.Wrap(err, "show dialog")
 	}
 	if !ok {
 		return tgauth.UserInfo{}, errDialogClosed
@@ -125,7 +125,7 @@ func (d Dialog) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string, er
 	for {
 		code, ok, err := dlgs.Entry(title, prompt, "")
 		if err != nil {
-			return "", errors.Errorf("show dialog: %w", err)
+			return "", errors.Wrap(err, "show dialog")
 		}
 		if !ok {
 			return "", errDialogClosed
@@ -143,7 +143,7 @@ func (d Dialog) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string, er
 			if len(code) != length {
 				_, err := dlgs.Error(title, d.printer.Sprintf(localization.CodeInvalidLength, length)+"\n")
 				if err != nil {
-					return "", errors.Errorf("write error message: %w", err)
+					return "", errors.Wrap(err, "write error message")
 				}
 				continue
 			}

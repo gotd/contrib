@@ -64,8 +64,10 @@ func TestAsWait(t *testing.T) {
 			wantOK:      true,
 		},
 		{
-			name:        "ClampHigh",
-			err:         tgerr.New(420, "FLOOD_WAIT_9999999999"),
+			name: "ClampHigh",
+			// Above maxWaitSeconds but within a 32-bit int so the argument
+			// parses on 386 as well as 64-bit platforms.
+			err:         tgerr.New(420, "FLOOD_WAIT_99999999"),
 			want:        maxFloodWait,
 			wantPerType: true,
 			wantOK:      true,

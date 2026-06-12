@@ -20,7 +20,7 @@ import (
 func vaultAuth(ctx context.Context) error {
 	vaultClient, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
-		return errors.Errorf("create Vault client: %w", err)
+		return errors.Wrap(err, "create Vault client")
 	}
 	cred := vault.NewCredentials(vaultClient, "cubbyhole/telegram/user").
 		WithPhoneKey("phone").
@@ -28,7 +28,7 @@ func vaultAuth(ctx context.Context) error {
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

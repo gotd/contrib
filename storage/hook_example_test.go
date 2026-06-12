@@ -20,7 +20,7 @@ import (
 func updatesHook(ctx context.Context) error {
 	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{})
 	if err != nil {
-		return errors.Errorf("create pebble storage: %w", err)
+		return errors.Wrap(err, "create pebble storage")
 	}
 	s := pebble.NewPeerStorage(db)
 
@@ -30,7 +30,7 @@ func updatesHook(ctx context.Context) error {
 		UpdateHandler: handler,
 	})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 	raw := tg.NewClient(client)
 	sender := message.NewSender(raw)

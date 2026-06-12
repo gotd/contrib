@@ -87,7 +87,7 @@ func (t *Terminal) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string,
 			if len(code) != length {
 				_, err := io.WriteString(t.Terminal, t.printer.Sprintf(localization.CodeInvalidLength, length)+"\n")
 				if err != nil {
-					return "", errors.Errorf("write error message: %w", err)
+					return "", errors.Wrap(err, "write error message")
 				}
 				continue
 			}
@@ -104,12 +104,12 @@ func (t *Terminal) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string,
 func (t *Terminal) SignUp(ctx context.Context) (u tgauth.UserInfo, err error) {
 	u.FirstName, err = t.read(t.printer.Sprintf(localization.FirstNameDialogPrompt) + ":")
 	if err != nil {
-		return u, errors.Errorf("read first name: %w", err)
+		return u, errors.Wrap(err, "read first name")
 	}
 
 	u.LastName, err = t.read(t.printer.Sprintf(localization.SecondNameDialogPrompt) + ":")
 	if err != nil {
-		return u, errors.Errorf("read first name: %w", err)
+		return u, errors.Wrap(err, "read first name")
 	}
 
 	return u, nil
@@ -120,7 +120,7 @@ func (t *Terminal) SignUp(ctx context.Context) (u tgauth.UserInfo, err error) {
 func (t *Terminal) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfService) error {
 	_, err := io.WriteString(t.Terminal, t.printer.Sprintf(localization.TOSDialogTitle)+"\n\n"+tos.Text)
 	if err != nil {
-		return errors.Errorf("write terms of service: %w", err)
+		return errors.Wrap(err, "write terms of service")
 	}
 
 	t.SetPrompt(t.printer.Sprintf(localization.TOSDialogPrompt) + "(Y/N):")
@@ -129,7 +129,7 @@ func (t *Terminal) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfS
 loop:
 	y, err := t.ReadLine()
 	if err != nil {
-		return errors.Errorf("read answer: %w", err)
+		return errors.Wrap(err, "read answer")
 	}
 	switch strings.ToLower(y) {
 	case "y", "yes":
