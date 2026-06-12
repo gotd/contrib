@@ -188,11 +188,11 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 	s.request.retry++
 
 	if v := w.maxRetries; v != 0 && s.request.retry > v {
-		return true, errors.Errorf("flood wait retry limit exceeded (%d > %d): %w", s.request.retry, v, err)
+		return true, errors.Wrapf(err, "flood wait retry limit exceeded (%d > %d)", s.request.retry, v)
 	}
 
 	if v := w.maxWait; v != 0 && d > v {
-		return true, errors.Errorf("flood wait argument is too big (%v > %v): %w", d, v, err)
+		return true, errors.Wrapf(err, "flood wait argument is too big (%v > %v)", d, v)
 	}
 
 	if perType {

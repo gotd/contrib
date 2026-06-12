@@ -88,11 +88,11 @@ func (w *SimpleWaiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 			retries++
 
 			if v := w.maxRetries; v != 0 && retries > v {
-				return errors.Errorf("flood wait retry limit exceeded (%d > %d): %w", retries, v, err)
+				return errors.Wrapf(err, "flood wait retry limit exceeded (%d > %d)", retries, v)
 			}
 
 			if v := w.maxWait; v != 0 && d > v {
-				return errors.Errorf("flood wait argument is too big (%v > %v): %w", d, v, err)
+				return errors.Wrapf(err, "flood wait argument is too big (%v > %v)", d, v)
 			}
 
 			if t == nil {
