@@ -23,7 +23,7 @@ func s3Storage(ctx context.Context) error {
 		Creds: credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
 	})
 	if err != nil {
-		return errors.Errorf("create s3 storage: %w", err)
+		return errors.Wrap(err, "create s3 storage")
 	}
 	storage := s3.NewSessionStorage(db, "telegram", "session")
 
@@ -31,7 +31,7 @@ func s3Storage(ctx context.Context) error {
 		SessionStorage: storage,
 	})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

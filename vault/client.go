@@ -33,7 +33,7 @@ func (c vaultClient) putAll(ctx context.Context, data map[string]interface{}) er
 
 	err := req.SetJSONBody(data)
 	if err != nil {
-		return errors.Errorf("request encode: %w", err)
+		return errors.Wrap(err, "request encode")
 	}
 
 	resp, err := c.client.RawRequestWithContext(ctx, req)
@@ -43,7 +43,7 @@ func (c vaultClient) putAll(ctx context.Context, data map[string]interface{}) er
 		}()
 	}
 	if err != nil {
-		return errors.Errorf("secret send: %w", err)
+		return errors.Wrap(err, "secret send")
 	}
 
 	return nil
@@ -77,12 +77,12 @@ func (c vaultClient) getAll(ctx context.Context) (*api.Secret, error) {
 		}
 	}
 	if err != nil {
-		return nil, errors.Errorf("secret fetch: %w", err)
+		return nil, errors.Wrap(err, "secret fetch")
 	}
 
 	secret, err := api.ParseSecret(resp.Body)
 	if err != nil {
-		return nil, errors.Errorf("secret parsing: %w", err)
+		return nil, errors.Wrap(err, "secret parsing")
 	}
 
 	return secret, nil

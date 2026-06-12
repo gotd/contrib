@@ -26,7 +26,7 @@ func redisAuth(ctx context.Context) error {
 
 	client, err := telegram.ClientFromEnvironment(telegram.Options{})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {

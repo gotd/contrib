@@ -40,7 +40,7 @@ const (
 // perTypeWaitErrors is the set of code 420 errors that represent a per-method
 // rate limit: every request of the same type is throttled, so the waiter may
 // proactively delay future requests of that type.
-var perTypeWaitErrors = []string{
+var perTypeWaitErrors = []string{ // nolint:gochecknoglobals
 	errFloodWait,
 	errFloodPremiumWait,
 }
@@ -50,7 +50,7 @@ var perTypeWaitErrors = []string{
 // Telethon notes "SLOW_MODE_WAIT is chat-specific, not request-specific" and
 // does not cache these per CONSTRUCTOR_ID; we likewise retry only the offending
 // request without throttling unrelated calls of the same type.
-var localWaitErrors = []string{
+var localWaitErrors = []string{ // nolint:gochecknoglobals
 	errSlowmodeWait,
 	err2FAConfirmWait,
 	errTakeoutInitDelay,

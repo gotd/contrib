@@ -22,14 +22,14 @@ func redisStorage(ctx context.Context) error {
 		SessionStorage: storage,
 	})
 	if err != nil {
-		return errors.Errorf("create client: %w", err)
+		return errors.Wrap(err, "create client")
 	}
 
 	return client.Run(ctx, func(ctx context.Context) error {
 		// Force redis to flush DB.
 		// It may be necessary to be sure that session will be saved to the disk.
 		if err := redisClient.FlushDBAsync(ctx).Err(); err != nil {
-			return errors.Errorf("flush: %w", err)
+			return errors.Wrap(err, "flush")
 		}
 
 		_, err := client.Auth().Bot(ctx, os.Getenv("BOT_TOKEN"))
