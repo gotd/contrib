@@ -13,7 +13,7 @@ require (
 	github.com/gotd/log/logzap v0.0.1
 	github.com/gotd/neo v0.1.5
 	github.com/gotd/td v0.154.0
-	github.com/hashicorp/vault/api v1.22.0
+	github.com/hashicorp/vault/api v1.23.0
 	github.com/minio/minio-go/v7 v7.2.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/stretchr/testify v1.11.1
