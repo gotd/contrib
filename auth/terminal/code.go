@@ -1,6 +1,7 @@
 package terminal
 
 import (
+	"bufio"
 	"context"
 	"io"
 	"os"
@@ -21,23 +22,38 @@ var _ tgauth.UserAuthenticator = (*Terminal)(nil)
 
 // Terminal implements UserAuthenticator.
 type Terminal struct {
-	*term.Terminal
+	// terminal is used when the input is an interactive terminal (tty).
+	terminal *term.Terminal
+	// reader is the fallback used when the input is not a tty (e.g. a pipe,
+	// a regular file or a buffer).
+	reader  *bufio.Reader
+	out     io.Writer
 	printer *message.Printer
 }
 
 // New creates new Terminal.
+//
+// If in is an interactive terminal an interactive *term.Terminal is used,
+// otherwise it falls back to a bufio.Reader, so non-tty inputs such as pipes,
+// files or buffers are handled gracefully.
 func New(in io.Reader, out io.Writer) *Terminal {
-	rw := struct {
-		io.Reader
-		io.Writer
-	}{
-		Reader: in,
-		Writer: out,
+	t := &Terminal{
+		out:     out,
+		printer: localization.DefaultPrinter(),
 	}
-	return &Terminal{
-		Terminal: term.NewTerminal(rw, ""),
-		printer:  localization.DefaultPrinter(),
+	if f, ok := in.(*os.File); ok && term.IsTerminal(int(f.Fd())) {
+		rw := struct {
+			io.Reader
+			io.Writer
+		}{
+			Reader: in,
+			Writer: out,
+		}
+		t.terminal = term.NewTerminal(rw, "")
+	} else {
+		t.reader = bufio.NewReader(in)
 	}
+	return t
 }
 
 // OS creates new Terminal using os.Stdout and os.Stdin.
@@ -51,10 +67,38 @@ func (t *Terminal) WithPrinter(printer *message.Printer) *Terminal {
 	return t
 }
 
+// write writes s to the interactive terminal or, in the fallback mode, to the
+// output writer.
+func (t *Terminal) write(s string) error {
+	w := t.out
+	if t.terminal != nil {
+		w = t.terminal
+	}
+	_, err := io.WriteString(w, s)
+	return err
+}
+
+// read prints the prompt and reads a single line of input.
 func (t *Terminal) read(prompt string) (string, error) {
-	t.SetPrompt(prompt)
-	defer t.SetPrompt("")
-	return t.ReadLine()
+	if t.terminal != nil {
+		t.terminal.SetPrompt(prompt)
+		defer t.terminal.SetPrompt("")
+		return t.terminal.ReadLine()
+	}
+
+	// Fallback for non-terminal input: print the prompt ourselves, since there
+	// is no terminal to render it, and read a line with bufio.
+	if err := t.write(prompt); err != nil {
+		return "", err
+	}
+	line, err := t.reader.ReadString('\n')
+	if err != nil {
+		// Accept the last line even if it is not terminated by a newline.
+		if !errors.Is(err, io.EOF) || line == "" {
+			return "", err
+		}
+	}
+	return strings.TrimRight(line, "\r\n"), nil
 }
 
 // Phone asks phone using terminal.
@@ -85,8 +129,7 @@ func (t *Terminal) Code(ctx context.Context, sentCode *tg.AuthSentCode) (string,
 		case notFlashing:
 			length := v.GetLength()
 			if len(code) != length {
-				_, err := io.WriteString(t.Terminal, t.printer.Sprintf(localization.CodeInvalidLength, length)+"\n")
-				if err != nil {
+				if err := t.write(t.printer.Sprintf(localization.CodeInvalidLength, length) + "\n"); err != nil {
 					return "", errors.Wrap(err, "write error message")
 				}
 				continue
@@ -118,25 +161,21 @@ func (t *Terminal) SignUp(ctx context.Context) (u tgauth.UserInfo, err error) {
 // AcceptTermsOfService write terms of service received from Telegram and
 // asks to accept it.
 func (t *Terminal) AcceptTermsOfService(ctx context.Context, tos tg.HelpTermsOfService) error {
-	_, err := io.WriteString(t.Terminal, t.printer.Sprintf(localization.TOSDialogTitle)+"\n\n"+tos.Text)
-	if err != nil {
+	if err := t.write(t.printer.Sprintf(localization.TOSDialogTitle) + "\n\n" + tos.Text); err != nil {
 		return errors.Wrap(err, "write terms of service")
 	}
 
-	t.SetPrompt(t.printer.Sprintf(localization.TOSDialogPrompt) + "(Y/N):")
-	defer t.SetPrompt("")
-
-loop:
-	y, err := t.ReadLine()
-	if err != nil {
-		return errors.Wrap(err, "read answer")
-	}
-	switch strings.ToLower(y) {
-	case "y", "yes":
-		return nil
-	case "n", "no":
-		return errors.New("user answer is no")
-	default:
-		goto loop
+	prompt := t.printer.Sprintf(localization.TOSDialogPrompt) + "(Y/N):"
+	for {
+		y, err := t.read(prompt)
+		if err != nil {
+			return errors.Wrap(err, "read answer")
+		}
+		switch strings.ToLower(strings.TrimSpace(y)) {
+		case "y", "yes":
+			return nil
+		case "n", "no":
+			return errors.New("user answer is no")
+		}
 	}
 }
