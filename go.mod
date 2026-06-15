@@ -10,7 +10,7 @@ require (
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.2.0
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/gotd/log/logzap v0.0.1
+	github.com/gotd/log/logzap v0.1.1
 	github.com/gotd/neo v0.1.5
 	github.com/gotd/td v0.154.0
 	github.com/hashicorp/vault/api v1.22.0
@@ -56,7 +56,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/gotd/ige v0.2.2 // indirect
-	github.com/gotd/log v0.0.1 // indirect
+	github.com/gotd/log v0.1.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
