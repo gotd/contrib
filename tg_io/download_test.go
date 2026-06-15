@@ -90,7 +90,7 @@ func TestE2E(t *testing.T) {
 		}
 
 		t.Log("Streaming")
-		u := partio.NewStreamer(NewDownloader(api).ChunkSource(doc.Size, doc.AsInputDocumentFileLocation()), chunk1kb)
+		u := partio.NewStreamer(NewDownloader(api).ChunkSource(doc.Size, doc.AsInputDocumentFileLocation("")), chunk1kb)
 		buf := new(bytes.Buffer)
 
 		const offset = chunk1kb / 2

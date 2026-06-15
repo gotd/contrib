@@ -10,10 +10,10 @@ require (
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.2.0
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/gotd/log/logzap v0.0.1
+	github.com/gotd/log/logzap v0.1.1
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.154.0
-	github.com/hashicorp/vault/api v1.22.0
+	github.com/gotd/td v0.157.1
+	github.com/hashicorp/vault/api v1.23.0
 	github.com/minio/minio-go/v7 v7.2.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/stretchr/testify v1.11.1
@@ -40,7 +40,7 @@ require (
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
-	github.com/coder/websocket v1.8.14 // indirect
+	github.com/coder/websocket v1.8.15 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.12.0 // indirect
@@ -56,7 +56,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/gotd/ige v0.2.2 // indirect
-	github.com/gotd/log v0.0.1 // indirect
+	github.com/gotd/log v0.1.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
