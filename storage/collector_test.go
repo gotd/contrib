@@ -64,6 +64,51 @@ func TestPeerCollector_Dialogs(t *testing.T) {
 	a.Equal(user.FirstName, p.User.FirstName)
 }
 
+func testChannel() *tg.Channel {
+	return &tg.Channel{
+		ID:         20,
+		AccessHash: 20,
+		Title:      "Загадка",
+		Username:   "zagadka_channel",
+	}
+}
+
+// td v0.161 added DialogFolder and DialogCommunity under the DialogClass
+// interface and dropped GetPeer from it. The collector must read peers from
+// dialogs that have one (Dialog, DialogFolder) and skip the peerless
+// DialogCommunity without failing.
+func TestPeerCollector_DialogsMixedTypes(t *testing.T) {
+	a := require.New(t)
+	mem := newMemStorage()
+	collector := CollectPeers(mem)
+	ctx := context.Background()
+
+	user := testUser()
+	channel := testChannel()
+	iter := dialogs.NewIterator(dialogQuery{
+		result: &tg.MessagesDialogs{
+			Dialogs: []tg.DialogClass{
+				&tg.Dialog{Peer: &tg.PeerUser{UserID: user.ID}, TopMessage: 1},
+				&tg.DialogFolder{Peer: &tg.PeerChannel{ChannelID: channel.ID}, TopMessage: 2},
+				&tg.DialogCommunity{CommunityID: 999}, // peerless: must be skipped, not panic
+			},
+			Users: []tg.UserClass{user},
+			Chats: []tg.ChatClass{channel},
+		},
+	}, 10)
+	a.NoError(collector.Dialogs(ctx, iter))
+
+	pu, err := mem.Resolve(ctx, user.Username)
+	a.NoError(err)
+	a.NotNil(pu.User)
+	a.Equal(user.FirstName, pu.User.FirstName)
+
+	pc, err := mem.Resolve(ctx, channel.Username)
+	a.NoError(err)
+	a.NotNil(pc.Channel)
+	a.Equal(channel.Title, pc.Channel.Title)
+}
+
 type participantsQuery struct {
 	result *tg.ChannelsChannelParticipants
 }
