@@ -22,7 +22,14 @@ func (c PeerCollector) Dialogs(ctx context.Context, iter *dialogs.Iterator) erro
 			p     Peer
 			value = iter.Value()
 		)
-		switch dlg := value.Dialog.GetPeer().(type) {
+		// td v0.161 dropped GetPeer from the DialogClass interface (DialogCommunity
+		// has no peer). Read it from dialogs that still expose one, like the dialogs
+		// package's own dialogPeer helper; skip peerless dialogs.
+		peerGetter, ok := value.Dialog.(interface{ GetPeer() tg.PeerClass })
+		if !ok {
+			continue
+		}
+		switch dlg := peerGetter.GetPeer().(type) {
 		case *tg.PeerUser:
 			user, ok := value.Entities.User(dlg.UserID)
 			if !ok || !p.FromUser(user) {
