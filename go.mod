@@ -7,7 +7,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/cockroachdb/pebble v1.1.5
 	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
-	github.com/go-faster/errors v0.7.1
+	github.com/go-faster/errors v0.8.0
 	github.com/go-faster/jx v1.2.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/log/logzap v0.1.1
