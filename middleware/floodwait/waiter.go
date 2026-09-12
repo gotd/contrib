@@ -171,7 +171,10 @@ func (w *Waiter) Run(ctx context.Context, f func(ctx context.Context) error) (er
 }
 
 func (w *Waiter) send(s scheduled) (bool, error) {
-	err := s.request.next.Invoke(s.request.ctx, s.request.input, s.request.output)
+	// Mark the context so that any invoke this call makes while the send loop
+	// is blocked on it is recognised as re-entrant and handled inline.
+	ctx := context.WithValue(s.request.ctx, reentrantKey{}, struct{}{})
+	err := s.request.next.Invoke(ctx, s.request.input, s.request.output)
 
 	// Detect flood wait and similar retriable wait errors, mirroring TDLib.
 	d, perType, ok := asWait(err)
@@ -205,6 +208,10 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 	return false, nil
 }
 
+// reentrantKey marks a context as already executing inside the scheduler's send
+// loop, so a nested invoke can be recognised and handled inline.
+type reentrantKey struct{}
+
 // Handle implements telegram.Middleware.
 func (w *Waiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 	return func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
@@ -212,9 +219,60 @@ func (w *Waiter) Handle(next tg.Invoker) telegram.InvokeFunc {
 			// Return explicit error if waiter is not running.
 			return errors.New("the Waiter middleware is not running: Run(ctx) method is not called or exited")
 		}
+		if ctx.Value(reentrantKey{}) != nil {
+			// This invoke was started by another invoke that the send loop is
+			// still blocked on. Queueing it would deadlock: the send loop
+			// cannot reach it until the outer call returns, and the outer call
+			// cannot return until this one does. Wait inline instead.
+			return w.invokeInline(ctx, input, output, next)
+		}
 		select {
 		case err := <-w.sch.new(ctx, input, output, next):
 			return err
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+}
+
+// invokeInline runs a nested invoke without the scheduler, retrying flood waits
+// on the calling goroutine. It honours the same maxWait and maxRetries bounds as
+// the scheduled path, but does not update per-type scheduler state: a nested
+// call is part of an operation already in flight, not new traffic to pace.
+func (w *Waiter) invokeInline(
+	ctx context.Context, input bin.Encoder, output bin.Decoder, next tg.Invoker,
+) error {
+	var (
+		timer   clock.Timer
+		retries int
+	)
+	for {
+		err := next.Invoke(ctx, input, output)
+
+		d, _, ok := asWait(err)
+		if !ok {
+			return err
+		}
+
+		w.onWait(ctx, FloodWait{Duration: d})
+
+		retries++
+		if v := w.maxRetries; v != 0 && retries > v {
+			return errors.Wrapf(err, "flood wait retry limit exceeded (%d > %d)", retries, v)
+		}
+		if v := w.maxWait; v != 0 && d > v {
+			return errors.Wrapf(err, "flood wait argument is too big (%v > %v)", d, v)
+		}
+
+		if timer == nil {
+			timer = w.clock.Timer(d)
+			defer timer.Stop()
+		} else {
+			timer.Reset(d)
+		}
+
+		select {
+		case <-timer.C():
 		case <-ctx.Done():
 			return ctx.Err()
 		}
