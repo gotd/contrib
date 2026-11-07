@@ -24,4 +24,6 @@ func TestE2E(t *testing.T) {
 	tests.TestSessionStorage(t, bbolt.NewSessionStorage(db, "testsession", bucket))
 	tests.TestCredentials(t, bbolt.NewCredentials(db, bucket))
 	tests.TestPeerStorage(t, bbolt.NewPeerStorage(db, bucket))
+	tests.TestStateStorage(t, bbolt.NewStateStorage(db))
+	tests.TestAccessHasher(t, bbolt.NewAccessHasher(db))
 }
