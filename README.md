@@ -65,6 +65,12 @@ The `bbolt` and `pebble` peer storages skip writing a peer that did not change, 
 `storage.Peer.CreatedAt` is when that content was first stored, not when the peer
 was last seen.
 
+Peers are stored as JSON by default. `WithBinaryEncoding()` on the `bbolt`, `pebble`
+and `redis` peer storages writes a compact binary format instead (about half the size,
+several times faster to encode and decode). Both formats are read either way, but
+versions of contrib before the binary format can't read binary values: to downgrade
+after enabling it, clear the peer storage.
+
 ### I/O & streaming
 
 | Package | Description |

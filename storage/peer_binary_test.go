@@ -128,3 +128,32 @@ func BenchmarkPeerEncoding(b *testing.B) {
 		}
 	})
 }
+
+func TestDecodePeerUnknownFormat(t *testing.T) {
+	// Values of unknown (e.g. future) formats are cache misses, not errors.
+	a := require.New(t)
+	var got Peer
+	for _, data := range [][]byte{nil, {0x02, 0, 0, 0}, []byte("x"), {0xff}} {
+		a.ErrorIs(DecodePeer(data, &got), ErrPeerUnmarshalMustInvalidate, "%x", data)
+	}
+
+	p := testPeers(t)[0]
+	data, err := EncodePeer(p)
+	a.NoError(err)
+	a.ErrorIs(DecodePeer(append(data, 0, 0, 0, 0), &got), ErrPeerUnmarshalMustInvalidate, "trailing")
+
+	// Unknown entity flag bit: flags follow the metadata, which is empty here.
+	q := testPeers(t)[1]
+	q.Metadata = nil
+	data, err = EncodePeer(q)
+	a.NoError(err)
+	flagsAt := 1 + 4 + 4 + 8 + 8 + 8 + 4 // format, version, kind, id, hash, created, metadata
+	data[flagsAt] |= 1 << 5
+	a.ErrorIs(DecodePeer(data, &got), ErrPeerUnmarshalMustInvalidate, "unknown flag")
+
+	// JSON with leading whitespace is still JSON.
+	jsonData, err := json.Marshal(p)
+	a.NoError(err)
+	a.NoError(DecodePeer(append([]byte(" \n"), jsonData...), &got))
+	a.Equal(p.Key, got.Key)
+}

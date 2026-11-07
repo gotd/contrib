@@ -14,13 +14,23 @@ var _ storage.PeerStorage = PeerStorage{}
 
 // PeerStorage is a peer storage based on pebble.
 type PeerStorage struct {
-	bbolt  *bbolt.DB
-	bucket []byte
+	bbolt    *bbolt.DB
+	bucket   []byte
+	encoding storage.PeerEncoding
 }
 
 // NewPeerStorage creates new peer storage using bbolt.
 func NewPeerStorage(db *bbolt.DB, bucket []byte) *PeerStorage {
 	return &PeerStorage{bbolt: db, bucket: bucket}
+}
+
+// WithBinaryEncoding makes the storage write peers in the compact binary format
+// (storage.PeerEncodingBinary) instead of JSON. Values in either format are
+// read, but versions of this package before the binary format can't read
+// binary values: downgrading needs the peer storage cleared.
+func (s *PeerStorage) WithBinaryEncoding() *PeerStorage {
+	s.encoding = storage.PeerEncodingBinary
+	return s
 }
 
 type bboltIterator struct {
@@ -99,7 +109,7 @@ func (s PeerStorage) unchanged(associated []string, value storage.Peer) bool {
 		}
 		id := storage.KeyFromPeer(value).Bytes(nil)
 		stored := bucket.Get(id)
-		if stored == nil || !storage.PeerUnchanged(stored, value) {
+		if stored == nil || !storage.PeerUnchanged(stored, value, s.encoding) {
 			return nil
 		}
 		for _, key := range associated {
@@ -123,7 +133,7 @@ func (s PeerStorage) add(associated []string, value storage.Peer) (err error) {
 			return errors.Wrap(err, "create bucket")
 		}
 
-		data, err := storage.EncodePeer(value)
+		data, err := s.encoding.Encode(value)
 		if err != nil {
 			return errors.Wrap(err, "marshal")
 		}

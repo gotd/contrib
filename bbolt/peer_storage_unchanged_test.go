@@ -70,12 +70,31 @@ func TestPeerStorageEncodingFormats(t *testing.T) {
 	a.NoError(err, "old JSON values must be readable")
 	a.Equal(int64(1), p.Key.AccessHash)
 
+	firstByte := func(p storage.Peer) (b byte) {
+		a.NoError(db.View(func(tx *bboltdb.Tx) error {
+			b = tx.Bucket(bucket).Get(storage.KeyFromPeer(p).Bytes(nil))[0]
+			return nil
+		}))
+		return b
+	}
+
+	// JSON stays the default, so older versions can read new values.
 	var fresh storage.Peer
 	a.True(fresh.FromUser(&tg.User{ID: 2, AccessHash: 2}))
 	a.NoError(s.Add(ctx, fresh))
-	a.NoError(db.View(func(tx *bboltdb.Tx) error {
-		stored := tx.Bucket(bucket).Get(storage.KeyFromPeer(fresh).Bytes(nil))
-		a.NotEqual(byte('{'), stored[0], "new values must not be JSON")
-		return nil
-	}))
+	a.Equal(byte('{'), firstByte(fresh), "default must be JSON")
+
+	// The compact format is opt-in, and both formats stay readable.
+	bin := NewPeerStorage(db, bucket).WithBinaryEncoding()
+	var compact storage.Peer
+	a.True(compact.FromUser(&tg.User{ID: 3, AccessHash: 3}))
+	a.NoError(bin.Add(ctx, compact))
+	a.NotEqual(byte('{'), firstByte(compact), "opt-in values must not be JSON")
+	for _, st := range []*PeerStorage{s, bin} {
+		for _, want := range []storage.Peer{fresh, compact} {
+			p, err := st.Find(ctx, storage.KeyFromPeer(want))
+			a.NoError(err)
+			a.Equal(want.Key.AccessHash, p.Key.AccessHash)
+		}
+	}
 }

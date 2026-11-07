@@ -15,12 +15,22 @@ var _ storage.PeerStorage = PeerStorage{}
 
 // PeerStorage is a peer storage based on redis.
 type PeerStorage struct {
-	redis *redis.Client
+	redis    *redis.Client
+	encoding storage.PeerEncoding
 }
 
 // NewPeerStorage creates new peer storage using redis.
 func NewPeerStorage(client *redis.Client) *PeerStorage {
 	return &PeerStorage{redis: client}
+}
+
+// WithBinaryEncoding makes the storage write peers in the compact binary format
+// (storage.PeerEncodingBinary) instead of JSON. Values in either format are
+// read, but versions of this package before the binary format can't read
+// binary values: downgrading needs the peer storage cleared.
+func (s *PeerStorage) WithBinaryEncoding() *PeerStorage {
+	s.encoding = storage.PeerEncodingBinary
+	return s
 }
 
 type redisIterator struct {
@@ -77,7 +87,7 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 }
 
 func (s PeerStorage) add(ctx context.Context, associated []string, value storage.Peer) (rerr error) {
-	data, err := storage.EncodePeer(value)
+	data, err := s.encoding.Encode(value)
 	if err != nil {
 		return errors.Wrap(err, "marshal")
 	}

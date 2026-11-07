@@ -21,7 +21,35 @@ const (
 	peerHasUser = 1 << iota
 	peerHasChat
 	peerHasChannel
+
+	peerKnownFlags = peerHasUser | peerHasChat | peerHasChannel
 )
+
+// PeerEncoding is the format storages write peers in.
+//
+// DecodePeer reads both formats, so changing it keeps stored values readable.
+// Versions of this package before the binary format can't read binary values:
+// downgrading after binary values were written needs the peer storage cleared.
+type PeerEncoding uint8
+
+const (
+	// PeerEncodingJSON is the JSON format of Peer.MarshalJSON. Default.
+	PeerEncodingJSON PeerEncoding = iota
+	// PeerEncodingBinary is the compact binary format of EncodePeer.
+	PeerEncodingBinary
+)
+
+// Encode encodes peer in the format.
+func (e PeerEncoding) Encode(p Peer) ([]byte, error) {
+	if e == PeerEncodingBinary {
+		return EncodePeer(p)
+	}
+	data, err := json.Marshal(p)
+	if err != nil {
+		return nil, errors.Wrap(err, "marshal")
+	}
+	return data, nil
+}
 
 // EncodePeer encodes peer in the compact binary format.
 //
@@ -85,12 +113,18 @@ func isNilEncoder(e bin.Encoder) bool {
 //
 // Like Peer.UnmarshalJSON, it returns ErrPeerUnmarshalMustInvalidate for
 // outdated data, which must be treated as a cache miss.
+//
+// Data of an unknown format, e.g. written by a newer version, also gives
+// ErrPeerUnmarshalMustInvalidate.
 func DecodePeer(data []byte, p *Peer) error {
-	if len(data) == 0 {
-		return errors.New("empty data")
-	}
-	if data[0] != peerFormatBinary {
+	switch i := firstNonSpace(data); {
+	case i < 0:
+		return ErrPeerUnmarshalMustInvalidate
+	case data[i] == '{':
 		return json.Unmarshal(data, p)
+	case i == 0 && data[0] == peerFormatBinary:
+	default:
+		return ErrPeerUnmarshalMustInvalidate
 	}
 
 	b := &bin.Buffer{Buf: data[1:]}
@@ -133,6 +167,9 @@ func DecodePeer(data []byte, p *Peer) error {
 	if err != nil {
 		return errors.Wrap(err, "flags")
 	}
+	if flags&^peerKnownFlags != 0 {
+		return ErrPeerUnmarshalMustInvalidate
+	}
 	if flags&peerHasUser != 0 {
 		r.User = new(tg.User)
 		if err := r.User.Decode(b); err != nil {
@@ -152,8 +189,26 @@ func DecodePeer(data []byte, p *Peer) error {
 		}
 	}
 
+	if b.Len() != 0 {
+		// Fields this version doesn't know.
+		return ErrPeerUnmarshalMustInvalidate
+	}
+
 	*p = r
 	return nil
+}
+
+// firstNonSpace returns index of the first byte of data that is not JSON
+// whitespace, or -1.
+func firstNonSpace(data []byte) int {
+	for i, c := range data {
+		switch c {
+		case ' ', '\t', '\n', '\r':
+		default:
+			return i
+		}
+	}
+	return -1
 }
 
 func decodeEntityErr(err error, name string) error {

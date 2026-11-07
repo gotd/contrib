@@ -221,14 +221,28 @@ func TestPeerStorageEncodingFormats(t *testing.T) {
 	a.NoError(err)
 	a.Equal(int64(1), p.Key.AccessHash)
 
-	// New writes use the compact format.
+	firstByte := func(p storage.Peer) byte {
+		stored, closer, err := db.Get(storage.KeyFromPeer(p).Bytes(nil))
+		a.NoError(err)
+		defer func() { a.NoError(closer.Close()) }()
+		return stored[0]
+	}
+
+	// JSON stays the default, so older versions can read new values.
 	fresh := mustUser(t, &tg.User{ID: 2, AccessHash: 2})
 	a.NoError(s.Add(ctx, fresh))
-	stored, closer, err := db.Get(storage.KeyFromPeer(fresh).Bytes(nil))
-	a.NoError(err)
-	a.NotEqual(byte('{'), stored[0], "new values must not be JSON")
-	a.NoError(closer.Close())
-	p, err = s.Find(ctx, storage.KeyFromPeer(fresh))
-	a.NoError(err)
-	a.Equal(int64(2), p.Key.AccessHash)
+	a.Equal(byte('{'), firstByte(fresh), "default must be JSON")
+
+	// The compact format is opt-in, and both formats stay readable.
+	bin := pebble.NewPeerStorage(db).WithBinaryEncoding()
+	compact := mustUser(t, &tg.User{ID: 3, AccessHash: 3})
+	a.NoError(bin.Add(ctx, compact))
+	a.NotEqual(byte('{'), firstByte(compact), "opt-in values must not be JSON")
+	for _, st := range []*pebble.PeerStorage{s, bin} {
+		for _, want := range []storage.Peer{fresh, compact} {
+			p, err = st.Find(ctx, storage.KeyFromPeer(want))
+			a.NoError(err)
+			a.Equal(want.Key.AccessHash, p.Key.AccessHash)
+		}
+	}
 }
