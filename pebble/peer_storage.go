@@ -198,13 +198,24 @@ func (s PeerStorage) Add(ctx context.Context, value storage.Peer) (rerr error) {
 // and the encoding errors are returned.
 func (s PeerStorage) AddMany(ctx context.Context, values []storage.Peer) (rerr error) {
 	if err := s.commit(func(b *pebble.Batch) error {
+		// Keys written earlier in this batch: the unchanged check reads the
+		// db, not the batch, so a peer with such keys is always written to
+		// keep the last value.
+		written := map[string]struct{}{}
 		for _, value := range values {
+			keys := value.Keys()
+			id := string(storage.KeyFromPeer(value).Bytes(nil))
 			// Skip unchanged peers: an empty batch is not committed (synced).
-			if s.unchanged(value.Keys(), value) {
+			if !inBatch(written, id, keys) && s.unchanged(keys, value) {
 				continue
 			}
-			if err := addToBatch(b, value.Keys(), value); err != nil {
+			if err := addToBatch(b, keys, value); err != nil {
 				multierr.AppendInto(&rerr, errors.Wrapf(err, "add %s", value))
+				continue
+			}
+			written[id] = struct{}{}
+			for _, k := range keys {
+				written[k] = struct{}{}
 			}
 		}
 		return nil
@@ -212,6 +223,18 @@ func (s PeerStorage) AddMany(ctx context.Context, values []storage.Peer) (rerr e
 		multierr.AppendInto(&rerr, err)
 	}
 	return rerr
+}
+
+func inBatch(written map[string]struct{}, id string, keys []string) bool {
+	if _, ok := written[id]; ok {
+		return true
+	}
+	for _, k := range keys {
+		if _, ok := written[k]; ok {
+			return true
+		}
+	}
+	return false
 }
 
 // Find finds peer using given key.

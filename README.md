@@ -61,6 +61,10 @@ abstractions; the rest are backend implementations.
 | [`s3`](https://pkg.go.dev/github.com/gotd/contrib/s3) | Session storage backed by any S3-compatible object store (MinIO client). |
 | [`vault`](https://pkg.go.dev/github.com/gotd/contrib/vault) | Secret/session storage backed by [HashiCorp Vault](https://www.vaultproject.io). |
 
+The `bbolt` and `pebble` peer storages skip writing a peer that did not change, so
+`storage.Peer.CreatedAt` is when that content was first stored, not when the peer
+was last seen.
+
 ### I/O & streaming
 
 | Package | Description |

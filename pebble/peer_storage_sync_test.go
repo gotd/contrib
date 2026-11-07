@@ -176,3 +176,28 @@ func mustUser(t *testing.T, u *tg.User) storage.Peer {
 	require.True(t, p.FromUser(u))
 	return p
 }
+
+func TestPeerStorageAddManyLastWins(t *testing.T) {
+	// A stored peer repeated after a changed copy in one batch must win, even
+	// though it equals the stored value.
+	a := require.New(t)
+	ctx := context.Background()
+	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{FS: vfs.NewMem()})
+	a.NoError(err)
+	defer func() { _ = db.Close() }()
+
+	s := pebble.NewPeerStorage(db)
+	stored := &tg.User{ID: 1, AccessHash: 1, FirstName: "A"}
+	a.NoError(s.Add(ctx, mustUser(t, stored)))
+	a.NoError(s.AddMany(ctx, []storage.Peer{
+		mustUser(t, &tg.User{ID: 1, AccessHash: 1, FirstName: "A'"}),
+		mustUser(t, stored),
+	}))
+
+	var key storage.PeerKey
+	key.Kind = dialogs.User
+	key.ID = 1
+	p, err := s.Find(ctx, key)
+	a.NoError(err)
+	a.Equal("A", p.User.FirstName)
+}

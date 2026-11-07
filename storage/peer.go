@@ -27,8 +27,11 @@ const LatestVersion = 2
 //
 // The only valid way to marshal and unmarshal Peer is to use UnmarshalJSON, MarshalJSON.
 type Peer struct {
-	Version   int
-	Key       dialogs.DialogKey
+	Version int
+	Key     dialogs.DialogKey
+	// CreatedAt is when this content of the peer was first stored. Storages
+	// skip writing a peer that did not change, so it is not updated when the
+	// same peer is seen again: don't use it as "last seen".
 	CreatedAt time.Time
 	User      *tg.User
 	Chat      *tg.Chat
