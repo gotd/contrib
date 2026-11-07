@@ -27,4 +27,6 @@ func TestE2E(t *testing.T) {
 	tests.TestSessionStorage(t, redis.NewSessionStorage(client, "session"))
 	tests.TestCredentials(t, redis.NewCredentials(client))
 	tests.TestPeerStorage(t, redis.NewPeerStorage(client))
+	tests.TestStateStorage(t, redis.NewStateStorage(client))
+	tests.TestAccessHasher(t, redis.NewAccessHasher(client))
 }
