@@ -104,3 +104,32 @@ func TestPeerStorageSyncs(t *testing.T) {
 		})
 	}
 }
+
+func TestPeerStorageAddManyEncodeError(t *testing.T) {
+	a := require.New(t)
+	ctx := context.Background()
+	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{FS: vfs.NewMem()})
+	a.NoError(err)
+	defer func() { _ = db.Close() }()
+	s := pebble.NewPeerStorage(db)
+
+	var peers []storage.Peer
+	for i := 1; i <= 3; i++ {
+		var p storage.Peer
+		a.True(p.FromUser(&tg.User{ID: int64(i), AccessHash: int64(i)}))
+		peers = append(peers, p)
+	}
+	// Metadata that cannot be encoded fails only this peer.
+	peers[1].Metadata = map[string]any{"bad": func() {}}
+
+	err = s.AddMany(ctx, peers)
+	a.Error(err, "encoding error must be reported")
+
+	for _, id := range []int64{1, 3} {
+		p, err := s.Find(ctx, storage.PeerKey{Kind: dialogs.User, ID: id})
+		a.NoError(err, "other peers must be written")
+		a.Equal(id, p.Key.AccessHash)
+	}
+	_, err = s.Find(ctx, storage.PeerKey{Kind: dialogs.User, ID: 2})
+	a.ErrorIs(err, storage.ErrPeerNotFound)
+}
