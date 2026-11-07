@@ -27,8 +27,8 @@ type AccessHasher struct {
 func NewAccessHasher(db *bolt.DB) *AccessHasher { return &AccessHasher{db: db} }
 
 var (
-	bucketChannelHashes = []byte("channel_hashes")
-	bucketUserHashes    = []byte("user_hashes")
+	bucketChannelHashes = []byte("channel_hashes") // nolint:gochecknoglobals
+	bucketUserHashes    = []byte("user_hashes")    // nolint:gochecknoglobals
 )
 
 func (s *AccessHasher) set(bucket []byte, userID, id, hash int64) error {
@@ -71,7 +71,7 @@ func (s *AccessHasher) SetChannelAccessHash(_ context.Context, userID, channelID
 }
 
 // GetChannelAccessHash implements updates.ChannelAccessHasher.
-func (s *AccessHasher) GetChannelAccessHash(_ context.Context, userID, channelID int64) (int64, bool, error) {
+func (s *AccessHasher) GetChannelAccessHash(_ context.Context, userID, channelID int64) (accessHash int64, found bool, err error) {
 	return s.get(bucketChannelHashes, userID, channelID)
 }
 
@@ -81,6 +81,6 @@ func (s *AccessHasher) SetUserAccessHash(_ context.Context, userID, targetUserID
 }
 
 // GetUserAccessHash implements updates.UserAccessHasher.
-func (s *AccessHasher) GetUserAccessHash(_ context.Context, userID, targetUserID int64) (int64, bool, error) {
+func (s *AccessHasher) GetUserAccessHash(_ context.Context, userID, targetUserID int64) (accessHash int64, found bool, err error) {
 	return s.get(bucketUserHashes, userID, targetUserID)
 }

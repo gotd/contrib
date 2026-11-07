@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"sync"
 
 	"github.com/cockroachdb/pebble"
 	"github.com/go-faster/errors"
@@ -52,8 +53,16 @@ func decodeInt(b []byte, i int) int {
 	return int(int64(binary.BigEndian.Uint64(b[8*i:])))
 }
 
+// decodeInt64 decodes single 8-byte value, rejecting corrupt ones.
+func decodeInt64(b []byte) (int64, error) {
+	if len(b) != 8 {
+		return 0, errors.Errorf("invalid value length %d", len(b))
+	}
+	return int64(binary.BigEndian.Uint64(b)), nil
+}
+
 // get returns copy of value by key.
-func get(db *pebble.DB, key []byte) ([]byte, bool, error) {
+func get(db *pebble.DB, key []byte) (value []byte, found bool, err error) {
 	v, closer, err := db.Get(key)
 	if errors.Is(err, pebble.ErrNotFound) {
 		return nil, false, nil
@@ -72,6 +81,8 @@ func get(db *pebble.DB, key []byte) ([]byte, bool, error) {
 type StateStorage struct {
 	db        *pebble.DB
 	writeOpts *pebble.WriteOptions
+	// mux serializes read-modify-write updates of common state.
+	mux sync.Mutex
 }
 
 // NewStateStorage creates new updates state storage using pebble.
@@ -108,10 +119,19 @@ func (s *StateStorage) GetState(_ context.Context, userID int64) (updates.State,
 
 // SetState implements updates.StateStorage.
 func (s *StateStorage) SetState(_ context.Context, userID int64, state updates.State) error {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+	return s.setState(userID, state)
+}
+
+func (s *StateStorage) setState(userID int64, state updates.State) error {
 	return s.db.Set(userKey(prefixState, userID), encodeInts(state.Pts, state.Qts, state.Date, state.Seq), s.writeOpts)
 }
 
 func (s *StateStorage) update(ctx context.Context, userID int64, f func(state *updates.State)) error {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
 	state, ok, err := s.GetState(ctx, userID)
 	if err != nil {
 		return err
@@ -120,7 +140,7 @@ func (s *StateStorage) update(ctx context.Context, userID int64, f func(state *u
 		return ErrStateNotFound
 	}
 	f(&state)
-	return s.SetState(ctx, userID, state)
+	return s.setState(userID, state)
 }
 
 // SetPts implements updates.StateStorage.
@@ -152,12 +172,16 @@ func (s *StateStorage) SetDateSeq(ctx context.Context, userID int64, date, seq i
 }
 
 // GetChannelPts implements updates.StateStorage.
-func (s *StateStorage) GetChannelPts(_ context.Context, userID, channelID int64) (int, bool, error) {
+func (s *StateStorage) GetChannelPts(_ context.Context, userID, channelID int64) (pts int, found bool, err error) {
 	v, ok, err := get(s.db, userPairKey(prefixChannelPts, userID, channelID))
 	if err != nil || !ok {
 		return 0, false, err
 	}
-	return decodeInt(v, 0), true, nil
+	p, err := decodeInt64(v)
+	if err != nil {
+		return 0, false, errors.Wrapf(err, "channel %d pts", channelID)
+	}
+	return int(p), true, nil
 }
 
 // SetChannelPts implements updates.StateStorage.
@@ -182,8 +206,15 @@ func (s *StateStorage) ForEachChannels(
 
 	for iter.First(); iter.Valid(); iter.Next() {
 		key := iter.Key()
-		channelID := int64(binary.BigEndian.Uint64(key[len(prefix):]))
-		if err := f(ctx, channelID, decodeInt(iter.Value(), 0)); err != nil {
+		channelID, err := decodeInt64(key[len(prefix):])
+		if err != nil {
+			return errors.Wrap(err, "channel key")
+		}
+		pts, err := decodeInt64(iter.Value())
+		if err != nil {
+			return errors.Wrapf(err, "channel %d pts", channelID)
+		}
+		if err := f(ctx, channelID, int(pts)); err != nil {
 			return err
 		}
 	}
@@ -222,12 +253,16 @@ func (s *AccessHasher) set(prefix string, userID, id, hash int64) error {
 	return s.db.Set(key, value, s.writeOpts)
 }
 
-func (s *AccessHasher) get(prefix string, userID, id int64) (int64, bool, error) {
+func (s *AccessHasher) get(prefix string, userID, id int64) (hash int64, found bool, err error) {
 	v, ok, err := get(s.db, userPairKey(prefix, userID, id))
 	if err != nil || !ok {
 		return 0, false, err
 	}
-	return int64(binary.BigEndian.Uint64(v)), true, nil
+	h, err := decodeInt64(v)
+	if err != nil {
+		return 0, false, errors.Wrapf(err, "access hash of %d", id)
+	}
+	return h, true, nil
 }
 
 // SetChannelAccessHash implements updates.ChannelAccessHasher.
@@ -236,7 +271,7 @@ func (s *AccessHasher) SetChannelAccessHash(_ context.Context, userID, channelID
 }
 
 // GetChannelAccessHash implements updates.ChannelAccessHasher.
-func (s *AccessHasher) GetChannelAccessHash(_ context.Context, userID, channelID int64) (int64, bool, error) {
+func (s *AccessHasher) GetChannelAccessHash(_ context.Context, userID, channelID int64) (accessHash int64, found bool, err error) {
 	return s.get(prefixChanHash, userID, channelID)
 }
 
@@ -246,6 +281,6 @@ func (s *AccessHasher) SetUserAccessHash(_ context.Context, userID, targetUserID
 }
 
 // GetUserAccessHash implements updates.UserAccessHasher.
-func (s *AccessHasher) GetUserAccessHash(_ context.Context, userID, targetUserID int64) (int64, bool, error) {
+func (s *AccessHasher) GetUserAccessHash(_ context.Context, userID, targetUserID int64) (accessHash int64, found bool, err error) {
 	return s.get(prefixUserHash, userID, targetUserID)
 }
