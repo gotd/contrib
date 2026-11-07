@@ -165,15 +165,21 @@ func (s PeerStorage) Add(ctx context.Context, value storage.Peer) (rerr error) {
 }
 
 // AddMany adds given peers to the storage in one batch.
-func (s PeerStorage) AddMany(ctx context.Context, values []storage.Peer) error {
-	return s.commit(func(b *pebble.Batch) error {
+//
+// A peer that cannot be encoded is skipped: the others are still written,
+// and the encoding errors are returned.
+func (s PeerStorage) AddMany(ctx context.Context, values []storage.Peer) (rerr error) {
+	if err := s.commit(func(b *pebble.Batch) error {
 		for _, value := range values {
 			if err := addToBatch(b, value.Keys(), value); err != nil {
-				return err
+				multierr.AppendInto(&rerr, errors.Wrapf(err, "add %s", value))
 			}
 		}
 		return nil
-	})
+	}); err != nil {
+		multierr.AppendInto(&rerr, err)
+	}
+	return rerr
 }
 
 // Find finds peer using given key.
