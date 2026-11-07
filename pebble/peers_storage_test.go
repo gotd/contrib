@@ -8,8 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/gotd/td/telegram/peers"
+	"github.com/gotd/td/tg"
 
 	"github.com/gotd/contrib/internal/tests"
+	"github.com/gotd/contrib/storage"
 )
 
 func TestPeersStorage(t *testing.T) {
@@ -48,4 +50,36 @@ func TestPeersStorageCorruptValues(t *testing.T) {
 	require.Error(t, err)
 	_, err = s.GetContactsHash(ctx)
 	require.Error(t, err)
+}
+
+func TestPeersStorageUsernameCollision(t *testing.T) {
+	// PeerStorage writes usernames and phones as raw keys into the same db, so
+	// keys of PeersStorage must contain a byte usernames and phones can't.
+	ctx := context.Background()
+	db := openMem(t)
+	s := NewPeersStorage(db).WithWriteOptions(pebbledb.NoSync)
+	key := peers.Key{Prefix: "users_", ID: 1}
+	require.NoError(t, s.SaveContactsHash(ctx, 42))
+	require.NoError(t, s.Save(ctx, key, peers.Value{AccessHash: 1}))
+	require.NoError(t, s.SavePhone(ctx, "79991234567", key))
+
+	// Usernames (and the phone) that equal old-style keys of PeersStorage.
+	ps := NewPeerStorage(db).WithWriteOptions(pebbledb.NoSync)
+	for i, name := range []string{"tdpeers_contacts_hash", "tdpeers_phone_79991234567"} {
+		var p storage.Peer
+		require.True(t, p.FromUser(&tg.User{ID: int64(10 + i), AccessHash: 1, Username: name}))
+		require.NoError(t, ps.Add(ctx, p))
+	}
+
+	hash, err := s.GetContactsHash(ctx)
+	require.NoError(t, err)
+	require.Equal(t, int64(42), hash)
+	got, _, found, err := s.FindPhone(ctx, "79991234567")
+	require.NoError(t, err)
+	require.True(t, found)
+	require.Equal(t, key, got)
+
+	for _, k := range []string{prefixPeersKey, prefixPeersPhone, keyPeersContactHash} {
+		require.Contains(t, k, ":", "%q must contain a byte usernames can't", k)
+	}
 }

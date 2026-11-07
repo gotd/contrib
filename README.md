@@ -56,7 +56,7 @@ abstractions; the rest are backend implementations.
 | --- | --- |
 | [`storage`](https://pkg.go.dev/github.com/gotd/contrib/storage) | Common peer-storage structures: a `PeerStorage` interface, peer collector, resolver cache and iteration helpers shared by the backends below. |
 | [`bbolt`](https://pkg.go.dev/github.com/gotd/contrib/bbolt) | Session, peer, `peers.Storage` (access hashes for `telegram/peers`) and updates storage (state, channel and user access hashes) backed by [etcd bbolt](https://github.com/etcd-io/bbolt) (embedded). |
-| [`pebble`](https://pkg.go.dev/github.com/gotd/contrib/pebble) | Session, peer, `peers.Storage` (access hashes for `telegram/peers`) and updates storage (state, channel and user access hashes) backed by [CockroachDB Pebble](https://github.com/cockroachdb/pebble) (embedded LSM). |
+| [`pebble`](https://pkg.go.dev/github.com/gotd/contrib/pebble) | Session, peer, `peers.Storage` (access hashes for `telegram/peers`) and updates storage (state, channel and user access hashes) backed by [CockroachDB Pebble](https://github.com/cockroachdb/pebble) (embedded LSM). Writes are synced by default; for high-volume `peers.Storage` use `NewPeersStorage(db).WithWriteOptions(pebble.NoSync)`. |
 | [`redis`](https://pkg.go.dev/github.com/gotd/contrib/redis) | Session, peer and updates storage (state, channel and user access hashes) backed by [Redis](https://redis.io). |
 | [`s3`](https://pkg.go.dev/github.com/gotd/contrib/s3) | Session storage backed by any S3-compatible object store (MinIO client). |
 | [`vault`](https://pkg.go.dev/github.com/gotd/contrib/vault) | Secret/session storage backed by [HashiCorp Vault](https://www.vaultproject.io). |

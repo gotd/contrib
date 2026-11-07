@@ -15,11 +15,12 @@ var _ peers.Storage = (*PeersStorage)(nil)
 // Key prefixes of peers.Storage.
 //
 // They must not start with storage.PeerKeyPrefix ("peer"), which PeerStorage
-// iterates over.
+// iterates over, and contain ':', which usernames and phones can't, as
+// PeerStorage writes them as raw keys into the same db.
 const (
-	prefixPeersKey      = "tdpeers_key_"
-	prefixPeersPhone    = "tdpeers_phone_"
-	keyPeersContactHash = "tdpeers_contacts_hash"
+	prefixPeersKey      = "tdpeers:key:"
+	prefixPeersPhone    = "tdpeers:phone:"
+	keyPeersContactHash = "tdpeers:contacts_hash"
 )
 
 // PeersStorage is peers.Storage implementation using pebble.
@@ -41,7 +42,9 @@ func NewPeersStorage(db *pebble.DB) *PeersStorage {
 
 // WithWriteOptions sets pebble's write options for write operations.
 //
-// Default is nil, which pebble treats as pebble.Sync.
+// Default is nil, which pebble treats as pebble.Sync: one fsync per write.
+// peers.Manager saves every user and channel of every update, so use
+// pebble.NoSync for high-volume clients; peers are refetched if lost.
 func (s *PeersStorage) WithWriteOptions(writeOpts *pebble.WriteOptions) *PeersStorage {
 	s.writeOpts = writeOpts
 	return s
