@@ -21,4 +21,6 @@ func TestE2E(t *testing.T) {
 	tests.TestSessionStorage(t, pebble.NewSessionStorage(db, "testsession"))
 	tests.TestCredentials(t, pebble.NewCredentials(db))
 	tests.TestPeerStorage(t, pebble.NewPeerStorage(db))
+	tests.TestStateStorage(t, pebble.NewStateStorage(db).WithWriteOptions(pebbledb.NoSync))
+	tests.TestAccessHasher(t, pebble.NewAccessHasher(db))
 }
