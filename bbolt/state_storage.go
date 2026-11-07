@@ -216,17 +216,17 @@ func (s *State) SetChannelPts(_ context.Context, userID, channelID int64, pts in
 }
 
 func (s *State) ForEachChannels(ctx context.Context, userID int64, f func(ctx context.Context, channelID int64, pts int) error) error {
-	return s.db.Update(func(tx *bolt.Tx) error {
-		user, err := tx.CreateBucketIfNotExists(i642b(userID))
-		if err != nil {
-			return err
+	// Read-only: the callback may access the same db (e.g. AccessHasher), and
+	// a write transaction would block every other writer during iteration.
+	return s.db.View(func(tx *bolt.Tx) error {
+		user := tx.Bucket(i642b(userID))
+		if user == nil {
+			return nil
 		}
-
-		channels, err := user.CreateBucketIfNotExists([]byte("channels"))
-		if err != nil {
-			return err
+		channels := user.Bucket([]byte("channels"))
+		if channels == nil {
+			return nil
 		}
-
 		return channels.ForEach(func(k, v []byte) error {
 			return f(ctx, b2i64(k), b2i(v))
 		})
