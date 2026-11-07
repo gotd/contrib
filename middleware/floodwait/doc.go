@@ -27,9 +27,31 @@
 // chat-specific, not request-specific"), so the Waiter retries only the
 // offending request and leaves unrelated requests of the same type untouched.
 //
+// Requests wrapped in invokeWith* (e.g. invokeWithTakeout in takeout sessions)
+// are keyed by the inner method, so a flood wait of one method inside a
+// takeout session does not throttle other methods.
+//
 // # Limits
 //
 // Both waiters bound retries via WithMaxRetries and the per-attempt wait via
 // WithMaxWait: a wait longer than the limit is returned as an error instead of
 // being slept on. Use a context with a deadline to bound the total wait time.
+// WithPolicy overrides the limits per request context, e.g. to wait as long as
+// it takes in background jobs or to fail fast in interactive ones.
+//
+// # Long-running programs
+//
+// The Waiter dispatches scheduled requests concurrently, so requests that
+// invoke nested requests through the same middleware chain (like the
+// authorization transfer on FILE_MIGRATE in gotd/td) do not deadlock. It also
+// supports:
+//
+//   - WithAdaptivePacing: spacing of requests of a type that grows on each
+//     flood wait, decays on success down to the minimum, and is removed after
+//     10 minutes without flood waits;
+//   - WithExempt: request types that bypass the Waiter (e.g. upload.getFile
+//     with its own pacing);
+//   - WithServerErrorRetries: exponential backoff for transient 5xx errors;
+//   - Snapshot and the FloodWait callback event with the request type, for
+//     metrics.
 package floodwait
