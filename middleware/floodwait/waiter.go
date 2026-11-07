@@ -2,6 +2,7 @@ package floodwait
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/go-faster/errors"
@@ -122,10 +123,13 @@ func (w *Waiter) WithExempt(typeIDs ...uint32) *Waiter {
 
 // WithAdaptivePacing enables adaptive pacing: each flood wait of a request
 // type doubles the minimum spacing of requests of that type (starting from
-// minInterval, up to maxInterval), and each success decays it, so long-running
-// programs do not hit the same limit again right after the wait.
+// minInterval, up to maxInterval), and each success decays it down to
+// minInterval, so long-running programs do not hit the same limit again right
+// after the wait. The spacing is removed after 10 minutes without flood waits
+// of the type.
 //
-// Must be called before Run. Disabled by default.
+// Must be called before Run. Disabled by default. The returned Waiter has its
+// own scheduler: the original Waiter is not changed.
 func (w *Waiter) WithAdaptivePacing(minInterval, maxInterval time.Duration) *Waiter {
 	w = w.clone()
 	if minInterval <= 0 {
@@ -134,10 +138,10 @@ func (w *Waiter) WithAdaptivePacing(minInterval, maxInterval time.Duration) *Wai
 	if maxInterval < minInterval {
 		maxInterval = minInterval
 	}
-	w.sch.mux.Lock()
-	w.sch.minInterval = minInterval
-	w.sch.maxInterval = maxInterval
-	w.sch.mux.Unlock()
+	sch := newScheduler(w.sch.clock, w.sch.dec)
+	sch.minInterval = minInterval
+	sch.maxInterval = maxInterval
+	w.sch = sch
 	return w
 }
 
@@ -203,7 +207,14 @@ func (w *Waiter) WithTick(t time.Duration) *Waiter {
 //	}
 func (w *Waiter) Run(ctx context.Context, f func(ctx context.Context) error) (err error) {
 	w.running.Store(true)
-	defer w.running.Store(false)
+	// Wait for in-flight sends, then fail requests left in the queue, so
+	// that callers do not wait for a send loop that is gone.
+	var dispatch sync.WaitGroup
+	defer func() {
+		dispatch.Wait()
+		w.running.Store(false)
+		w.sch.drain(errors.New("the Waiter middleware exited"))
+	}()
 
 	ctx, cancel := context.WithCancel(ctx)
 	wg, ctx := errgroup.WithContext(ctx)
@@ -229,7 +240,9 @@ func (w *Waiter) Run(ctx context.Context, f func(ctx context.Context) error) (er
 				// FILE_MIGRATE in gotd/td), which must not wait for the outer
 				// one, and one slow request must not delay others.
 				for _, s := range requests {
+					dispatch.Add(1)
 					go func(s scheduled) {
+						defer dispatch.Done()
 						ret, err := w.send(s)
 						if ret {
 							select {
@@ -270,6 +283,10 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 	w.notify(s.request, d, perType, err)
 
 	if s.request.policy.NoRetry {
+		if perType {
+			// Not retried, but other requests of the type are still delayed.
+			w.sch.record(s.request.key, d)
+		}
 		return true, err
 	}
 

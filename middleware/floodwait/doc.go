@@ -47,7 +47,8 @@
 // supports:
 //
 //   - WithAdaptivePacing: spacing of requests of a type that grows on each
-//     flood wait and decays on success;
+//     flood wait, decays on success down to the minimum, and is removed after
+//     10 minutes without flood waits;
 //   - WithExempt: request types that bypass the Waiter (e.g. upload.getFile
 //     with its own pacing);
 //   - WithServerErrorRetries: exponential backoff for transient 5xx errors;

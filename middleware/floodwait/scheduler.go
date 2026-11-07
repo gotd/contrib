@@ -25,6 +25,8 @@ type scheduler struct {
 	interval map[key]time.Duration
 	// last is the planned send time of the last request per key.
 	last map[key]time.Time
+	// flooded is the time of the last per-type flood wait per key.
+	flooded map[key]time.Time
 	// names are TL names of keys, for snapshots.
 	names map[key]string
 }
@@ -39,6 +41,7 @@ func newScheduler(c clock.Clock, dec time.Duration) *scheduler {
 		dec:      dec,
 		interval: map[key]time.Duration{},
 		last:     map[key]time.Time{},
+		flooded:  map[key]time.Time{},
 		names:    map[key]string{},
 	}
 }
@@ -121,6 +124,17 @@ func (s *scheduler) schedule(r request) {
 	s.queue.add(r, t)
 }
 
+// drain removes all queued requests, failing them with err.
+func (s *scheduler) drain(err error) {
+	// Far enough in the future to include any wait.
+	for _, r := range s.queue.gather(s.clock.Now().Add(100*365*24*time.Hour), nil) {
+		select {
+		case r.request.result <- err:
+		default:
+		}
+	}
+}
+
 func (s *scheduler) gather(r []scheduled) []scheduled {
 	return s.queue.gather(s.clock.Now(), r)
 }
@@ -132,12 +146,18 @@ func (s *scheduler) nice(k key) {
 	} else {
 		delete(s.state, k)
 	}
-	// Decay interval on success.
+	// Decay interval on success down to minInterval, and drop it only after
+	// paceQuiet without flood waits: a single success (usually the retried
+	// request itself) must not remove the spacing that avoids the next wait.
 	if iv, ok := s.interval[k]; ok {
 		iv -= iv / 8
-		if iv < s.minInterval || iv <= 0 {
+		if iv < s.minInterval {
+			iv = s.minInterval
+		}
+		if s.clock.Now().Sub(s.flooded[k]) >= paceQuiet {
 			delete(s.interval, k)
 			delete(s.last, k)
+			delete(s.flooded, k)
 		} else {
 			s.interval[k] = iv
 		}
@@ -145,11 +165,13 @@ func (s *scheduler) nice(k key) {
 	s.mux.Unlock()
 }
 
-func (s *scheduler) flood(req request, d time.Duration) {
-	k := req.key
+// paceQuiet is how long a request type must go without flood waits before
+// its adaptive pacing interval is dropped.
+const paceQuiet = 10 * time.Minute
 
-	s.mux.Lock()
-	now := s.clock.Now()
+// penalize records per-type flood wait d of key k.
+// Assumes the mutex is locked.
+func (s *scheduler) penalize(k key, now time.Time, d time.Duration) {
 	if state, ok := s.state[k]; !ok || state < d {
 		s.state[k] = d
 	}
@@ -163,7 +185,24 @@ func (s *scheduler) flood(req request, d time.Duration) {
 			iv = s.maxInterval
 		}
 		s.interval[k] = iv
+		s.flooded[k] = now
 	}
+}
+
+// record records per-type flood wait without re-scheduling the request, for
+// requests that are not retried.
+func (s *scheduler) record(k key, d time.Duration) {
+	s.mux.Lock()
+	s.penalize(k, s.clock.Now(), d)
+	s.mux.Unlock()
+}
+
+func (s *scheduler) flood(req request, d time.Duration) {
+	k := req.key
+
+	s.mux.Lock()
+	now := s.clock.Now()
+	s.penalize(k, now, d)
 	s.queue.add(req, now.Add(d))
 	s.mux.Unlock()
 

@@ -133,19 +133,20 @@ func TestWaiterExempt(t *testing.T) {
 	require.Equal(t, 1, calls)
 }
 
+// newNext returns invoker that fails with err the first fails calls.
+func newNext(fails int, err *tgerr.Error) (tg.Invoker, *atomic.Int64) {
+	var calls atomic.Int64
+	return invokerFunc(func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
+		if int(calls.Add(1)) <= fails {
+			return err
+		}
+		return nil
+	}), &calls
+}
+
 func TestWaiterPolicy(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	newNext := func(fails int, err *tgerr.Error) (tg.Invoker, *atomic.Int64) {
-		var calls atomic.Int64
-		return invokerFunc(func(ctx context.Context, input bin.Encoder, output bin.Decoder) error {
-			if int(calls.Add(1)) <= fails {
-				return err
-			}
-			return nil
-		}), &calls
-	}
 
 	t.Run("NoRetry", func(t *testing.T) {
 		w := NewWaiter()
@@ -176,6 +177,7 @@ func TestWaiterPolicy(t *testing.T) {
 		inv := runWaiter(t, NewWaiter(), next).Invoker()
 		err := inv.Invoke(ctx, &tg.HelpGetConfigRequest{}, &tg.Config{})
 		require.True(t, tgerr.Is(err, "INTERNAL"), "disabled by default")
+		require.EqualValues(t, 1, calls.Load(), "not retried")
 
 		next, calls = newNext(1, tgerr.New(500, "INTERNAL"))
 		inv = runWaiter(t, NewWaiter().WithServerErrorRetries(1), next).Invoker()
@@ -226,8 +228,95 @@ func TestSchedulerAdaptivePacing(t *testing.T) {
 	for range 100 {
 		sch.nice(1)
 	}
+	a.Equal(100*time.Millisecond, sch.interval[1], "decays down to min")
+
+	// Removed only after quiet period without flood waits.
+	n.Travel(paceQuiet)
+	sch.nice(1)
 	_, ok := sch.interval[1]
-	a.False(ok, "removed below min")
+	a.False(ok, "removed after quiet period")
+}
+
+func TestSchedulerAdaptivePacingSingleFlood(t *testing.T) {
+	a := require.New(t)
+	n := neo.NewTime(time.Unix(0, 0))
+	sch := newScheduler(n, time.Second)
+	sch.minInterval = time.Second
+	sch.maxInterval = time.Minute
+
+	// One flood wait, then the retried request succeeds.
+	sch.flood(request{key: 1}, time.Second)
+	// Flood also moves the request itself by the wait.
+	n.Travel(2*time.Second + time.Millisecond)
+	a.Len(sch.gather(nil), 1)
+	sch.nice(1)
+	a.Equal(time.Second, sch.interval[1], "spacing kept after one success")
+
+	// Next requests of the type are still spaced.
+	sch.mux.Lock()
+	sch.state = map[key]time.Duration{}
+	sch.schedule(request{key: 1})
+	sch.schedule(request{key: 1})
+	sch.mux.Unlock()
+	a.Len(sch.gather(nil), 1)
+	n.Travel(time.Second)
+	a.Len(sch.gather(nil), 1)
+}
+
+func TestWaiterAdaptivePacingCopy(t *testing.T) {
+	w := NewWaiter()
+	paced := w.WithAdaptivePacing(time.Second, time.Minute)
+	require.Zero(t, w.sch.maxInterval, "original not changed")
+	require.Equal(t, time.Minute, paced.sch.maxInterval)
+}
+
+func TestWaiterNoRetryRecordsWait(t *testing.T) {
+	ctx := context.Background()
+	next, calls := newNext(1, tgerr.New(420, "FLOOD_WAIT_5"))
+	w := NewWaiter()
+	inv := runWaiter(t, w, next).Invoker()
+	err := inv.Invoke(WithPolicy(ctx, Policy{NoRetry: true}), &tg.HelpGetConfigRequest{}, &tg.Config{})
+	require.True(t, tgerr.Is(err, "FLOOD_WAIT"))
+	require.EqualValues(t, 1, calls.Load())
+
+	snap := w.Snapshot()
+	require.Len(t, snap, 1)
+	require.Equal(t, uint32(tg.HelpGetConfigRequestTypeID), snap[0].TypeID)
+	require.Equal(t, 5*time.Second, snap[0].Wait)
+}
+
+func TestWaiterRunExitFailsQueued(t *testing.T) {
+	next, _ := newNext(1, tgerr.New(420, "FLOOD_WAIT_30"))
+	w := NewWaiter()
+	ctx, cancel := context.WithCancel(context.Background())
+	started := make(chan struct{})
+	done := make(chan error, 1)
+	go func() {
+		done <- w.Run(ctx, func(ctx context.Context) error {
+			close(started)
+			<-ctx.Done()
+			return nil
+		})
+	}()
+	<-started
+
+	res := make(chan error, 1)
+	go func() {
+		// Re-queued for 30s by the flood wait.
+		res <- tg.NewClient(w.Handle(next)).Invoker().Invoke(
+			context.Background(), &tg.HelpGetConfigRequest{}, &tg.Config{},
+		)
+	}()
+	require.Eventually(t, func() bool { return w.sch.queue.len() == 1 }, 5*time.Second, time.Millisecond)
+
+	cancel()
+	require.NoError(t, <-done)
+	select {
+	case err := <-res:
+		require.ErrorContains(t, err, "exited")
+	case <-time.After(5 * time.Second):
+		t.Fatal("queued request not failed after Run exit")
+	}
 }
 
 var _ telegram.Middleware = (*Waiter)(nil)
