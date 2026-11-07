@@ -124,7 +124,8 @@ jobs:
           FS_ROOT_ACCESS_KEY: minioadmin
           FS_ROOT_SECRET_KEY: minioadmin
         run: |
-          go install github.com/go-faster/fs/cmd/fs@v0.15.0
+          # fs requires a newer Go than the tested one: let go fetch it.
+          GOTOOLCHAIN=auto go install github.com/go-faster/fs/cmd/fs@v0.15.0
           nohup "$(go env GOPATH)/bin/fs" s3 --addr 127.0.0.1:9000 --root /tmp/s3data > /tmp/fs.log 2>&1 &
 
       - name: Run tests
