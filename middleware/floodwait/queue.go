@@ -73,6 +73,7 @@ func (q *queue) move(k key, now time.Time, dur time.Duration) {
 	q.requestsMux.Lock()
 	defer q.requestsMux.Unlock()
 
+	// The heap array is not sorted by send time, so every request is checked.
 	for idx, s := range q.requests {
 		if s.request.key != k {
 			continue
@@ -80,7 +81,7 @@ func (q *queue) move(k key, now time.Time, dur time.Duration) {
 
 		t := s.sendTime
 		if t.Sub(now) > dur {
-			break
+			continue
 		}
 		q.requests[idx].sendTime = t.Add(dur)
 	}

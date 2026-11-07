@@ -211,12 +211,13 @@ func (s *scheduler) flood(req request, d time.Duration) {
 	k := req.key
 
 	s.mux.Lock()
+	defer s.mux.Unlock()
 	now := s.clock.Now()
 	s.penalize(k, now, d)
-	s.queue.add(req, now.Add(d))
-	s.mux.Unlock()
-
+	// Move queued requests of the type before adding this one, so it is not
+	// delayed twice.
 	s.queue.move(k, now, d)
+	s.queue.add(req, now.Add(d))
 }
 
 // retry re-schedules a single request after d without updating the per-type

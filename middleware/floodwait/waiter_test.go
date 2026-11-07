@@ -354,11 +354,10 @@ func TestWaiterWithClock(t *testing.T) {
 	require.NotEqual(t, n, w.sch.clock, "original not changed")
 
 	// Scheduling follows the clock: the flooded request is sent only when the
-	// fake clock passes the wait (flood also moves queued requests of the type
-	// by the wait, so it is due after twice the wait).
+	// fake clock passes the wait.
 	clocked.sch.flood(request{key: 1}, 5*time.Second)
 	require.Empty(t, clocked.sch.gather(nil))
-	n.Travel(10*time.Second + time.Millisecond)
+	n.Travel(5*time.Second + time.Millisecond)
 	require.Len(t, clocked.sch.gather(nil), 1)
 }
 
@@ -382,4 +381,30 @@ func TestWaiterDecayOnError(t *testing.T) {
 	snap := w.Snapshot()
 	require.Len(t, snap, 1)
 	require.Equal(t, 4*time.Second, snap[0].Wait, "decayed by one step")
+}
+
+func TestWaiterNoDecayOnOwnCancel(t *testing.T) {
+	// A request ended by its own context got no response: the wait of the
+	// type must not decay, e.g. on a burst of cancellations during reconnect.
+	w := NewWaiter()
+	w.sch.record(key(tg.HelpGetConfigRequestTypeID), 5*time.Second)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	next := invokerFunc(func(ctx context.Context, _ bin.Encoder, _ bin.Decoder) error {
+		return ctx.Err()
+	})
+	ret, err := w.send(scheduled{request: request{
+		ctx:    ctx,
+		input:  &tg.HelpGetConfigRequest{},
+		output: &tg.Config{},
+		next:   next,
+		key:    key(tg.HelpGetConfigRequestTypeID),
+	}})
+	require.True(t, ret)
+	require.ErrorIs(t, err, context.Canceled)
+
+	snap := w.Snapshot()
+	require.Len(t, snap, 1)
+	require.Equal(t, 5*time.Second, snap[0].Wait, "not decayed")
 }

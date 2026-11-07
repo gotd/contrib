@@ -280,8 +280,11 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 		}
 		// Any response without a wait error, including other errors, means the
 		// type is not rate-limited now: decay its wait, as before concurrent
-		// dispatch. Requests re-queued for server error retry are not counted.
-		w.sch.nice(s.request.key)
+		// dispatch. Requests re-queued for server error retry are not counted,
+		// nor requests ended by their own context: they got no response.
+		if s.request.ctx.Err() == nil {
+			w.sch.nice(s.request.key)
+		}
 		return true, err
 	}
 
