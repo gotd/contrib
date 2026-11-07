@@ -46,6 +46,16 @@ func newScheduler(c clock.Clock, dec time.Duration) *scheduler {
 	}
 }
 
+// withClock returns a new scheduler with the same settings and given clock.
+//
+// Must be called before the scheduler is used: the state is not copied.
+func (s *scheduler) withClock(c clock.Clock) *scheduler {
+	n := newScheduler(c, s.dec)
+	n.minInterval = s.minInterval
+	n.maxInterval = s.maxInterval
+	return n
+}
+
 // KeyState is a pacing state of a request type, see Waiter.Snapshot.
 type KeyState struct {
 	// TypeID is the TL type ID of the request (unwrapped from invokeWith*).
@@ -201,12 +211,13 @@ func (s *scheduler) flood(req request, d time.Duration) {
 	k := req.key
 
 	s.mux.Lock()
+	defer s.mux.Unlock()
 	now := s.clock.Now()
 	s.penalize(k, now, d)
-	s.queue.add(req, now.Add(d))
-	s.mux.Unlock()
-
+	// Move queued requests of the type before adding this one, so it is not
+	// delayed twice.
 	s.queue.move(k, now, d)
+	s.queue.add(req, now.Add(d))
 }
 
 // retry re-schedules a single request after d without updating the per-type

@@ -54,4 +54,19 @@
 //   - WithServerErrorRetries: exponential backoff for transient 5xx errors;
 //   - Snapshot and the FloodWait callback event with the request type, for
 //     metrics.
+//
+// # Behavior changes
+//
+// Since concurrent dispatch was introduced:
+//
+//   - Scheduled requests are sent concurrently instead of one at a time per
+//     tick, so the downstream invoker must be safe for concurrent use (as
+//     telegram.Client is).
+//   - The per-type wait decays by one step on every response that is not a
+//     wait error, including other errors, as before. Requests re-queued for
+//     a server error retry (WithServerErrorRetries) do not decay it.
+//   - Run waits for in-flight requests before returning and fails requests
+//     still queued with an error.
+//   - WithClock and WithAdaptivePacing return a Waiter with its own scheduler,
+//     so they must be called before Run.
 package floodwait
