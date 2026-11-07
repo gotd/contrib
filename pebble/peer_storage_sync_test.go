@@ -2,6 +2,7 @@ package pebble_test
 
 import (
 	"context"
+	"encoding/json"
 	"sync/atomic"
 	"testing"
 
@@ -200,4 +201,34 @@ func TestPeerStorageAddManyLastWins(t *testing.T) {
 	p, err := s.Find(ctx, key)
 	a.NoError(err)
 	a.Equal("A", p.User.FirstName)
+}
+
+func TestPeerStorageEncodingFormats(t *testing.T) {
+	a := require.New(t)
+	ctx := context.Background()
+	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{FS: vfs.NewMem()})
+	a.NoError(err)
+	defer func() { _ = db.Close() }()
+	s := pebble.NewPeerStorage(db)
+
+	// Peer stored in the old JSON format is still readable.
+	legacy := mustUser(t, &tg.User{ID: 1, AccessHash: 1})
+	data, err := json.Marshal(legacy)
+	a.NoError(err)
+	id := storage.KeyFromPeer(legacy).Bytes(nil)
+	a.NoError(db.Set(id, data, pebbledb.Sync))
+	p, err := s.Find(ctx, storage.KeyFromPeer(legacy))
+	a.NoError(err)
+	a.Equal(int64(1), p.Key.AccessHash)
+
+	// New writes use the compact format.
+	fresh := mustUser(t, &tg.User{ID: 2, AccessHash: 2})
+	a.NoError(s.Add(ctx, fresh))
+	stored, closer, err := db.Get(storage.KeyFromPeer(fresh).Bytes(nil))
+	a.NoError(err)
+	a.NotEqual(byte('{'), stored[0], "new values must not be JSON")
+	a.NoError(closer.Close())
+	p, err = s.Find(ctx, storage.KeyFromPeer(fresh))
+	a.NoError(err)
+	a.Equal(int64(2), p.Key.AccessHash)
 }

@@ -3,7 +3,6 @@ package pebble
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/cockroachdb/pebble"
 	"github.com/go-faster/errors"
@@ -60,7 +59,7 @@ func (p *pebbleIterator) Next(ctx context.Context) bool {
 		}
 	}
 
-	if err := json.Unmarshal(p.iter.Value(), &p.value); err != nil {
+	if err := storage.DecodePeer(p.iter.Value(), &p.value); err != nil {
 		p.lastErr = errors.Wrap(err, "unmarshal")
 		return false
 	}
@@ -113,7 +112,7 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 }
 
 func addToBatch(b *pebble.Batch, associated []string, value storage.Peer) error {
-	data, err := json.Marshal(value)
+	data, err := storage.EncodePeer(value)
 	if err != nil {
 		return errors.Wrap(err, "marshal")
 	}
@@ -253,7 +252,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (_ storage.P
 	}()
 
 	var b storage.Peer
-	if err := json.Unmarshal(data, &b); err != nil {
+	if err := storage.DecodePeer(data, &b); err != nil {
 		if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}
@@ -301,7 +300,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, r
 	}()
 
 	var b storage.Peer
-	if err := json.Unmarshal(data, &b); err != nil {
+	if err := storage.DecodePeer(data, &b); err != nil {
 		if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}

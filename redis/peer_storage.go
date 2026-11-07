@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 
 	"github.com/go-faster/errors"
@@ -47,8 +46,7 @@ func (p *redisIterator) Next(ctx context.Context) bool {
 		return false
 	}
 
-	r := strings.NewReader(value)
-	if err := json.NewDecoder(r).Decode(&p.value); err != nil {
+	if err := storage.DecodePeer([]byte(value), &p.value); err != nil {
 		p.lastErr = errors.Wrap(err, "unmarshal")
 		return false
 	}
@@ -79,7 +77,7 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 }
 
 func (s PeerStorage) add(ctx context.Context, associated []string, value storage.Peer) (rerr error) {
-	data, err := json.Marshal(value)
+	data, err := storage.EncodePeer(value)
 	if err != nil {
 		return errors.Wrap(err, "marshal")
 	}
@@ -133,7 +131,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (storage.Pee
 	}
 
 	var b storage.Peer
-	if err := json.Unmarshal(data, &b); err != nil {
+	if err := storage.DecodePeer(data, &b); err != nil {
 		return storage.Peer{}, errors.Wrap(err, "unmarshal")
 	}
 
@@ -166,7 +164,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, err
 	}
 
 	var b storage.Peer
-	if err := json.Unmarshal(data, &b); err != nil {
+	if err := storage.DecodePeer(data, &b); err != nil {
 		return storage.Peer{}, errors.Wrap(err, "unmarshal")
 	}
 

@@ -25,7 +25,9 @@ const LatestVersion = 2
 // Note: unmarshal error ErrPeerUnmarshalMustInvalidate MUST be considered as cache miss
 // and cache entry MUST be invalidated.
 //
-// The only valid way to marshal and unmarshal Peer is to use UnmarshalJSON, MarshalJSON.
+// The only valid ways to marshal and unmarshal Peer are EncodePeer and
+// DecodePeer (compact, used by storages), or MarshalJSON and UnmarshalJSON.
+// DecodePeer also reads the JSON format.
 type Peer struct {
 	Version int
 	Key     dialogs.DialogKey

@@ -2,6 +2,7 @@ package bbolt
 
 import (
 	"context"
+	"encoding/json"
 	"path"
 	"testing"
 
@@ -43,4 +44,38 @@ func TestPeerStorageSkipUnchanged(t *testing.T) {
 func dbWrites(db *bboltdb.DB) int64 {
 	stats := db.Stats()
 	return stats.TxStats.GetWrite()
+}
+
+func TestPeerStorageEncodingFormats(t *testing.T) {
+	a := require.New(t)
+	ctx := context.Background()
+	db, err := bboltdb.Open(path.Join(t.TempDir(), "bbolt.db"), 0666, &bboltdb.Options{}) // nolint:gocritic
+	a.NoError(err)
+	t.Cleanup(func() { a.NoError(db.Close()) })
+	bucket := []byte("peers")
+	s := NewPeerStorage(db, bucket)
+
+	var legacy storage.Peer
+	a.True(legacy.FromUser(&tg.User{ID: 1, AccessHash: 1}))
+	data, err := json.Marshal(legacy)
+	a.NoError(err)
+	a.NoError(db.Update(func(tx *bboltdb.Tx) error {
+		b, err := tx.CreateBucketIfNotExists(bucket)
+		if err != nil {
+			return err
+		}
+		return b.Put(storage.KeyFromPeer(legacy).Bytes(nil), data)
+	}))
+	p, err := s.Find(ctx, storage.KeyFromPeer(legacy))
+	a.NoError(err, "old JSON values must be readable")
+	a.Equal(int64(1), p.Key.AccessHash)
+
+	var fresh storage.Peer
+	a.True(fresh.FromUser(&tg.User{ID: 2, AccessHash: 2}))
+	a.NoError(s.Add(ctx, fresh))
+	a.NoError(db.View(func(tx *bboltdb.Tx) error {
+		stored := tx.Bucket(bucket).Get(storage.KeyFromPeer(fresh).Bytes(nil))
+		a.NotEqual(byte('{'), stored[0], "new values must not be JSON")
+		return nil
+	}))
 }

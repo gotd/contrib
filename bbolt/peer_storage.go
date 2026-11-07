@@ -3,7 +3,6 @@ package bbolt
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/go-faster/errors"
 	"go.etcd.io/bbolt"
@@ -49,7 +48,7 @@ Next:
 		}
 	}
 
-	if err := json.Unmarshal(v, &p.value); err != nil {
+	if err := storage.DecodePeer(v, &p.value); err != nil {
 		if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 			goto Next // skip
 		}
@@ -124,7 +123,7 @@ func (s PeerStorage) add(associated []string, value storage.Peer) (err error) {
 			return errors.Wrap(err, "create bucket")
 		}
 
-		data, err := json.Marshal(value)
+		data, err := storage.EncodePeer(value)
 		if err != nil {
 			return errors.Wrap(err, "marshal")
 		}
@@ -163,7 +162,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (p storage.P
 			return storage.ErrPeerNotFound
 		}
 
-		if err := json.Unmarshal(data, &p); err != nil {
+		if err := storage.DecodePeer(data, &p); err != nil {
 			if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 				return storage.ErrPeerNotFound
 			}
@@ -197,7 +196,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (p storage.Peer, r
 			return storage.ErrPeerNotFound
 		}
 
-		if err := json.Unmarshal(data, &p); err != nil {
+		if err := storage.DecodePeer(data, &p); err != nil {
 			if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 				return storage.ErrPeerNotFound
 			}
