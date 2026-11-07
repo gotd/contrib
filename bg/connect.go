@@ -104,14 +104,14 @@ func Connect(client Client, options ...Option) (StopFunc, error) {
 	select {
 	case <-ctx.Done(): // base context canceled
 		cancel()
-		<-errC // wait for Run to return to avoid leaking the goroutine
+		<-errC //nolint:errcheck // wait for Run to return to avoid leaking the goroutine
 		return noopStop, ctx.Err()
 	case err := <-errC: // Run returned before becoming ready
 		cancel()
 		return noopStop, err
 	case <-timeoutC: // startup timed out
 		cancel()
-		<-errC // wait for Run to return to avoid leaking the goroutine
+		<-errC //nolint:errcheck // wait for Run to return to avoid leaking the goroutine
 		return noopStop, ErrStartupTimeout
 	case <-initDone: // ready
 	}
