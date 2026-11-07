@@ -358,9 +358,13 @@ func (p *Peer) FromChat(chat tg.ChatClass) bool {
 }
 
 // FromUser fills Peer object using given tg.UserClass.
+//
+// Returns false for empty and min users: min users have no usable access
+// hash and only part of the fields, so they must not replace stored peers.
+// See https://core.telegram.org/api/min.
 func (p *Peer) FromUser(user tg.UserClass) bool {
 	u, ok := user.AsNotEmpty()
-	if !ok {
+	if !ok || u.Min {
 		return false
 	}
 
