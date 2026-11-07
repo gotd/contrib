@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 
 	"github.com/go-faster/errors"
@@ -16,12 +15,22 @@ var _ storage.PeerStorage = PeerStorage{}
 
 // PeerStorage is a peer storage based on redis.
 type PeerStorage struct {
-	redis *redis.Client
+	redis    *redis.Client
+	encoding storage.PeerEncoding
 }
 
 // NewPeerStorage creates new peer storage using redis.
 func NewPeerStorage(client *redis.Client) *PeerStorage {
 	return &PeerStorage{redis: client}
+}
+
+// WithBinaryEncoding makes the storage write peers in the compact binary format
+// (storage.PeerEncodingBinary) instead of JSON. Values in either format are
+// read, but versions of this package before the binary format can't read
+// binary values: downgrading needs the peer storage cleared.
+func (s *PeerStorage) WithBinaryEncoding() *PeerStorage {
+	s.encoding = storage.PeerEncodingBinary
+	return s
 }
 
 type redisIterator struct {
@@ -47,8 +56,7 @@ func (p *redisIterator) Next(ctx context.Context) bool {
 		return false
 	}
 
-	r := strings.NewReader(value)
-	if err := json.NewDecoder(r).Decode(&p.value); err != nil {
+	if err := storage.DecodePeer([]byte(value), &p.value); err != nil {
 		p.lastErr = errors.Wrap(err, "unmarshal")
 		return false
 	}
@@ -79,7 +87,7 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 }
 
 func (s PeerStorage) add(ctx context.Context, associated []string, value storage.Peer) (rerr error) {
-	data, err := json.Marshal(value)
+	data, err := s.encoding.Encode(value)
 	if err != nil {
 		return errors.Wrap(err, "marshal")
 	}
@@ -133,7 +141,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (storage.Pee
 	}
 
 	var b storage.Peer
-	if err := json.Unmarshal(data, &b); err != nil {
+	if err := storage.DecodePeer(data, &b); err != nil {
 		return storage.Peer{}, errors.Wrap(err, "unmarshal")
 	}
 
@@ -166,7 +174,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (storage.Peer, err
 	}
 
 	var b storage.Peer
-	if err := json.Unmarshal(data, &b); err != nil {
+	if err := storage.DecodePeer(data, &b); err != nil {
 		return storage.Peer{}, errors.Wrap(err, "unmarshal")
 	}
 

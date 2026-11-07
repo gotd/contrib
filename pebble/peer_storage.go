@@ -3,7 +3,6 @@ package pebble
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/cockroachdb/pebble"
 	"github.com/go-faster/errors"
@@ -21,6 +20,7 @@ var (
 type PeerStorage struct {
 	pebble    *pebble.DB
 	writeOpts *pebble.WriteOptions
+	encoding  storage.PeerEncoding
 }
 
 // NewPeerStorage creates new peer storage using pebble.
@@ -35,6 +35,15 @@ func NewPeerStorage(db *pebble.DB) *PeerStorage {
 // speed.
 func (s *PeerStorage) WithWriteOptions(writeOpts *pebble.WriteOptions) *PeerStorage {
 	s.writeOpts = writeOpts
+	return s
+}
+
+// WithBinaryEncoding makes the storage write peers in the compact binary format
+// (storage.PeerEncodingBinary) instead of JSON. Values in either format are
+// read, but versions of this package before the binary format can't read
+// binary values: downgrading needs the peer storage cleared.
+func (s *PeerStorage) WithBinaryEncoding() *PeerStorage {
+	s.encoding = storage.PeerEncodingBinary
 	return s
 }
 
@@ -60,7 +69,7 @@ func (p *pebbleIterator) Next(ctx context.Context) bool {
 		}
 	}
 
-	if err := json.Unmarshal(p.iter.Value(), &p.value); err != nil {
+	if err := storage.DecodePeer(p.iter.Value(), &p.value); err != nil {
 		p.lastErr = errors.Wrap(err, "unmarshal")
 		return false
 	}
@@ -112,8 +121,8 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 	}, nil
 }
 
-func addToBatch(b *pebble.Batch, associated []string, value storage.Peer) error {
-	data, err := json.Marshal(value)
+func addToBatch(b *pebble.Batch, enc storage.PeerEncoding, associated []string, value storage.Peer) error {
+	data, err := enc.Encode(value)
 	if err != nil {
 		return errors.Wrap(err, "marshal")
 	}
@@ -138,7 +147,7 @@ func addToBatch(b *pebble.Batch, associated []string, value storage.Peer) error 
 // stored as is.
 func (s PeerStorage) unchanged(associated []string, value storage.Peer) bool {
 	id := storage.KeyFromPeer(value).Bytes(nil)
-	if !s.equal(id, func(stored []byte) bool { return storage.PeerUnchanged(stored, value) }) {
+	if !s.equal(id, func(stored []byte) bool { return storage.PeerUnchanged(stored, value, s.encoding) }) {
 		return false
 	}
 	for _, key := range associated {
@@ -183,7 +192,7 @@ func (s PeerStorage) add(associated []string, value storage.Peer) error {
 		return nil
 	}
 	return s.commit(func(b *pebble.Batch) error {
-		return addToBatch(b, associated, value)
+		return addToBatch(b, s.encoding, associated, value)
 	})
 }
 
@@ -209,7 +218,7 @@ func (s PeerStorage) AddMany(ctx context.Context, values []storage.Peer) (rerr e
 			if !inBatch(written, id, keys) && s.unchanged(keys, value) {
 				continue
 			}
-			if err := addToBatch(b, keys, value); err != nil {
+			if err := addToBatch(b, s.encoding, keys, value); err != nil {
 				multierr.AppendInto(&rerr, errors.Wrapf(err, "add %s", value))
 				continue
 			}
@@ -253,7 +262,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (_ storage.P
 	}()
 
 	var b storage.Peer
-	if err := json.Unmarshal(data, &b); err != nil {
+	if err := storage.DecodePeer(data, &b); err != nil {
 		if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}
@@ -301,7 +310,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (_ storage.Peer, r
 	}()
 
 	var b storage.Peer
-	if err := json.Unmarshal(data, &b); err != nil {
+	if err := storage.DecodePeer(data, &b); err != nil {
 		if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 			return storage.Peer{}, storage.ErrPeerNotFound
 		}

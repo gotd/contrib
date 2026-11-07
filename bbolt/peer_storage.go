@@ -3,7 +3,6 @@ package bbolt
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 
 	"github.com/go-faster/errors"
 	"go.etcd.io/bbolt"
@@ -15,13 +14,23 @@ var _ storage.PeerStorage = PeerStorage{}
 
 // PeerStorage is a peer storage based on pebble.
 type PeerStorage struct {
-	bbolt  *bbolt.DB
-	bucket []byte
+	bbolt    *bbolt.DB
+	bucket   []byte
+	encoding storage.PeerEncoding
 }
 
 // NewPeerStorage creates new peer storage using bbolt.
 func NewPeerStorage(db *bbolt.DB, bucket []byte) *PeerStorage {
 	return &PeerStorage{bbolt: db, bucket: bucket}
+}
+
+// WithBinaryEncoding makes the storage write peers in the compact binary format
+// (storage.PeerEncodingBinary) instead of JSON. Values in either format are
+// read, but versions of this package before the binary format can't read
+// binary values: downgrading needs the peer storage cleared.
+func (s *PeerStorage) WithBinaryEncoding() *PeerStorage {
+	s.encoding = storage.PeerEncodingBinary
+	return s
 }
 
 type bboltIterator struct {
@@ -49,7 +58,7 @@ Next:
 		}
 	}
 
-	if err := json.Unmarshal(v, &p.value); err != nil {
+	if err := storage.DecodePeer(v, &p.value); err != nil {
 		if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 			goto Next // skip
 		}
@@ -100,7 +109,7 @@ func (s PeerStorage) unchanged(associated []string, value storage.Peer) bool {
 		}
 		id := storage.KeyFromPeer(value).Bytes(nil)
 		stored := bucket.Get(id)
-		if stored == nil || !storage.PeerUnchanged(stored, value) {
+		if stored == nil || !storage.PeerUnchanged(stored, value, s.encoding) {
 			return nil
 		}
 		for _, key := range associated {
@@ -124,7 +133,7 @@ func (s PeerStorage) add(associated []string, value storage.Peer) (err error) {
 			return errors.Wrap(err, "create bucket")
 		}
 
-		data, err := json.Marshal(value)
+		data, err := s.encoding.Encode(value)
 		if err != nil {
 			return errors.Wrap(err, "marshal")
 		}
@@ -163,7 +172,7 @@ func (s PeerStorage) Find(ctx context.Context, key storage.PeerKey) (p storage.P
 			return storage.ErrPeerNotFound
 		}
 
-		if err := json.Unmarshal(data, &p); err != nil {
+		if err := storage.DecodePeer(data, &p); err != nil {
 			if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 				return storage.ErrPeerNotFound
 			}
@@ -197,7 +206,7 @@ func (s PeerStorage) Resolve(ctx context.Context, key string) (p storage.Peer, r
 			return storage.ErrPeerNotFound
 		}
 
-		if err := json.Unmarshal(data, &p); err != nil {
+		if err := storage.DecodePeer(data, &p); err != nil {
 			if errors.Is(err, storage.ErrPeerUnmarshalMustInvalidate) {
 				return storage.ErrPeerNotFound
 			}
