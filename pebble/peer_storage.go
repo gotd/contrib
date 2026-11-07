@@ -134,6 +134,31 @@ func addToBatch(b *pebble.Batch, associated []string, value storage.Peer) error 
 	return nil
 }
 
+// unchanged reports whether value and its associated keys are already
+// stored as is.
+func (s PeerStorage) unchanged(associated []string, value storage.Peer) bool {
+	id := storage.KeyFromPeer(value).Bytes(nil)
+	if !s.equal(id, func(stored []byte) bool { return storage.PeerUnchanged(stored, value) }) {
+		return false
+	}
+	for _, key := range associated {
+		if !s.equal([]byte(key), func(stored []byte) bool { return bytes.Equal(stored, id) }) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s PeerStorage) equal(key []byte, eq func(stored []byte) bool) bool {
+	data, closer, err := s.pebble.Get(key)
+	if err != nil {
+		return false
+	}
+	r := eq(data)
+	_ = closer.Close()
+	return r
+}
+
 func (s PeerStorage) commit(fill func(b *pebble.Batch) error) (rerr error) {
 	b := s.pebble.NewBatch()
 	defer func() {
@@ -154,6 +179,9 @@ func (s PeerStorage) commit(fill func(b *pebble.Batch) error) (rerr error) {
 }
 
 func (s PeerStorage) add(associated []string, value storage.Peer) error {
+	if s.unchanged(associated, value) {
+		return nil
+	}
 	return s.commit(func(b *pebble.Batch) error {
 		return addToBatch(b, associated, value)
 	})
@@ -171,6 +199,10 @@ func (s PeerStorage) Add(ctx context.Context, value storage.Peer) (rerr error) {
 func (s PeerStorage) AddMany(ctx context.Context, values []storage.Peer) (rerr error) {
 	if err := s.commit(func(b *pebble.Batch) error {
 		for _, value := range values {
+			// Skip unchanged peers: an empty batch is not committed (synced).
+			if s.unchanged(value.Keys(), value) {
+				continue
+			}
 			if err := addToBatch(b, value.Keys(), value); err != nil {
 				multierr.AppendInto(&rerr, errors.Wrapf(err, "add %s", value))
 			}

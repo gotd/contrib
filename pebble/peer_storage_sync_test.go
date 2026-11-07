@@ -133,3 +133,46 @@ func TestPeerStorageAddManyEncodeError(t *testing.T) {
 	_, err = s.Find(ctx, storage.PeerKey{Kind: dialogs.User, ID: 2})
 	a.ErrorIs(err, storage.ErrPeerNotFound)
 }
+
+func TestPeerStorageSkipUnchanged(t *testing.T) {
+	a := require.New(t)
+	ctx := context.Background()
+	var syncs atomic.Int64
+	db, err := pebbledb.Open("pebble.db", &pebbledb.Options{
+		FS: syncFS{FS: vfs.NewMem(), syncs: &syncs},
+	})
+	a.NoError(err)
+	defer func() { _ = db.Close() }()
+
+	s := pebble.NewPeerStorage(db)
+	next := telegram.UpdateHandlerFunc(func(context.Context, tg.UpdatesClass) error { return nil })
+	h := storage.UpdateHook(next, s)
+	update := func(username string) *tg.Updates {
+		return &tg.Updates{Users: []tg.UserClass{
+			&tg.User{ID: 1, AccessHash: 1, Username: username},
+			&tg.User{ID: 2, AccessHash: 2},
+		}}
+	}
+
+	a.NoError(h.Handle(ctx, update("foo")))
+	before := syncs.Load()
+	// Same peers again (CreatedAt differs): nothing is written.
+	a.NoError(h.Handle(ctx, update("foo")))
+	a.Equal(before, syncs.Load(), "unchanged peers must not be written")
+	a.NoError(s.Add(ctx, mustUser(t, &tg.User{ID: 2, AccessHash: 2})))
+	a.Equal(before, syncs.Load(), "unchanged peer must not be written")
+
+	// Changed peer is written.
+	a.NoError(h.Handle(ctx, update("bar")))
+	a.Greater(syncs.Load(), before)
+	p, err := s.Resolve(ctx, "bar")
+	a.NoError(err)
+	a.Equal(int64(1), p.Key.ID)
+}
+
+func mustUser(t *testing.T, u *tg.User) storage.Peer {
+	t.Helper()
+	var p storage.Peer
+	require.True(t, p.FromUser(u))
+	return p
+}
