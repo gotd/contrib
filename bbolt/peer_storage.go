@@ -89,7 +89,35 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 	}, nil
 }
 
+// unchanged reports whether value and its associated keys are already
+// stored as is, so the write (and its fsync) can be skipped.
+func (s PeerStorage) unchanged(associated []string, value storage.Peer) bool {
+	same := false
+	_ = s.bbolt.View(func(tx *bbolt.Tx) error {
+		bucket := tx.Bucket(s.bucket)
+		if bucket == nil {
+			return nil
+		}
+		id := storage.KeyFromPeer(value).Bytes(nil)
+		stored := bucket.Get(id)
+		if stored == nil || !storage.PeerUnchanged(stored, value) {
+			return nil
+		}
+		for _, key := range associated {
+			if !bytes.Equal(bucket.Get([]byte(key)), id) {
+				return nil
+			}
+		}
+		same = true
+		return nil
+	})
+	return same
+}
+
 func (s PeerStorage) add(associated []string, value storage.Peer) (err error) {
+	if s.unchanged(associated, value) {
+		return nil
+	}
 	err = s.bbolt.Batch(func(tx *bbolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists(s.bucket)
 		if err != nil {
