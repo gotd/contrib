@@ -12,7 +12,10 @@ import (
 	"github.com/gotd/contrib/storage"
 )
 
-var _ storage.PeerStorage = PeerStorage{}
+var (
+	_ storage.PeerStorage      = PeerStorage{}
+	_ storage.BatchPeerStorage = PeerStorage{}
+)
 
 // PeerStorage is a peer storage based on pebble.
 type PeerStorage struct {
@@ -26,6 +29,10 @@ func NewPeerStorage(db *pebble.DB) *PeerStorage {
 }
 
 // WithWriteOptions sets pebble's write options for write operations.
+//
+// Default is nil, which pebble treats as pebble.Sync: every write is synced
+// to disk. Use pebble.NoSync to trade durability of the last writes for
+// speed.
 func (s *PeerStorage) WithWriteOptions(writeOpts *pebble.WriteOptions) *PeerStorage {
 	s.writeOpts = writeOpts
 	return s
@@ -105,17 +112,12 @@ func (s PeerStorage) Iterate(ctx context.Context) (storage.PeerIterator, error) 
 	}, nil
 }
 
-func (s PeerStorage) add(associated []string, value storage.Peer) (rerr error) {
+func addToBatch(b *pebble.Batch, associated []string, value storage.Peer) error {
 	data, err := json.Marshal(value)
 	if err != nil {
 		return errors.Wrap(err, "marshal")
 	}
 	id := storage.KeyFromPeer(value).Bytes(nil)
-
-	b := s.pebble.NewBatch()
-	defer func() {
-		multierr.AppendInto(&rerr, b.Close())
-	}()
 
 	set := b.SetDeferred(len(id), len(data))
 	copy(set.Key, id)
@@ -129,16 +131,49 @@ func (s PeerStorage) add(associated []string, value storage.Peer) (rerr error) {
 		_ = deferred.Finish()
 	}
 
-	if err := b.Commit(nil); err != nil {
+	return nil
+}
+
+func (s PeerStorage) commit(fill func(b *pebble.Batch) error) (rerr error) {
+	b := s.pebble.NewBatch()
+	defer func() {
+		multierr.AppendInto(&rerr, b.Close())
+	}()
+
+	if err := fill(b); err != nil {
+		return err
+	}
+	if b.Empty() {
+		return nil
+	}
+	if err := b.Commit(s.writeOpts); err != nil {
 		return errors.Wrap(err, "commit")
 	}
 
 	return nil
 }
 
+func (s PeerStorage) add(associated []string, value storage.Peer) error {
+	return s.commit(func(b *pebble.Batch) error {
+		return addToBatch(b, associated, value)
+	})
+}
+
 // Add adds given peer to the storage.
 func (s PeerStorage) Add(ctx context.Context, value storage.Peer) (rerr error) {
 	return s.add(value.Keys(), value)
+}
+
+// AddMany adds given peers to the storage in one batch.
+func (s PeerStorage) AddMany(ctx context.Context, values []storage.Peer) error {
+	return s.commit(func(b *pebble.Batch) error {
+		for _, value := range values {
+			if err := addToBatch(b, value.Keys(), value); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 // Find finds peer using given key.

@@ -26,19 +26,20 @@ func (h updateHook) Handle(ctx context.Context, u tg.UpdatesClass) error {
 		return h.next.Handle(ctx, u)
 	}
 
-	var rerr error
-	for _, chat := range updates.GetChats() {
+	chats, users := updates.GetChats(), updates.GetUsers()
+	values := make([]Peer, 0, len(chats)+len(users))
+	for _, chat := range chats {
 		if value := (Peer{}); value.FromChat(chat) {
-			multierr.AppendInto(&rerr, h.storage.Add(ctx, value))
+			values = append(values, value)
 		}
 	}
-
-	for _, user := range updates.GetUsers() {
+	for _, user := range users {
 		if value := (Peer{}); value.FromUser(user) {
-			multierr.AppendInto(&rerr, h.storage.Add(ctx, value))
+			values = append(values, value)
 		}
 	}
 
+	rerr := addMany(ctx, h.storage, values)
 	return multierr.Append(rerr, h.next.Handle(ctx, u))
 }
 
