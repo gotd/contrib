@@ -80,14 +80,16 @@ func (c PeerCollector) Participants(ctx context.Context, iter *participants.Iter
 
 // Contacts collects peers from contacts iterator.
 func (c PeerCollector) Contacts(ctx context.Context, contacts *tg.ContactsContacts) error {
+	values := make([]Peer, 0, len(contacts.Users))
 	for _, user := range contacts.Users {
 		var p Peer
 		if !p.FromUser(user) {
 			continue
 		}
-		if err := c.storage.Add(ctx, p); err != nil {
-			return errors.Wrap(err, "add")
-		}
+		values = append(values, p)
+	}
+	if err := addMany(ctx, c.storage, values); err != nil {
+		return errors.Wrap(err, "add")
 	}
 	return nil
 }

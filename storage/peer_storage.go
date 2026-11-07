@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/go-faster/errors"
+	"go.uber.org/multierr"
 )
 
 // ErrPeerNotFound is a special error to return when peer not found.
@@ -26,6 +27,32 @@ type PeerStorage interface {
 
 	// Iterate creates and returns new PeerIterator.
 	Iterate(ctx context.Context) (PeerIterator, error)
+}
+
+// BatchPeerStorage is a PeerStorage that can add many peers at once,
+// e.g. in a single transaction.
+//
+// UpdateHook and PeerCollector use it, if implemented, to write all peers
+// of an update or of a batch with one write.
+type BatchPeerStorage interface {
+	PeerStorage
+	// AddMany adds given peers to the storage.
+	AddMany(ctx context.Context, values []Peer) error
+}
+
+// addMany adds peers using AddMany, if supported, or Add.
+func addMany(ctx context.Context, s PeerStorage, values []Peer) error {
+	if len(values) == 0 {
+		return nil
+	}
+	if b, ok := s.(BatchPeerStorage); ok {
+		return b.AddMany(ctx, values)
+	}
+	var rerr error
+	for _, value := range values {
+		multierr.AppendInto(&rerr, s.Add(ctx, value))
+	}
+	return rerr
 }
 
 // PeerIterator is a peer iterator.
