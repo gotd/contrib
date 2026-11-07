@@ -46,6 +46,16 @@ func newScheduler(c clock.Clock, dec time.Duration) *scheduler {
 	}
 }
 
+// withClock returns a new scheduler with the same settings and given clock.
+//
+// Must be called before the scheduler is used: the state is not copied.
+func (s *scheduler) withClock(c clock.Clock) *scheduler {
+	n := newScheduler(c, s.dec)
+	n.minInterval = s.minInterval
+	n.maxInterval = s.maxInterval
+	return n
+}
+
 // KeyState is a pacing state of a request type, see Waiter.Snapshot.
 type KeyState struct {
 	// TypeID is the TL type ID of the request (unwrapped from invokeWith*).

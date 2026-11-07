@@ -342,3 +342,44 @@ func TestWaiterConcurrentDispatch(t *testing.T) {
 	once.Do(func() { close(release) })
 	require.NoError(t, <-slow)
 }
+
+func TestWaiterWithClock(t *testing.T) {
+	n := neo.NewTime(time.Unix(0, 0))
+	w := NewWaiter().WithAdaptivePacing(time.Second, time.Minute)
+	clocked := w.WithClock(n)
+
+	require.Equal(t, n, clocked.sch.clock, "scheduler must use the clock")
+	require.Equal(t, time.Second, clocked.sch.minInterval, "pacing settings kept")
+	require.Equal(t, time.Minute, clocked.sch.maxInterval, "pacing settings kept")
+	require.NotEqual(t, n, w.sch.clock, "original not changed")
+
+	// Scheduling follows the clock: the flooded request is sent only when the
+	// fake clock passes the wait (flood also moves queued requests of the type
+	// by the wait, so it is due after twice the wait).
+	clocked.sch.flood(request{key: 1}, 5*time.Second)
+	require.Empty(t, clocked.sch.gather(nil))
+	n.Travel(10*time.Second + time.Millisecond)
+	require.Len(t, clocked.sch.gather(nil), 1)
+}
+
+func TestWaiterDecayOnError(t *testing.T) {
+	// A response without a wait error decays the wait of the type, even if
+	// the request failed with another error.
+	w := NewWaiter()
+	w.sch.record(key(tg.HelpGetConfigRequestTypeID), 5*time.Second)
+
+	next, _ := newNext(1, tgerr.New(400, "BAD_REQUEST"))
+	ret, err := w.send(scheduled{request: request{
+		ctx:    context.Background(),
+		input:  &tg.HelpGetConfigRequest{},
+		output: &tg.Config{},
+		next:   next,
+		key:    key(tg.HelpGetConfigRequestTypeID),
+	}})
+	require.True(t, ret)
+	require.True(t, tgerr.Is(err, "BAD_REQUEST"))
+
+	snap := w.Snapshot()
+	require.Len(t, snap, 1)
+	require.Equal(t, 4*time.Second, snap[0].Wait, "decayed by one step")
+}

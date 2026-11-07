@@ -138,7 +138,7 @@ func (w *Waiter) WithAdaptivePacing(minInterval, maxInterval time.Duration) *Wai
 	if maxInterval < minInterval {
 		maxInterval = minInterval
 	}
-	sch := newScheduler(w.sch.clock, w.sch.dec)
+	sch := w.sch.withClock(w.sch.clock)
 	sch.minInterval = minInterval
 	sch.maxInterval = maxInterval
 	w.sch = sch
@@ -161,10 +161,15 @@ func (w *Waiter) Snapshot() []KeyState {
 	return w.sch.snapshot()
 }
 
-// WithClock sets clock to use. Default is to use system clock.
+// WithClock sets clock to use for ticks and scheduling. Default is to use
+// system clock.
+//
+// Must be called before Run. The returned Waiter has its own scheduler: the
+// original Waiter is not changed.
 func (w *Waiter) WithClock(c clock.Clock) *Waiter {
 	w = w.clone()
 	w.clock = c
+	w.sch = w.sch.withClock(c)
 	return w
 }
 
@@ -273,9 +278,10 @@ func (w *Waiter) send(s scheduled) (bool, error) {
 			w.sch.retry(s.request, d)
 			return false, nil
 		}
-		if err == nil {
-			w.sch.nice(s.request.key)
-		}
+		// Any response without a wait error, including other errors, means the
+		// type is not rate-limited now: decay its wait, as before concurrent
+		// dispatch. Requests re-queued for server error retry are not counted.
+		w.sch.nice(s.request.key)
 		return true, err
 	}
 
