@@ -12,7 +12,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gotd/log/logzap v0.1.1
 	github.com/gotd/neo v0.1.5
-	github.com/gotd/td v0.164.0
+	github.com/gotd/td v0.166.0
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/minio/minio-go/v7 v7.4.1
 	github.com/prometheus/client_golang v1.25.0
