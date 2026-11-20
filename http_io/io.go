@@ -83,8 +83,12 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.log.Info("Serving", zap.Int64("offset", offset))
-	// TODO: handle case of partial writes (e.g. not until the end of file).
-	if err := h.streamer.StreamAt(r.Context(), offset, w); err != nil && !errors.Is(err, context.Canceled) {
+	// Streamer writes until the end of file, so cap output at the requested
+	// length: net/http rejects a whole write that would exceed Content-Length,
+	// which would drop the tail of the requested range.
+	lw := &limitedWriter{w: w, n: sendSize}
+	if err := h.streamer.StreamAt(r.Context(), offset, lw); err != nil &&
+		!errors.Is(err, errLimitReached) && !errors.Is(err, context.Canceled) {
 		h.log.Error("Failed to stream", zap.Error(err))
 		return
 	}
@@ -98,4 +102,33 @@ func NewHandler(s StreamerAt, size int64) *Handler {
 		size:     size,
 		streamer: s,
 	}
+}
+
+// errLimitReached is returned by limitedWriter when all requested bytes are written.
+var errLimitReached = errors.New("limit reached")
+
+// limitedWriter writes at most n bytes to w, truncating the write that
+// crosses the limit and then returning errLimitReached to stop the stream.
+type limitedWriter struct {
+	w io.Writer
+	n int64 // bytes remaining
+}
+
+func (l *limitedWriter) Write(p []byte) (int, error) {
+	if l.n <= 0 {
+		return 0, errLimitReached
+	}
+	truncated := int64(len(p)) > l.n
+	if truncated {
+		p = p[:l.n]
+	}
+	n, err := l.w.Write(p)
+	l.n -= int64(n)
+	if err != nil {
+		return n, err
+	}
+	if truncated || l.n <= 0 {
+		return n, errLimitReached
+	}
+	return n, nil
 }
